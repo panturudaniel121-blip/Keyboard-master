@@ -1,4 +1,4 @@
-# Nu primesc notă pentru că nu am pus titlu și descriere
+# Keyboard Master
 
 ### Folosiți template-ul corespunzător grupei voastre!
 
