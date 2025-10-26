@@ -1,5 +1,13 @@
 # Keyboard Master
 
+Keyboard Master este un joc care are ca scop testarea agilității degetelor voastre . În acest joc , cuvinte aleatorii vor apărea pe ecran ,
+iar voi trebuie să le scrieți la timp . Cuvintele vor apărea în partea superioară a ecranului și vor cădea până într-un anumit punct . 
+Dacă nu au fost scrise la timp , veți pierde HP . Sisteme pe care mi le-am propus să le implementez:
+- 3 dificultăți care afectează dimensiunea cuvintelor, viteza lor și cantitatea de HP;
+- o tabelă de scor și un sistem de highscore;
+- o interfață prietenoasă;
+- efecte sonore și vizuale.
+
 ### Folosiți template-ul corespunzător grupei voastre!
 
 | Laborant  | Link template                                |
