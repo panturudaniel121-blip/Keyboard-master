@@ -19,12 +19,12 @@ int main()
             if (event->getIf<sf::Event::Closed>())
                 window.close();
 
-            cuvant.gestioneazaEvenimente(*event, window, scor); // ✅ trimitem și scorul
+            cuvant.gestioneazaEvenimente(*event, window, scor); //
         }
 
         window.clear(fundal);
         cuvant.afiseaza(window);
-        scor.afiseaza(window); // ✅ desenăm scorul
+        scor.afiseaza(window); //
         window.display();
     }
 
