@@ -3,20 +3,30 @@
 #include <string>
 #include <vector>
 
+class Scor;
+
 class Cuvant
 {
     std::vector<std::string> listaCuvinte;
     std::string cuvantAleatoriu;
+    std::string inputUtilizator;
     sf::Font font;
-    sf::Text text;
+    sf::Text textCuvant;
+    sf::Text textInput;
     bool tiparit = false;
+    Scor* scor = nullptr;
 
 public:
-    Cuvant(); // ✅ avem nevoie de implementare
-    void seteazaCuvant(const std::string& fisierCuvinte, const sf::RenderWindow& window);
-    const std::string& getCuvant() const { return cuvantAleatoriu; }
-    void afiseaza(sf::RenderWindow& window);
+    Cuvant();
 
+    void seteazaCuvant(const std::string& fisierCuvinte, const sf::RenderWindow& window);
+    void seteazaScor(Scor* s) { scor = s; }
+    void gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindow& window, Scor& scor);
+    void afiseaza(sf::RenderWindow& window);
+    const std::string& getCuvant() const { return cuvantAleatoriu; }
+
+private:
     void incarcaCuvinteDinFisier(const std::string& fisier);
     void alegeAleatoriu();
+    void actualizeazaTextPozitii(const sf::RenderWindow& window);
 };
