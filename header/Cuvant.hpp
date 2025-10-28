@@ -21,7 +21,7 @@ public:
 
     void seteazaCuvant(const std::string& fisierCuvinte, const sf::RenderWindow& window);
     void seteazaScor(Scor* s) { scor = s; }
-    void gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindow& window, Scor& scor);
+    void gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindow& window, Scor& scor_ref);
     void afiseaza(sf::RenderWindow& window);
     const std::string& getCuvant() const { return cuvantAleatoriu; }
 

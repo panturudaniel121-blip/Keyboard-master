@@ -110,7 +110,7 @@ void Cuvant::actualizeazaTextPozitii(const sf::RenderWindow& window)
 }
 
 
-void Cuvant::gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindow& windowRef, Scor& scor)
+void Cuvant::gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindow& windowRef, Scor& scor_ref)
 
 {
     if (event.is<sf::Event::TextEntered>()) {
@@ -129,7 +129,7 @@ void Cuvant::gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindo
         actualizeazaTextPozitii(windowRef);
 
         if (!cuvantAleatoriu.empty() && inputUtilizator == cuvantAleatoriu) {
-            scor.increment(); // ✅ creștem scorul
+            scor_ref.increment(); // ✅ creștem scorul
             alegeAleatoriu();
             textCuvant.setString(cuvantAleatoriu);
             inputUtilizator.clear();
