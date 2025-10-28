@@ -3,6 +3,10 @@ option(USE_ASAN "Use Address Sanitizer" OFF)
 option(USE_MSAN "Use Memory Sanitizer" OFF)
 option(CMAKE_COLOR_DIAGNOSTICS "Enable color diagnostics" ON)
 
+
+set(SFML_STATIC_LIBRARIES TRUE)
+add_definitions(-DSFML_STATIC)
+
 # update name in .github/workflows/cmake.yml:27 when changing "bin" name here
 set(DESTINATION_DIR "bin")
 
