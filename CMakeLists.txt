@@ -21,6 +21,24 @@ endif()
 
 include(FetchContent)
 
+
+# macOS: force Clang for SFML
+if(APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    message(WARNING "Switching to AppleClang (SFML doesn't support GCC on macOS)")
+    set(CMAKE_C_COMPILER "/usr/bin/clang" CACHE STRING "C compiler" FORCE)
+    set(CMAKE_CXX_COMPILER "/usr/bin/clang++" CACHE STRING "C++ compiler" FORCE)
+endif()
+
+# CI: disable heavy SFML components if headless
+if(DEFINED ENV{CI})
+    set(SFML_COMPONENTS system network)
+else()
+    set(SFML_COMPONENTS system window graphics audio network)
+endif()
+
+find_package(SFML ${SFML_MINIMUM_VERSION} COMPONENTS ${SFML_COMPONENTS} QUIET)
+
+
 # --- Try to find SFML installed on system ------------------------------------
 message(STATUS "Checking for system SFML installation...")
 find_package(SFML ${SFML_MINIMUM_VERSION} COMPONENTS system window graphics audio network QUIET)
