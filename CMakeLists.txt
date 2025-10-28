@@ -60,6 +60,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         main.cpp
         header/cuvant.hpp
         header/Cuvant.cpp
+        header/Scor.hpp
+        header/Scor.cpp
 
 )
 
