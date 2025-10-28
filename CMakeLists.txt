@@ -82,7 +82,7 @@ target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE SFML::Graphics SFML::Windo
 
 if(APPLE)
 elseif(UNIX)
-    target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE X11)
+    #target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE X11)
 endif()
 
 ###############################################################################
