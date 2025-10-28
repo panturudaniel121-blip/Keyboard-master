@@ -50,7 +50,7 @@ FetchContent_MakeAvailable(SFML)
 find_package(Threads REQUIRED)
 if(APPLE)
 elseif(UNIX)
-    find_package(X11)
+    #find_package(X11)
 endif()
 
 ###############################################################################
