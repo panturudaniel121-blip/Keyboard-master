@@ -6,11 +6,10 @@ int main()
 {
     sf::RenderWindow window(sf::VideoMode({700, 800}), "Keyboard Master");
     window.setFramerateLimit(60);
-
-    constexpr sf::Color fundal(52, 235, 137);
+    sf::Color fundal(52, 235, 137);
     Scor scor;
     Cuvant cuvant;
-    cuvant.seteazaCuvant("../Date/cuvinte.txt", window);
+    cuvant.seteazaCuvant("date/cuvinte.txt", window);
 
     while (window.isOpen())
     {

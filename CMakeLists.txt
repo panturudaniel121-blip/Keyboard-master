@@ -1,103 +1,138 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.16)
+project(MySFMLApp VERSION 0.1 LANGUAGES CXX)
 
-# NOTE: update executable name in .github/workflows/cmake.yml:25 when changing executable name in this file
-# for now, the project name is used as the executable name
-set(MAIN_PROJECT_NAME "oop")
-set(MAIN_EXECUTABLE_NAME "${MAIN_PROJECT_NAME}")
-
-
-project(${MAIN_PROJECT_NAME})
-# set(CMAKE_PROJECT_VERSION_MAJOR 0)
-# set(CMAKE_PROJECT_VERSION_MINOR 0)
-# set(CMAKE_PROJECT_VERSION_PATCH 1)
+# Options ---------------------------------------------------------------------
+option(BUILD_STATIC "Link SFML statically" ON)
+set(SFML_MINIMUM_VERSION 2.5)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-include(cmake/Options.cmake)
-include(cmake/CompilerFlags.cmake)
-include(cmake/CopyHelper.cmake)
+set(PROJECT_NAME oop)
 
-###############################################################################
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force static libs" FORCE)
+set(SFML_BUILD_SHARED_LIBS OFF CACHE BOOL "Force static SFML" FORCE)
 
-# external dependencies with FetchContent
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
 
 include(FetchContent)
 
-set(FETCHCONTENT_QUIET OFF)
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
+# --- Try to find SFML installed on system ------------------------------------
+message(STATUS "Checking for system SFML installation...")
+find_package(SFML ${SFML_MINIMUM_VERSION} COMPONENTS system window graphics audio network QUIET)
 
-set(SFML_WARNINGS_AS_ERRORS OFF)
+# --- If not found, download and build SFML automatically ---------------------
+if(NOT SFML_FOUND)
+    message(WARNING "System SFML not found. Fetching and building SFML from source...")
 
-# NOTE: Also update SFML_VERSION env var in .github/workflows/cmake.yml:33
-FetchContent_Declare(
-        SFML
-        GIT_REPOSITORY https://github.com/SFML/SFML.git
-        # renovate: datasource=github-tags depName=SFML/SFML versioning=loose
-        GIT_TAG        3.0.2
-        # renovate: depName=SFML/SFML
-        # GIT_TAG        0fa201c969e48ecc253581c5841ce73f44d42f49 # 3.0.2
-        GIT_SHALLOW    1  # works only with branches or tags, not with arbitrary commit hashes
-)
+    set(FETCHCONTENT_QUIET OFF)
 
-FetchContent_MakeAvailable(SFML)
-
-###############################################################################
-
-# external dependencies with find_package
-
-find_package(Threads REQUIRED)
-if(APPLE)
-    set(CMAKE_CXX_COMPILER  clang )
-elseif(UNIX)
-    #find_package(X11)
+    FetchContent_Declare(
+            SFML
+            GIT_REPOSITORY https://github.com/SFML/SFML.git
+            GIT_TAG        master)
+    FetchContent_MakeAvailable(SFML)
 endif()
 
-###############################################################################
-
-# NOTE: update executable name in .github/workflows/cmake.yml:25 when changing name here
-add_executable(${MAIN_EXECUTABLE_NAME}
+# --- Create your executable ---------------------------------------------------
+add_executable(${PROJECT_NAME}
         main.cpp
-        header/cuvant.hpp
         header/Cuvant.cpp
-        header/Scor.hpp
+        header/Cuvant.hpp
         header/Scor.cpp
-
+        header/Scor.hpp
 )
 
-# NOTE: Add all defined targets (e.g. executables, libraries, etc. )
-# NOTE: RUN_SANITIZERS is optional, if it's not present it will default to true
-set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
-# set_compiler_flags(TARGET_NAMES ${MAIN_EXECUTABLE_NAME} ${FOO} ${BAR})
-# where ${FOO} and ${BAR} represent additional executables or libraries
-# you want to compile with the set compiler flags
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
-###############################################################################
+# --- Link SFML ---------------------------------------------------------------
+if(SFML_FOUND)
+    message(STATUS "Using system SFML ${SFML_VERSION}")
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+            sfml-graphics
+            sfml-window
+            sfml-system
+            sfml-audio
+            sfml-network
+    )
+else()
+    message(STATUS "Using locally built SFML from FetchContent")
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+            sfml-graphics
+            sfml-window
+            sfml-system
+            sfml-audio
+            sfml-network
+    )
+endif()
 
-# use SYSTEM so cppcheck and clang-tidy do not report warnings from these directories
-# target_include_directories(${MAIN_EXECUTABLE_NAME} SYSTEM PRIVATE ext/<SomeHppLib>/include)
-target_include_directories(${MAIN_EXECUTABLE_NAME} SYSTEM PRIVATE ${SFML_SOURCE_DIR}/include)
-target_link_directories(${MAIN_EXECUTABLE_NAME} PRIVATE ${SFML_BINARY_DIR}/lib)
-target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE SFML::Graphics SFML::Window SFML::System Threads::Threads)
+# --- Optional: static linking configuration ----------------------------------
+if(BUILD_STATIC)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE SFML_STATIC)
+endif()
 
-if(APPLE)
+# --- Include directories -----------------------------------------------------
+target_include_directories(${PROJECT_NAME} PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+# --- Platform-specific setup -------------------------------------------------
+if(WIN32)
+    if(MSVC AND BUILD_STATIC)
+        foreach(flag_var
+                CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_DEBUG
+                CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_DEBUG)
+            if(${flag_var} MATCHES "/MD")
+                string(REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+            endif()
+        endforeach()
+    endif()
+elseif(APPLE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            MACOSX_RPATH ON
+    )
 elseif(UNIX)
-    #target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE X11)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            BUILD_WITH_INSTALL_RPATH TRUE
+            INSTALL_RPATH "$ORIGIN"
+    )
 endif()
 
-###############################################################################
-
-# copy binaries to "bin" folder; these are uploaded as artifacts on each release
-# DESTINATION_DIR is set as "bin" in cmake/Options.cmake:6
-install(TARGETS ${MAIN_EXECUTABLE_NAME} DESTINATION ${DESTINATION_DIR})
-if(APPLE)
-    install(FILES launcher.command DESTINATION ${DESTINATION_DIR})
+# --- Force static runtime linking ---------------------------------
+if(MSVC)
+    foreach(flag_var
+            CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_DEBUG
+            CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_DEBUG)
+        if(${flag_var} MATCHES "/MD")
+            string(REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+        endif()
+    endforeach()
+elseif(MINGW)
+    # Only force static linking of SFML and dependencies, not C++ runtime twice
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -Wl,--allow-multiple-definition")
 endif()
 
-include (cmake/CopyHelper.cmake)
-copy_files(FILES tastatura.txt)
-# copy_files(FILES tastatura.txt config.json DIRECTORY images sounds COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})
-# copy_files(DIRECTORY images sounds COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})
-#copy_files(DIRECTORY textures)
-copy_files(DIRECTORY fonts)
+# --- Install rules -----------------------------------------------------------
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+if(EXISTS "${CMAKE_SOURCE_DIR}/date")
+    install(DIRECTORY Date DESTINATION ${PROJECT_NAME})
+endif()
+if(EXISTS "${CMAKE_SOURCE_DIR}/fonts")
+    install(DIRECTORY fonts DESTINATION ${PROJECT_NAME})
+endif()
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/date  $<TARGET_FILE_DIR:${PROJECT_NAME}>/date
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/fonts $<TARGET_FILE_DIR:${PROJECT_NAME}>/fonts
+)
+
+message(STATUS "------------------------------------------------------------")
+message(STATUS "  Project Name     : ${PROJECT_NAME}")
+message(STATUS "  Build Type       : ${CMAKE_BUILD_TYPE}")
+message(STATUS "  Using SFML       : ${SFML_VERSION}")
+message(STATUS "  Static Linking   : ${BUILD_STATIC}")
+message(STATUS "------------------------------------------------------------")

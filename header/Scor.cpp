@@ -4,7 +4,7 @@
 Scor::Scor()
     : valoare(0), font(), text(font, "", 30) // inițializare directă ca la Cuvant
 {
-    if (!font.openFromFile("../fonts/arial.ttf")) {
+    if (!font.openFromFile("fonts/arial.ttf")) {
         std::cerr << "Eroare: nu pot incarca fontul "<< "\n";
     }
 
