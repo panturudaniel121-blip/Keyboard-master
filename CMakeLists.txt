@@ -49,6 +49,7 @@ FetchContent_MakeAvailable(SFML)
 
 find_package(Threads REQUIRED)
 if(APPLE)
+    set(CMAKE_CXX_COMPILER  clang )
 elseif(UNIX)
     #find_package(X11)
 endif()
