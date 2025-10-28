@@ -1,11 +1,12 @@
 #include "Cuvant.hpp"
+#include "Scor.hpp" //
 #include <fstream>
 #include <iostream>
 #include <ctime>
-#include <cstdlib>
+
 
 Cuvant::Cuvant()
-: font(), text(font, "", 30)
+: font(), textCuvant(font, "", 64), textInput(font, "", 40)
 {
 }
 
@@ -23,31 +24,27 @@ void Cuvant::seteazaCuvant(const std::string& fisierCuvinte, const sf::RenderWin
     if (!font.openFromFile(fontPath)) {
         std::cerr << "Eroare: nu pot incarca fontul implicit din " << fontPath << "\n";
         cuvantAleatoriu = "Eroare font!";
-        text.setFont(font);
-        text.setString(cuvantAleatoriu);
+        textCuvant.setFont(font);
+        textCuvant.setString(cuvantAleatoriu);
         return;
     }
 
+    textCuvant.setFont(font);
+    textInput.setFont(font);
+
     alegeAleatoriu();
 
-    text.setFont(font);
-    text.setString(cuvantAleatoriu);
-    text.setCharacterSize(64);
-    text.setFillColor(sf::Color::Black);
-    text.setStyle(sf::Text::Bold);
+    textCuvant.setString(cuvantAleatoriu);
+    textCuvant.setCharacterSize(64);
+    textCuvant.setFillColor(sf::Color::Black);
+    textCuvant.setStyle(sf::Text::Bold);
 
-    sf::FloatRect bounds = text.getLocalBounds();
-    sf::Vector2f origin{
-        bounds.position.x + bounds.size.x / 2.f,
-        bounds.position.y + bounds.size.y / 2.f
-    };
-    text.setOrigin(origin);
+    textInput.setString(inputUtilizator);
+    textInput.setCharacterSize(40);
+    textInput.setFillColor(sf::Color(60, 60, 60));
+    textInput.setStyle(sf::Text::Regular);
 
-    sf::Vector2u windowSize = window.getSize();
-    text.setPosition({
-        windowSize.x / 2.f,
-        windowSize.y / 2.f
-    });
+    actualizeazaTextPozitii(window);
 }
 
 void Cuvant::incarcaCuvinteDinFisier(const std::string& fisier)
@@ -62,7 +59,6 @@ void Cuvant::incarcaCuvinteDinFisier(const std::string& fisier)
     std::string cuv;
     while (fin >> cuv)
         listaCuvinte.push_back(cuv);
-
     fin.close();
 }
 
@@ -72,13 +68,81 @@ void Cuvant::alegeAleatoriu()
         cuvantAleatoriu = "Fisier gol!";
         return;
     }
-
     cuvantAleatoriu = listaCuvinte[std::rand() % listaCuvinte.size()];
+}
+
+void Cuvant::actualizeazaTextPozitii(const sf::RenderWindow& window)
+{
+    sf::Vector2u windowSize = window.getSize();
+    sf::FloatRect b1 = textCuvant.getLocalBounds();
+    sf::Vector2f origin1{
+        b1.position.x + b1.size.x / 2.f,
+        b1.position.y + b1.size.y / 2.f
+    };
+    textCuvant.setOrigin(origin1);
+
+    textCuvant.setPosition({
+    static_cast<float>(windowSize.x) / 2.f,
+    static_cast<float>(windowSize.y) / 2.f - 80.f
+    });
+
+    textInput.setPosition({
+        static_cast<float>(windowSize.x) / 2.f,
+        static_cast<float>(windowSize.y) / 2.f + 60.f
+    });
+
+    sf::FloatRect b2 = textInput.getLocalBounds();
+    sf::Vector2f origin2{
+        b2.position.x + b2.size.x / 2.f,
+        b2.position.y + b2.size.y / 2.f
+    };
+    textInput.setOrigin(origin2);
+
+    textCuvant.setPosition({
+    static_cast<float>(windowSize.x) / 2.f,
+    static_cast<float>(windowSize.y) / 2.f - 80.f
+});
+
+    textInput.setPosition({
+        static_cast<float>(windowSize.x) / 2.f,
+        static_cast<float>(windowSize.y) / 2.f + 60.f
+    });
+}
+
+
+void Cuvant::gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindow& windowRef, Scor& scor)
+
+{
+    if (event.is<sf::Event::TextEntered>()) {
+        auto tePtr = event.getIf<sf::Event::TextEntered>();
+        if (!tePtr) return;
+        uint32_t unicode = tePtr->unicode;
+
+        if (unicode == 8) {
+            if (!inputUtilizator.empty()) inputUtilizator.pop_back();
+        }
+        else if (unicode >= 32 && unicode < 128) { // caractere vizibile ASCII
+            inputUtilizator += static_cast<char>(unicode);
+        }
+
+        textInput.setString(inputUtilizator);
+        actualizeazaTextPozitii(windowRef);
+
+        if (!cuvantAleatoriu.empty() && inputUtilizator == cuvantAleatoriu) {
+            scor.increment(); // ✅ creștem scorul
+            alegeAleatoriu();
+            textCuvant.setString(cuvantAleatoriu);
+            inputUtilizator.clear();
+            textInput.setString("");
+            actualizeazaTextPozitii(windowRef);
+        }
+    }
 }
 
 void Cuvant::afiseaza(sf::RenderWindow& window)
 {
-    window.draw(text);
+    window.draw(textCuvant);
+    window.draw(textInput);
 
     if (!tiparit) {
         std::cout << "Cuvant ales: " << cuvantAleatoriu << "\n";
