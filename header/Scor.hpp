@@ -1,6 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <string>
+
+// --- Clasa Scor ---
 
 class Scor
 {
@@ -10,19 +13,37 @@ class Scor
 
 public:
     Scor();
-
+    void initializareFont(const sf::Font& fontIncarcat);
     void increment();
     void afiseaza(sf::RenderWindow& window) const;
+    int getValoare() const { return valoare; }
 };
-class Scor_board {
 
-    std::pmr::vector<int> board;
+struct IntrareScor {
+    std::string nume;
+    int scor;
+
+    bool operator>(const IntrareScor& other) const {
+        return scor > other.scor;
+    }
+};
+
+// --- Clasa Scor_board ---
+
+class Scor_board {
+    std::vector<IntrareScor> board;
+    std::string fisierScoruri;
 
 public:
-    Scor_board();
+    Scor_board(const std::string& fisier);
     void SBincarcare();
     void SBresetare();
     void SBactualizare() const;
-    friend std::istream& operator>>(std::istream& in, Scor_board& sb);
-    friend std::ostream& operator<<(std::ostream& out, const Scor_board& sb);
+
+    void adaugaScor(const std::string& nume, int scor);
+
+    void afiseaza(sf::RenderWindow& window, const sf::Font& font) const;
+
+    friend std::istream& operator>>(std::istream& in, IntrareScor& intrare);
+    friend std::ostream& operator<<(std::ostream& out, const IntrareScor& intrare);
 };

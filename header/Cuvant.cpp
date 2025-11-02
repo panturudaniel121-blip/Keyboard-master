@@ -1,27 +1,19 @@
 #include "Cuvant.hpp"
+#include "Scor.hpp"
 #include <fstream>
 #include <iostream>
 #include <random>
-#include "Scor.hpp"
-
 
 Cuvant::Cuvant()
-: font(), textCuvant(font, "", 64), textInput(font, "", 40)
+    : font(), textCuvant(font, "", 64), textInput(font, "", 40)
 {
 }
-void Cuvant::seteazaCuvant(const std::string& fisierCuvinte, const sf::RenderWindow& window)
-{
 
+void Cuvant::seteazaCuvant(const std::string& fisierCuvinte, const sf::RenderWindow& window, const sf::Font& fontIncarcat)
+{
     incarcaCuvinteDinFisier(fisierCuvinte);
 
-    const std::string fontPath = "../fonts/arial.ttf";
-    if (!font.openFromFile(fontPath)) {
-        std::cerr << "Eroare: nu pot incarca fontul implicit din " << fontPath << "\n";
-        cuvantAleatoriu = "Eroare font!";
-        textCuvant.setFont(font);
-        textCuvant.setString(cuvantAleatoriu);
-        return;
-    }
+    font = fontIncarcat;
 
     textCuvant.setFont(font);
     textInput.setFont(font);
@@ -65,7 +57,7 @@ void Cuvant::alegeAleatoriu()
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    int marime=static_cast<int>(listaCuvinte.size()-1);
+    int marime = static_cast<int>(listaCuvinte.size() - 1);
     std::uniform_int_distribution<> rand_val(0, marime);
     cuvantAleatoriu = listaCuvinte[rand_val(gen)];
 }
@@ -73,21 +65,16 @@ void Cuvant::alegeAleatoriu()
 void Cuvant::actualizeazaTextPozitii(const sf::RenderWindow& window)
 {
     sf::Vector2u windowSize = window.getSize();
+
     sf::FloatRect b1 = textCuvant.getLocalBounds();
     sf::Vector2f origin1{
         b1.position.x + b1.size.x / 2.f,
         b1.position.y + b1.size.y / 2.f
     };
     textCuvant.setOrigin(origin1);
-
     textCuvant.setPosition({
-    static_cast<float>(windowSize.x) / 2.f,
-    static_cast<float>(windowSize.y) / 2.f - 80.f
-    });
-
-    textInput.setPosition({
         static_cast<float>(windowSize.x) / 2.f,
-        static_cast<float>(windowSize.y) / 2.f + 60.f
+        static_cast<float>(windowSize.y) / 2.f - 80.f
     });
 
     sf::FloatRect b2 = textInput.getLocalBounds();
@@ -96,12 +83,6 @@ void Cuvant::actualizeazaTextPozitii(const sf::RenderWindow& window)
         b2.position.y + b2.size.y / 2.f
     };
     textInput.setOrigin(origin2);
-
-    textCuvant.setPosition({
-    static_cast<float>(windowSize.x) / 2.f,
-    static_cast<float>(windowSize.y) / 2.f - 80.f
-});
-
     textInput.setPosition({
         static_cast<float>(windowSize.x) / 2.f,
         static_cast<float>(windowSize.y) / 2.f + 60.f
@@ -110,7 +91,6 @@ void Cuvant::actualizeazaTextPozitii(const sf::RenderWindow& window)
 
 
 void Cuvant::gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindow& windowRef, Scor& scor_ref)
-
 {
     if (event.is<sf::Event::TextEntered>()) {
         auto tePtr = event.getIf<sf::Event::TextEntered>();
@@ -128,12 +108,14 @@ void Cuvant::gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindo
         actualizeazaTextPozitii(windowRef);
 
         if (!cuvantAleatoriu.empty() && inputUtilizator == cuvantAleatoriu) {
-            scor_ref.increment(); //
+            scor_ref.increment();
             alegeAleatoriu();
             textCuvant.setString(cuvantAleatoriu);
             inputUtilizator.clear();
             textInput.setString("");
             actualizeazaTextPozitii(windowRef);
+
+            tiparit = false;
         }
     }
 }
@@ -150,8 +132,9 @@ void Cuvant::afiseaza(sf::RenderWindow& window)
 }
 
 Cuvant::~Cuvant() {
-    std::cout<<"obiectul a fost distrus";
+    std::cout << "obiectul a fost distrus";
 }
+
 Cuvant::Cuvant(const Cuvant& other)
     : listaCuvinte(other.listaCuvinte),
       cuvantAleatoriu(other.cuvantAleatoriu),
@@ -162,5 +145,6 @@ Cuvant::Cuvant(const Cuvant& other)
       tiparit(other.tiparit),
       scor(other.scor)
 {
-
+    textCuvant.setFont(font);
+    textInput.setFont(font);
 }
