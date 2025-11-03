@@ -11,7 +11,7 @@ Joc::Joc()
       scor(),
       scorBoard("../Date/score_board.txt"),
       ceasJoc(),
-      timpLimita(sf::seconds(1.f)),
+      timpLimita(sf::seconds(30.f)),
       textTimer(fontPrincipal, ""),
       stareCurenta(StareJoc::Jucand),
       textGameOver(fontPrincipal, ""),
