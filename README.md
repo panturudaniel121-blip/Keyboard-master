@@ -4,9 +4,9 @@
 care apar în partea superioară a ecranului, care se deplasează în jos cu o viteză constantă. Jucătorul va avea un anumit HP , 
 care va scădea pentru fiecare cuvânt care nu a fost scris la timp.Ce doresc să implementez până la finalizarea proiectului:
 
--3 opțiuni diferite de dificultate, care să influențeze viteza cuvintelor, lungimea lor și HP-ul cu care jucătorul începe;
--o tabelă de scor și un sistem de highscore;
--efecte vizuale și auditive.
+- 3 opțiuni diferite de dificultate, care să influențeze viteza cuvintelor, lungimea lor și HP-ul cu care jucătorul începe;
+- o tabelă de scor și un sistem de highscore;
+- efecte vizuale și auditive.
 
 Până în acest punct, am implementat un cuvânt care este ales aleatoriu dintr-o listă, iar după tastarea acestuia apare altul.
 Ai 30 de secunde să scrii cât mai multe cuvinte, pentru fiecare cuvânt scorul este incrementat cu 1, iar la final scorul este
