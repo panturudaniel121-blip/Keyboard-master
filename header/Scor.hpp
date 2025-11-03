@@ -35,7 +35,7 @@ class Scor_board {
     std::string fisierScoruri;
 
 public:
-    Scor_board(const std::string& fisier);
+    explicit Scor_board(const std::string& fisier);
     void SBincarcare();
     void SBresetare();
     void SBactualizare() const;

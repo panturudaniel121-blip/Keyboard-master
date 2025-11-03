@@ -57,17 +57,17 @@ void Cuvant::alegeAleatoriu()
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    int marime = static_cast<int>(listaCuvinte.size() - 1);
+    const int marime = static_cast<int>(listaCuvinte.size() - 1);
     std::uniform_int_distribution<> rand_val(0, marime);
     cuvantAleatoriu = listaCuvinte[rand_val(gen)];
 }
 
 void Cuvant::actualizeazaTextPozitii(const sf::RenderWindow& window)
 {
-    sf::Vector2u windowSize = window.getSize();
+    const sf::Vector2u windowSize = window.getSize();
 
-    sf::FloatRect b1 = textCuvant.getLocalBounds();
-    sf::Vector2f origin1{
+    const sf::FloatRect b1 = textCuvant.getLocalBounds();
+    const sf::Vector2f origin1{
         b1.position.x + b1.size.x / 2.f,
         b1.position.y + b1.size.y / 2.f
     };
@@ -93,11 +93,10 @@ void Cuvant::actualizeazaTextPozitii(const sf::RenderWindow& window)
 void Cuvant::gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindow& windowRef, Scor& scor_ref)
 {
     if (event.is<sf::Event::TextEntered>()) {
-        auto tePtr = event.getIf<sf::Event::TextEntered>();
+        const auto tePtr = event.getIf<sf::Event::TextEntered>();
         if (!tePtr) return;
-        uint32_t unicode = tePtr->unicode;
 
-        if (unicode == 8) {
+        if (const uint32_t unicode = tePtr->unicode; unicode == 8) {
             if (!inputUtilizator.empty()) inputUtilizator.pop_back();
         }
         else if (unicode >= 32 && unicode < 128) {
@@ -120,13 +119,19 @@ void Cuvant::gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindo
     }
 }
 
+std::ostream& operator<<(std::ostream& out, const Cuvant& c)
+{
+    out << "Cuvant ales: " << c.cuvantAleatoriu << "\n";
+    return out;
+}
+
 void Cuvant::afiseaza(sf::RenderWindow& window)
 {
     window.draw(textCuvant);
     window.draw(textInput);
 
     if (!tiparit) {
-        std::cout << "Cuvant ales: " << cuvantAleatoriu << "\n";
+        std::cout << *this;
         tiparit = true;
     }
 }
@@ -142,9 +147,25 @@ Cuvant::Cuvant(const Cuvant& other)
       font(other.font),
       textCuvant(other.textCuvant),
       textInput(other.textInput),
-      tiparit(other.tiparit),
-      scor(other.scor)
+      tiparit(other.tiparit)
 {
     textCuvant.setFont(font);
     textInput.setFont(font);
+}
+
+Cuvant& Cuvant::operator=(const Cuvant& other)
+{
+    if (this == &other) {
+        return *this;
+    }
+    listaCuvinte = other.listaCuvinte;
+    cuvantAleatoriu = other.cuvantAleatoriu;
+    inputUtilizator = other.inputUtilizator;
+    font = other.font;
+    textCuvant = other.textCuvant;
+    textInput = other.textInput;
+    tiparit = other.tiparit;
+    textCuvant.setFont(font);
+    textInput.setFont(font);
+    return *this;
 }

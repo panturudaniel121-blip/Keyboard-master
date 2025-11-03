@@ -17,19 +17,18 @@ class Cuvant
     sf::Text textInput;
 
     bool tiparit = false;
-    Scor* scor = nullptr;
 
 public:
     Cuvant();
     ~Cuvant();
     Cuvant(const Cuvant& other);
+    Cuvant& operator=(const Cuvant& other);
 
     void seteazaCuvant(const std::string& fisierCuvinte, const sf::RenderWindow& window, const sf::Font& fontIncarcat);
-
-    void seteazaScor(Scor* s) { scor = s; }
     void gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindow& window, Scor& scor_ref);
     void afiseaza(sf::RenderWindow& window);
-    const std::string& getCuvant() const { return cuvantAleatoriu; }
+
+    friend std::ostream& operator<<(std::ostream& out, const Cuvant& c);
 
 private:
     void incarcaCuvinteDinFisier(const std::string& fisier);

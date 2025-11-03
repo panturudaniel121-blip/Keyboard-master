@@ -1,1 +1,6 @@
 ext/** linguist-vendored
+CMakeLists.txt linguist-generated
+*.md linguist-documentation
+*.txt linguist-documentation
+*.h linguist-language=C++
+*.hpp linguist-language=C++

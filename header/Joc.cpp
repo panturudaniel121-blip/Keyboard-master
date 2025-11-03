@@ -11,7 +11,7 @@ Joc::Joc()
       scor(),
       scorBoard("../Date/score_board.txt"),
       ceasJoc(),
-      timpLimita(sf::seconds(30.f)),
+      timpLimita(sf::seconds(1.f)),
       textTimer(fontPrincipal, ""),
       stareCurenta(StareJoc::Jucand),
       textGameOver(fontPrincipal, ""),
@@ -21,7 +21,9 @@ Joc::Joc()
       numeJucator(""),
       scorSalvat(false),
       butonIesire(),
-      textButonIesire(fontPrincipal, "")
+      textButonIesire(fontPrincipal, ""),
+      butonReset(),
+      textButonReset(fontPrincipal, "")
 {
     window.setFramerateLimit(60);
 
@@ -63,12 +65,21 @@ void Joc::initializeazaUIGameOver()
 
     butonIesire.setSize({120.f, 50.f});
     butonIesire.setFillColor(sf::Color(200, 50, 50));
-    butonIesire.setPosition({290.f, 5.f});
+    butonIesire.setPosition({570.f, 5.f}); // Mutat la dreapta
 
     textButonIesire.setString("Iesire");
     textButonIesire.setCharacterSize(24);
     textButonIesire.setFillColor(sf::Color::White);
-    textButonIesire.setPosition({320.f, 15.f});
+    textButonIesire.setPosition({595.f, 15.f}); // Textul ajustat
+
+    butonReset.setSize({140.f, 50.f});
+    butonReset.setFillColor(sf::Color(50, 50, 200));
+    butonReset.setPosition({20.f, 5.f});
+
+    textButonReset.setString("Reset Scor");
+    textButonReset.setCharacterSize(22);
+    textButonReset.setFillColor(sf::Color::White);
+    textButonReset.setPosition({30.f, 15.f});
 
     textTimer.setString("Timp: 30.0");
     textTimer.setCharacterSize(24);
@@ -133,13 +144,22 @@ void Joc::gestioneazaEvenimenteGameOver(const sf::Event& event)
     if (auto mouseEv = event.getIf<sf::Event::MouseButtonPressed>()) {
 
         if (mouseEv->button == sf::Mouse::Button::Left) {
-
             sf::Vector2f mousePos = window.mapPixelToCoords(mouseEv->position);
 
             if (butonIesire.getGlobalBounds().contains(mousePos)) {
                 window.close();
                 return;
             }
+
+            if (butonReset.getGlobalBounds().contains(mousePos)) {
+                scorBoard.SBresetare();
+                scorSalvat = false;
+                numeJucator = "";
+                textNumeJucator.setString(numeJucator);
+                textIntroduNume.setString("Scor resetat! Introdu numele:");
+                return;
+            }
+
         }
     }
 
@@ -225,4 +245,7 @@ void Joc::afiseazaGameOver()
 
     window.draw(butonIesire);
     window.draw(textButonIesire);
+
+    window.draw(butonReset);
+    window.draw(textButonReset);
 }

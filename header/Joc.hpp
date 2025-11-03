@@ -34,6 +34,9 @@ class Joc
     sf::RectangleShape butonIesire;
     sf::Text textButonIesire;
 
+    sf::RectangleShape butonReset;
+    sf::Text textButonReset;
+
 public:
     Joc();
     void ruleaza();
