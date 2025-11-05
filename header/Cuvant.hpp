@@ -16,8 +16,6 @@ class Cuvant
     sf::Text textCuvant;
     sf::Text textInput;
 
-    bool tiparit = false;
-
 public:
     Cuvant();
     ~Cuvant();
@@ -26,7 +24,7 @@ public:
 
     void seteazaCuvant(const std::string& fisierCuvinte, const sf::RenderWindow& window, const sf::Font& fontIncarcat);
     void gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindow& window, Scor& scor_ref);
-    void afiseaza(sf::RenderWindow& window);
+    void afiseaza(sf::RenderWindow& window) const;
 
     friend std::ostream& operator<<(std::ostream& out, const Cuvant& c);
 

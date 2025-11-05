@@ -40,6 +40,7 @@ class Joc
 public:
     Joc();
     void ruleaza();
+    friend std::ostream& operator<<(std::ostream& out, const Joc& j);
 
 private:
     void initializeazaUIGameOver();

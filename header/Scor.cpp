@@ -1,6 +1,5 @@
 #include "Scor.hpp"
 #include <fstream>
-#include <iostream>
 #include <algorithm>
 #include <iomanip>
 
@@ -53,9 +52,7 @@ void Scor_board::SBincarcare()
 {
     std::ifstream fin(fisierScoruri);
     if (!fin.is_open()) {
-        std::cerr << "Eroare: nu s-a putut deschide fisierul '" << fisierScoruri << "' pentru citire.\n";
-        SBactualizare();
-        return;
+        throw std::runtime_error("Eroare fatala: nu s-a putut salva in fisierul " + fisierScoruri);
     }
 
     board.clear();
@@ -88,8 +85,7 @@ void Scor_board::adaugaScor(const std::string& nume, int scor)
 void Scor_board::SBactualizare() const {
     std::ofstream fout(fisierScoruri);
     if (!fout.is_open()) {
-        std::cerr << "Eroare: nu s-a putut deschide fisierul '" << fisierScoruri << "' pentru scriere.\n";
-        return;
+        throw std::runtime_error("Eroare fatala: nu s-a putut salva in fisierul " + fisierScoruri);
     }
 
     for (const auto& intrare : board) {

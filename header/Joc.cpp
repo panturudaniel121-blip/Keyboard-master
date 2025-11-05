@@ -9,7 +9,7 @@ Joc::Joc()
       fontPrincipal(),
       cuvant(),
       scor(),
-      scorBoard("../Date/score_board.txt"),
+      scorBoard("Date/score_board.txt"),
       ceasJoc(),
       timpLimita(sf::seconds(30.f)),
       textTimer(fontPrincipal, ""),
@@ -18,7 +18,6 @@ Joc::Joc()
       textScorFinal(fontPrincipal, ""),
       textIntroduNume(fontPrincipal, ""),
       textNumeJucator(fontPrincipal, ""),
-      numeJucator(""),
       scorSalvat(false),
       butonIesire(),
       textButonIesire(fontPrincipal, ""),
@@ -27,15 +26,14 @@ Joc::Joc()
 {
     window.setFramerateLimit(60);
 
-    const std::string fontPath = "../fonts/arial.ttf";
+    const std::string fontPath = "fonts/arial.ttf";
     if (!fontPrincipal.openFromFile(fontPath)) {
-        std::cerr << "Eroare: nu pot incarca fontul din " << fontPath << "\n";
         window.close();
-        return;
+        throw std::runtime_error("Eroare: nu pot incarca fontul din " + fontPath);
     }
 
     scor.initializareFont(fontPrincipal);
-    cuvant.seteazaCuvant("../Date/cuvinte.txt", window, fontPrincipal);
+    cuvant.seteazaCuvant("Date/cuvinte.txt", window, fontPrincipal);
 
     scorBoard.SBincarcare();
 
@@ -91,7 +89,7 @@ void Joc::tranzitieLaGameOver()
 {
     stareCurenta = StareJoc::GameOver;
 
-    std::string text = "Scorul tau final: " + std::to_string(scor.getValoare());
+    const std::string text = "Scorul tau final: " + std::to_string(scor.getValoare());
     textScorFinal.setString(text);
 
     sf::FloatRect b1 = textGameOver.getLocalBounds();

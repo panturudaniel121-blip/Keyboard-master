@@ -1,9 +1,8 @@
 #include "Cuvant.hpp"
 #include "Scor.hpp"
 #include <fstream>
-#include <iostream>
 #include <random>
-
+#include <iostream>
 Cuvant::Cuvant()
     : font(), textCuvant(font, "", 64), textInput(font, "", 40)
 {
@@ -37,8 +36,7 @@ void Cuvant::incarcaCuvinteDinFisier(const std::string& fisier)
 {
     std::ifstream fin(fisier);
     if (!fin.is_open()) {
-        std::cerr << "Eroare: nu pot deschide fisierul " << fisier << "\n";
-        return;
+        throw std::runtime_error("Eroare fatala: nu s-a gasit " + fisier );
     }
 
     listaCuvinte.clear();
@@ -60,6 +58,7 @@ void Cuvant::alegeAleatoriu()
     const int marime = static_cast<int>(listaCuvinte.size() - 1);
     std::uniform_int_distribution<> rand_val(0, marime);
     cuvantAleatoriu = listaCuvinte[rand_val(gen)];
+    std::cout << *this;
 }
 
 void Cuvant::actualizeazaTextPozitii(const sf::RenderWindow& window)
@@ -113,8 +112,6 @@ void Cuvant::gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindo
             inputUtilizator.clear();
             textInput.setString("");
             actualizeazaTextPozitii(windowRef);
-
-            tiparit = false;
         }
     }
 }
@@ -125,20 +122,13 @@ std::ostream& operator<<(std::ostream& out, const Cuvant& c)
     return out;
 }
 
-void Cuvant::afiseaza(sf::RenderWindow& window)
-{
+void Cuvant::afiseaza(sf::RenderWindow& window) const {
     window.draw(textCuvant);
     window.draw(textInput);
 
-    if (!tiparit) {
-        std::cout << *this;
-        tiparit = true;
-    }
 }
 
-Cuvant::~Cuvant() {
-    std::cout << "obiectul a fost distrus";
-}
+Cuvant::~Cuvant() = default;
 
 Cuvant::Cuvant(const Cuvant& other)
     : listaCuvinte(other.listaCuvinte),
@@ -146,8 +136,7 @@ Cuvant::Cuvant(const Cuvant& other)
       inputUtilizator(other.inputUtilizator),
       font(other.font),
       textCuvant(other.textCuvant),
-      textInput(other.textInput),
-      tiparit(other.tiparit)
+      textInput(other.textInput)
 {
     textCuvant.setFont(font);
     textInput.setFont(font);
@@ -164,7 +153,6 @@ Cuvant& Cuvant::operator=(const Cuvant& other)
     font = other.font;
     textCuvant = other.textCuvant;
     textInput = other.textInput;
-    tiparit = other.tiparit;
     textCuvant.setFont(font);
     textInput.setFont(font);
     return *this;
