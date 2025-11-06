@@ -124,3 +124,8 @@ void Scor_board::afiseaza(sf::RenderWindow& window, const sf::Font& font) const
         rank++;
     }
 }
+std::ostream& operator<<(std::ostream& out, const Scor& s)
+{
+    out << "Scor curent  " << s.getValoare() << "\n";
+    return out;
+}

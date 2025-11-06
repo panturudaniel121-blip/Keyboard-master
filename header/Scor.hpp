@@ -17,6 +17,7 @@ public:
     void increment();
     void afiseaza(sf::RenderWindow& window) const;
     int getValoare() const { return valoare; }
+    friend std::ostream& operator<<(std::ostream& out, const Scor& s);
 };
 
 struct IntrareScor {
