@@ -26,7 +26,7 @@ Joc::Joc()
 {
     window.setFramerateLimit(60);
 
-    const std::string fontPath = "fonts/arial.ttf";
+    const std::string fontPath = "fonts/ARIAL.TTF";
     if (!fontPrincipal.openFromFile(fontPath)) {
         window.close();
         throw std::runtime_error("Eroare: nu pot incarca fontul din " + fontPath);
