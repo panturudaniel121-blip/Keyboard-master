@@ -249,9 +249,6 @@ void Joc::afiseazaGameOver()
 }
 std::ostream& operator<<(std::ostream& out, const Joc& j)
 {
-    out << "Debug Joc: Starea curenta este -> ";
-    if (j.stareCurenta == StareJoc::Jucand)
-        out << "Jucand";
-    out << "\n";
+    out << j.scor<<"\n"<< j.cuvant<<"\n";
     return out;
 }
