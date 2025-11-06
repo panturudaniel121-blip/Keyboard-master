@@ -1,5 +1,5 @@
 #include "Joc.hpp"
-#include <iostream>
+#include <ostream>
 #include <sstream>
 #include <iomanip>
 
@@ -246,4 +246,12 @@ void Joc::afiseazaGameOver()
 
     window.draw(butonReset);
     window.draw(textButonReset);
+}
+std::ostream& operator<<(std::ostream& out, const Joc& j)
+{
+    out << "Debug Joc: Starea curenta este -> ";
+    if (j.stareCurenta == StareJoc::Jucand)
+        out << "Jucand";
+    out << "\n";
+    return out;
 }

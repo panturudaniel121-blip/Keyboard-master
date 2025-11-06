@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Cuvant.hpp"
 #include "Scor.hpp"
+#include <ostream>
 
 enum class StareJoc {
     Jucand,

@@ -9,6 +9,7 @@ int main() {
     std::cout << cuvant_fantoma;
     // am supraincarcat si pentru clasa scor_board facuta pentru scrierea si citirea din fisier si nu am mai apelat-o in main (in fisierul scor.cpp)
     Joc joc;
+    std::cout << joc;
     joc.ruleaza();
     return 0;
 }
