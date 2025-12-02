@@ -65,8 +65,9 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         header/Cuvant.hpp
         header/Scor.cpp
         header/Scor.hpp
-        header/Joc.cpp
         header/Joc.hpp
+        header/Joc.cpp
+
 )
 
 target_include_directories(${MAIN_EXECUTABLE_NAME} SYSTEM PRIVATE ${SFML_SOURCE_DIR}/include)
