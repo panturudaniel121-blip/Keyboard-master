@@ -35,7 +35,7 @@ Joc::Joc()
 
     scor.initializareFont(fontPrincipal);
 
-    cuvant.initializeaza(window, fontPrincipal);
+    cuvant.initializeaza( fontPrincipal);
 
     scorBoard.SBincarcare();
 
