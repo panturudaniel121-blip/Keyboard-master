@@ -72,7 +72,6 @@ void Scor_board::SBresetare()
 void Scor_board::adaugaScor(const std::string& nume, int scor)
 {
     board.push_back({nume, scor});
-    //range-sort facut de Clion
     std::ranges::sort(board, std::greater<IntrareScor>());
 
     if (board.size() > 10) {

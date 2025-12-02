@@ -1,35 +1,51 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <string>
-#include "Scor.hpp"
 #include <vector>
+#include <deque>
+#include "Scor.hpp"
 
-class Scor;
+enum class DificultateJoc;
+
+struct CuvantActiv {
+    std::string text;
+    size_t indexTastat;
+
+    float x;
+    float y;
+
+    float viteza;
+    bool finalizat;
+};
 
 class Cuvant
 {
-    std::vector<std::string> listaCuvinte;
-    std::string cuvantAleatoriu;
-    std::string inputUtilizator;
+    std::vector<std::string> cuvinteScurte;
+    std::vector<std::string> cuvinteMedii;
+    std::vector<std::string> cuvinteLungi;
+
+    std::deque<CuvantActiv> cuvinteActive;
 
     sf::Font font;
-    sf::Text textCuvant;
-    sf::Text textInput;
+    sf::RectangleShape linieRosie;
+
+    sf::Text textHelper;
+
+    sf::Clock ceasSpawn;
+    bool asteaptaSpawn;
 
 public:
     Cuvant();
-    ~Cuvant();
-    Cuvant(const Cuvant& other);
-    Cuvant& operator=(const Cuvant& other);
 
-    void seteazaCuvant(const std::string& fisierCuvinte, const sf::RenderWindow& window, const sf::Font& fontIncarcat);
-    void gestioneazaEvenimente(const sf::Event& event, const sf::RenderWindow& window, Scor& scor_ref);
-    void afiseaza(sf::RenderWindow& window) const;
+    void initializeaza(const sf::Font& fontIncarcat);
+    void reseteaza();
 
-    friend std::ostream& operator<<(std::ostream& out, const Cuvant& c);
+    void actualizeaza(float dt, DificultateJoc dificultate);
+    void gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref);
+    void afiseaza(sf::RenderWindow& window);
 
 private:
-    void incarcaCuvinteDinFisier(const std::string& fisier);
-    void alegeAleatoriu();
-    void actualizeazaTextPozitii(const sf::RenderWindow& window);
+    void incarcaDictionare();
+    void spawneazaGrup(float latimeEcran, DificultateJoc dificultate);
+    std::string extrageCuvantAleatoriu(DificultateJoc dificultate);
 };
