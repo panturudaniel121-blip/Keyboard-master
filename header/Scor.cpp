@@ -1,11 +1,8 @@
 #include "Scor.hpp"
-// ... include-uri existente ...
 #include <fstream>
 #include <algorithm>
 #include <iomanip>
 #include <utility>
-
-// ... Constructor si initializareFont raman la fel ...
 
 Scor::Scor()
     : valoare(0), font(), text(font, "", 30)
@@ -22,7 +19,6 @@ void Scor::initializareFont(const sf::Font& fontIncarcat) {
     text.setFont(font);
 }
 
-// MODIFICARE AICI
 void Scor::adauga(int puncte)
 {
     valoare += puncte;
@@ -33,8 +29,6 @@ void Scor::afiseaza(sf::RenderWindow& window) const {
     window.draw(text);
 }
 
-// ... Restul fisierului (Scor_board) ramane EXACT la fel ...
-// (Te rog sa pastrezi codul pentru Scor_board din raspunsul anterior, e corect)
 std::istream& operator>>(std::istream& in, IntrareScor& intrare) {
     in >> intrare.nume >> intrare.scor;
     return in;

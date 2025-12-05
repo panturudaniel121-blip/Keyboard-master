@@ -24,7 +24,6 @@ class Joc
     sf::Time timpLimita;
     sf::Text textTimer;
 
-    // MODIFICARE: Adaugare HP
     int hpCurent;
     int hpMaxim;
     sf::Text textHP;

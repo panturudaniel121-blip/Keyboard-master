@@ -36,10 +36,8 @@ public:
     void initializeaza(const sf::Font& fontIncarcat);
     void reseteaza();
 
-    // MODIFICARE: Returneaza int (cate cuvinte au lovit linia rosie in acest frame)
     int actualizeaza(float dt, DificultateJoc dificultate);
 
-    // MODIFICARE: Primeste dificultatea pentru a calcula scorul
     void gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate);
 
     void afiseaza(sf::RenderWindow& window);

@@ -13,7 +13,6 @@ public:
     Scor();
     void initializareFont(const sf::Font& fontIncarcat);
 
-    // MODIFICARE: Primeste puncte, nu doar incrementeaza cu 1
     void adauga(int puncte);
 
     void afiseaza(sf::RenderWindow& window) const;
@@ -21,7 +20,6 @@ public:
     friend std::ostream& operator<<(std::ostream& out, const Scor& s);
 };
 
-// ... Restul fisierului (IntrareScor, Scor_board) ramane la fel ...
 struct IntrareScor {
     std::string nume;
     int scor;
