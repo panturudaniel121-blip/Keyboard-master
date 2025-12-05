@@ -126,7 +126,7 @@ Meniu::~Meniu() {
 }
 
 Meniu::Meniu(const Meniu& other) {
-    for (const auto& btn : other.butoane) {
+    for (const auto* btn : other.butoane) {
         butoane.push_back(btn->clone());
     }
 }

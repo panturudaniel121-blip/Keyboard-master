@@ -4,7 +4,8 @@
 #include <random>
 
 Cuvant::Cuvant()
-    : font(), textHelper(font, "", 30), asteaptaSpawn(false)
+    // Fontul marit initial la 40
+    : font(), textHelper(font, "", 40), asteaptaSpawn(false)
 {
     linieRosie.setSize({700.f, 10.f});
     linieRosie.setFillColor(sf::Color(200, 50, 50, 150));
@@ -15,7 +16,8 @@ void Cuvant::initializeaza(const sf::Font& fontIncarcat)
 {
     font = fontIncarcat;
     textHelper.setFont(font);
-    textHelper.setCharacterSize(30);
+    // MODIFICARE: Font mai mare
+    textHelper.setCharacterSize(40);
 
     incarcaDictionare();
 }
@@ -83,16 +85,20 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
     float pas = spatiuDisponibil / static_cast<float>(numarCuvinte);
 
     for (int i = 0; i < numarCuvinte; ++i) {
-        constexpr float startX = 50.f;
-        const std::string textAles = extrageCuvantAleatoriu(dificultate);
+        float startX = 50.f;
+        std::string textAles = extrageCuvantAleatoriu(dificultate);
 
         float bazaViteza = 50.f;
         if (dificultate == DificultateJoc::Mediu) bazaViteza = 80.f;
         if (dificultate == DificultateJoc::Greu) bazaViteza = 120.f;
         float vitezaFinala = bazaViteza + static_cast<float>(std::uniform_int_distribution<>(0, 20)(gen));
 
-        const float xPos = startX + static_cast<float>(i) * pas + static_cast<float>(std::uniform_int_distribution<>(-20, 20)(gen));
-        const float yPos = -50.f - static_cast<float>(std::uniform_int_distribution<>(0, 100)(gen));
+        float xPos = startX + static_cast<float>(i) * pas + static_cast<float>(std::uniform_int_distribution<>(-20, 20)(gen));
+
+        // MODIFICARE: Spawn intre 10% (80px) si 50% (400px) din ecran (presupunand h=800)
+        // 10% din 800 = 80, 50% din 800 = 400.
+        // Pentru siguranta, sa nu intre in textul scorului, incepem de la 100.
+        float yPos = static_cast<float>(std::uniform_int_distribution<>(100, 350)(gen));
 
         CuvantActiv nou;
         nou.text = textAles;
@@ -106,8 +112,11 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
     }
 }
 
-void Cuvant::actualizeaza(float dt, DificultateJoc dificultate)
+// MODIFICARE: Returneaza int (damage)
+int Cuvant::actualizeaza(float dt, DificultateJoc dificultate)
 {
+    int damage = 0;
+
     if (cuvinteActive.empty()) {
         if (!asteaptaSpawn) {
             ceasSpawn.restart();
@@ -133,15 +142,19 @@ void Cuvant::actualizeaza(float dt, DificultateJoc dificultate)
         it->y += it->viteza * dt;
 
         if (it->y > yLimitaRosie) {
+            // A lovit linia rosie!
+            damage += 1; // Contorizam cuvantul pierdut
             it = cuvinteActive.erase(it);
         }
         else {
             ++it;
         }
     }
+
+    return damage;
 }
 
-void Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref)
+void Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate)
 {
     if (auto textEv = event.getIf<sf::Event::TextEntered>()) {
         char caracterTastat = static_cast<char>(textEv->unicode);
@@ -174,7 +187,13 @@ void Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref)
 
                 if (tinta->indexTastat >= tinta->text.size()) {
                     tinta->finalizat = true;
-                    scor_ref.increment();
+
+                    // MODIFICARE: Calcul Scor = 10 * dificultate
+                    int multiplicator = 1;
+                    if (dificultate == DificultateJoc::Mediu) multiplicator = 2;
+                    if (dificultate == DificultateJoc::Greu) multiplicator = 3;
+
+                    scor_ref.adauga(10 * multiplicator);
                 }
             }
         }

@@ -14,6 +14,7 @@ Joc::Joc()
       ceasJoc(),
       timpLimita(sf::seconds(30.f)),
       textTimer(fontPrincipal, ""),
+      hpCurent(100), hpMaxim(100), textHP(fontPrincipal, ""), // Init HP
       stareCurenta(StareJoc::SelectieDificultate),
       nivelDificultate(DificultateJoc::Mediu),
       textGameOver(fontPrincipal, ""),
@@ -34,8 +35,13 @@ Joc::Joc()
     }
 
     scor.initializareFont(fontPrincipal);
+    cuvant.initializeaza(fontPrincipal); // Fara window acum
 
-    cuvant.initializeaza( fontPrincipal);
+    // Configurare Text HP
+    textHP.setCharacterSize(24);
+    textHP.setFillColor(sf::Color::Red);
+    textHP.setPosition({20.f, 60.f}); // Sub scor
+    textHP.setStyle(sf::Text::Bold);
 
     scorBoard.SBincarcare();
 
@@ -69,7 +75,7 @@ void Joc::initializeazaUIStart()
 
 void Joc::initializeazaUIGameOver()
 {
-    textGameOver.setString("Timpul a expirat!");
+    textGameOver.setString("Game Over!"); // Am schimbat textul generic
     textGameOver.setCharacterSize(50);
     textGameOver.setFillColor(sf::Color::Black);
     textGameOver.setStyle(sf::Text::Bold);
@@ -107,9 +113,22 @@ void Joc::incepeJoc() {
     scor.initializareFont(fontPrincipal);
     ceasJoc.restart();
 
+    // Setam Timp si HP in functie de dificultate
+    if (nivelDificultate == DificultateJoc::Usor) {
+        timpLimita = sf::seconds(45.f);
+        hpMaxim = 100;
+    }
+    else if (nivelDificultate == DificultateJoc::Mediu) {
+        timpLimita = sf::seconds(30.f);
+        hpMaxim = 50;
+    }
+    else {
+        timpLimita = sf::seconds(20.f);
+        hpMaxim = 1; // Greu - 1 viata
+    }
 
-    timpLimita = sf::seconds(45.f);
-
+    hpCurent = hpMaxim;
+    textHP.setString("HP: " + std::to_string(hpCurent));
 
     cuvant.reseteaza();
 }
@@ -200,7 +219,8 @@ void Joc::gestioneazaEvenimenteStart(const sf::Event& event)
 
 void Joc::gestioneazaEvenimenteJucand(const sf::Event& event)
 {
-    cuvant.gestioneazaEvenimente(event,scor);
+    // Pasam si dificultatea pentru calculul scorului
+    cuvant.gestioneazaEvenimente(event, scor, nivelDificultate);
 }
 
 void Joc::gestioneazaEvenimenteGameOver(const sf::Event& event)
@@ -239,23 +259,31 @@ void Joc::actualizeaza()
 {
     if (stareCurenta == StareJoc::Jucand) {
         actualizeazaJucand();
+    } else if (stareCurenta == StareJoc::GameOver) {
+        actualizeazaGameOver(); // <-- Apeleaz-o aici ca sa dispara warning-ul
     }
 }
 
 void Joc::actualizeazaJucand()
 {
     float timpRamas = timpLimita.asSeconds() - ceasJoc.getElapsedTime().asSeconds();
-    if (timpRamas < 0) {
-        timpRamas = 0;
+    if (timpRamas < 0) timpRamas = 0;
+
+    // Actualizam cuvintele si primim damage-ul (numarul de cuvinte pierdute)
+    float dt = 1.0f / 60.0f;
+    int cuvintePierdute = cuvant.actualizeaza(dt, nivelDificultate);
+
+    // Scadem HP (10 puncte per cuvant)
+    if (cuvintePierdute > 0) {
+        hpCurent -= cuvintePierdute * 10;
+        if (hpCurent < 0) hpCurent = 0;
+        textHP.setString("HP: " + std::to_string(hpCurent));
     }
 
-    if (timpRamas == 0) {
+    // Conditie Game Over: Timp sau HP
+    if (timpRamas == 0 || hpCurent <= 0) {
         tranzitieLaGameOver();
     }
-
-    float dt = 1.0f / 60.0f;
-
-    cuvant.actualizeaza(dt , nivelDificultate);
 
     std::stringstream ss;
     ss << std::fixed << std::setprecision(1) << timpRamas;
@@ -293,6 +321,7 @@ void Joc::afiseazaJucand()
     cuvant.afiseaza(window);
     scor.afiseaza(window);
     window.draw(textTimer);
+    window.draw(textHP); // Desenam si HP-ul
 }
 
 void Joc::afiseazaGameOver()

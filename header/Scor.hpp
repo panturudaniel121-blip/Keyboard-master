@@ -3,8 +3,6 @@
 #include <vector>
 #include <string>
 
-// --- Clasa Scor ---
-
 class Scor
 {
     int valoare;
@@ -14,37 +12,32 @@ class Scor
 public:
     Scor();
     void initializareFont(const sf::Font& fontIncarcat);
-    void increment();
+
+    // MODIFICARE: Primeste puncte, nu doar incrementeaza cu 1
+    void adauga(int puncte);
+
     void afiseaza(sf::RenderWindow& window) const;
     int getValoare() const { return valoare; }
     friend std::ostream& operator<<(std::ostream& out, const Scor& s);
 };
 
+// ... Restul fisierului (IntrareScor, Scor_board) ramane la fel ...
 struct IntrareScor {
     std::string nume;
     int scor;
-
-    bool operator>(const IntrareScor& other) const {
-        return scor > other.scor;
-    }
+    bool operator>(const IntrareScor& other) const { return scor > other.scor; }
 };
-
-// --- Clasa Scor_board ---
 
 class Scor_board {
     std::vector<IntrareScor> board;
     std::string fisierScoruri;
-
 public:
-    explicit Scor_board(std::string  fisier);
+    explicit Scor_board(std::string fisier);
     void SBincarcare();
     void SBresetare();
     void SBactualizare() const;
-
     void adaugaScor(const std::string& nume, int scor);
-
     void afiseaza(sf::RenderWindow& window, const sf::Font& font) const;
-
     friend std::istream& operator>>(std::istream& in, IntrareScor& intrare);
     friend std::ostream& operator<<(std::ostream& out, const IntrareScor& intrare);
 };

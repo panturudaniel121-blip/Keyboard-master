@@ -10,10 +10,8 @@ enum class DificultateJoc;
 struct CuvantActiv {
     std::string text;
     size_t indexTastat;
-
     float x;
     float y;
-
     float viteza;
     bool finalizat;
 };
@@ -28,7 +26,6 @@ class Cuvant
 
     sf::Font font;
     sf::RectangleShape linieRosie;
-
     sf::Text textHelper;
 
     sf::Clock ceasSpawn;
@@ -36,12 +33,15 @@ class Cuvant
 
 public:
     Cuvant();
-
     void initializeaza(const sf::Font& fontIncarcat);
     void reseteaza();
 
-    void actualizeaza(float dt, DificultateJoc dificultate);
-    void gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref);
+    // MODIFICARE: Returneaza int (cate cuvinte au lovit linia rosie in acest frame)
+    int actualizeaza(float dt, DificultateJoc dificultate);
+
+    // MODIFICARE: Primeste dificultatea pentru a calcula scorul
+    void gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate);
+
     void afiseaza(sf::RenderWindow& window);
 
 private:

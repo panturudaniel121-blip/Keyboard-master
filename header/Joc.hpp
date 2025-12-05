@@ -2,8 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Cuvant.hpp"
 #include "Scor.hpp"
-#include "Buton.hpp" // Contine enum class DificultateJoc
-
+#include "Buton.hpp"
 
 enum class StareJoc {
     SelectieDificultate,
@@ -25,6 +24,11 @@ class Joc
     sf::Time timpLimita;
     sf::Text textTimer;
 
+    // MODIFICARE: Adaugare HP
+    int hpCurent;
+    int hpMaxim;
+    sf::Text textHP;
+
     StareJoc stareCurenta;
     DificultateJoc nivelDificultate;
 
@@ -44,7 +48,7 @@ public:
     void ruleaza();
     friend std::ostream& operator<<(std::ostream& out, const Joc& j);
 
-    sf::RenderWindow& getWindow() { return window   ; }
+    sf::RenderWindow& getWindow() { return window; }
     void reseteazaClasament();
     void restartJoc();
 
