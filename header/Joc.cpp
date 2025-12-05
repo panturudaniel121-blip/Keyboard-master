@@ -107,15 +107,9 @@ void Joc::incepeJoc() {
     scor.initializareFont(fontPrincipal);
     ceasJoc.restart();
 
-    if (nivelDificultate == DificultateJoc::Usor) {
-        timpLimita = sf::seconds(45.f);
-    }
-    else if (nivelDificultate == DificultateJoc::Mediu) {
-        timpLimita = sf::seconds(30.f);
-    }
-    else {
-        timpLimita = sf::seconds(20.f);
-    }
+
+    timpLimita = sf::seconds(45.f);
+
 
     cuvant.reseteaza();
 }
@@ -261,7 +255,7 @@ void Joc::actualizeazaJucand()
 
     float dt = 1.0f / 60.0f;
 
-    cuvant.actualizeaza(dt, static_cast<float>(window.getSize().y), nivelDificultate);
+    cuvant.actualizeaza(dt , nivelDificultate);
 
     std::stringstream ss;
     ss << std::fixed << std::setprecision(1) << timpRamas;

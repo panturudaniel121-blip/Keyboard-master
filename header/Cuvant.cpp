@@ -3,16 +3,15 @@
 #include <fstream>
 #include <random>
 
-
 Cuvant::Cuvant()
-    : font(), textHelper(font, "", 30),asteaptaSpawn(false)
+    : font(), textHelper(font, "", 30), asteaptaSpawn(false)
 {
     linieRosie.setSize({700.f, 10.f});
     linieRosie.setFillColor(sf::Color(200, 50, 50, 150));
     linieRosie.setPosition({0.f, 750.f});
 }
 
-void Cuvant::initializeaza( const sf::Font& fontIncarcat)
+void Cuvant::initializeaza(const sf::Font& fontIncarcat)
 {
     font = fontIncarcat;
     textHelper.setFont(font);
@@ -41,9 +40,9 @@ void Cuvant::incarcaDictionare()
     incarca("Date/cuvinte_medii.txt", cuvinteMedii);
     incarca("Date/cuvinte_lungi.txt", cuvinteLungi);
 
-    if(cuvinteScurte.empty()) cuvinteScurte.emplace_back("scurt");
-    if(cuvinteMedii.empty()) cuvinteMedii.emplace_back("mediu");
-    if(cuvinteLungi.empty()) cuvinteLungi.emplace_back("lungime");
+    if (cuvinteScurte.empty()) cuvinteScurte.emplace_back("scurt");
+    if (cuvinteMedii.empty()) cuvinteMedii.emplace_back("mediu");
+    if (cuvinteLungi.empty()) cuvinteLungi.emplace_back("lungime");
 }
 
 std::string Cuvant::extrageCuvantAleatoriu(DificultateJoc dificultate)
@@ -69,7 +68,7 @@ std::string Cuvant::extrageCuvantAleatoriu(DificultateJoc dificultate)
     }
 
     if (sursa->empty()) return "gol";
-    std::uniform_int_distribution<> rand_index(0, sursa->size() - 1);
+    std::uniform_int_distribution<> rand_index(0, static_cast<int>(sursa->size()) - 1);
     return (*sursa)[rand_index(gen)];
 }
 
@@ -81,19 +80,19 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
     int numarCuvinte = (std::uniform_int_distribution<>(0, 1)(gen) == 0) ? 2 : 3;
 
     float spatiuDisponibil = latimeEcran - 100.f;
-    float pas = spatiuDisponibil / numarCuvinte;
+    float pas = spatiuDisponibil / static_cast<float>(numarCuvinte);
 
     for (int i = 0; i < numarCuvinte; ++i) {
-        float startX = 50.f;
-        std::string textAles = extrageCuvantAleatoriu(dificultate);
+        constexpr float startX = 50.f;
+        const std::string textAles = extrageCuvantAleatoriu(dificultate);
 
         float bazaViteza = 50.f;
         if (dificultate == DificultateJoc::Mediu) bazaViteza = 80.f;
         if (dificultate == DificultateJoc::Greu) bazaViteza = 120.f;
-        float vitezaFinala = bazaViteza + std::uniform_int_distribution<>(0, 20)(gen);
+        float vitezaFinala = bazaViteza + static_cast<float>(std::uniform_int_distribution<>(0, 20)(gen));
 
-        float xPos = startX + i * pas + std::uniform_int_distribution<>(-20, 20)(gen);
-        float yPos = -50.f - std::uniform_int_distribution<>(0, 100)(gen);
+        const float xPos = startX + static_cast<float>(i) * pas + static_cast<float>(std::uniform_int_distribution<>(-20, 20)(gen));
+        const float yPos = -50.f - static_cast<float>(std::uniform_int_distribution<>(0, 100)(gen));
 
         CuvantActiv nou;
         nou.text = textAles;
@@ -113,7 +112,8 @@ void Cuvant::actualizeaza(float dt, DificultateJoc dificultate)
         if (!asteaptaSpawn) {
             ceasSpawn.restart();
             asteaptaSpawn = true;
-        } else {
+        }
+        else {
             if (ceasSpawn.getElapsedTime().asSeconds() > 1.0f) {
                 spawneazaGrup(700.f, dificultate);
                 asteaptaSpawn = false;
@@ -134,7 +134,8 @@ void Cuvant::actualizeaza(float dt, DificultateJoc dificultate)
 
         if (it->y > yLimitaRosie) {
             it = cuvinteActive.erase(it);
-        } else {
+        }
+        else {
             ++it;
         }
     }
@@ -187,11 +188,12 @@ void Cuvant::afiseaza(sf::RenderWindow& window)
     for (const auto& cuv : cuvinteActive) {
 
         textHelper.setString(cuv.text);
-
-        textHelper.setPosition({cuv.x, cuv.y});
+        textHelper.setPosition({ cuv.x, cuv.y });
 
         if (cuv.indexTastat > 0) {
             textHelper.setFillColor(sf::Color(255, 165, 0));
+        }
+        else {
             textHelper.setFillColor(sf::Color::Red);
         }
 

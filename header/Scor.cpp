@@ -2,6 +2,7 @@
 #include <fstream>
 #include <algorithm>
 #include <iomanip>
+#include <utility>
 
 // --- Clasa Scor ---
 
@@ -44,7 +45,7 @@ std::ostream& operator<<(std::ostream& out, const IntrareScor& intrare) {
 }
 
 
-Scor_board::Scor_board(const std::string& fisier) : fisierScoruri(fisier) {
+Scor_board::Scor_board(std::string  fisier) : fisierScoruri(std::move(fisier)) {
     board.reserve(10);
 }
 
@@ -72,7 +73,9 @@ void Scor_board::SBresetare()
 void Scor_board::adaugaScor(const std::string& nume, int scor)
 {
     board.push_back({nume, scor});
-    std::ranges::sort(board, std::greater<IntrareScor>());
+
+    // MODIFICARE AICI: Am scos <IntrareScor> si am lasat <> gol
+    std::ranges::sort(board, std::greater<>());
 
     if (board.size() > 10) {
         board.resize(10);
@@ -95,9 +98,8 @@ void Scor_board::SBactualizare() const {
 
 void Scor_board::afiseaza(sf::RenderWindow& window, const sf::Font& font) const
 {
-    sf::Text textAfisare(font, "");
-    textAfisare.setFont(font);
-    textAfisare.setCharacterSize(28);
+    // Nota: SFML 3.0 prefera constructorul cu (Font, String, Size)
+    sf::Text textAfisare(font, "", 28);
     textAfisare.setFillColor(sf::Color::Black);
 
     float yPos = 250.f;
