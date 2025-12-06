@@ -2,15 +2,19 @@
 #include "Buton.hpp"
 #include <ostream>
 #include <sstream>
+#include "Static.hpp"
+#include "Exceptii.hpp"
 #include <iomanip>
 
 Joc::Joc()
-    : window(sf::VideoMode({700, 800}), "Keyboard Master"),
+    : window(sf::VideoMode({static_cast<unsigned int>(Config::LATIME_FEREASTRA),
+                            static_cast<unsigned int>(Config::INALTIME_FEREASTRA)}),
+             Config::TITLU_FEREASTRA),
       fundal(52, 235, 137),
       fontPrincipal(),
       cuvant(),
       scor(),
-      scorBoard("Date/score_board.txt"),
+      scorBoard(Config::CALE_SCORURI),
       ceasJoc(),
       timpLimita(sf::seconds(30.f)),
       textTimer(fontPrincipal, ""),
@@ -28,13 +32,13 @@ Joc::Joc()
 {
     window.setFramerateLimit(60);
 
-    const std::string fontPath = "fonts/ARIAL.TTF";
-    if (!fontPrincipal.openFromFile(fontPath)) {
+    if (!fontPrincipal.openFromFile(Config::CALE_FONT)) {
         window.close();
-        throw std::runtime_error("Eroare: nu pot incarca fontul din " + fontPath);
+        throw EroareInitializare("Font principal (" + Config::CALE_FONT + ")");
     }
 
     scor.initializareFont(fontPrincipal);
+
     cuvant.initializeaza(fontPrincipal);
 
     textHP.setCharacterSize(24);
@@ -112,18 +116,7 @@ void Joc::incepeJoc() {
     scor.initializareFont(fontPrincipal);
     ceasJoc.restart();
 
-    if (nivelDificultate == DificultateJoc::Usor) {
-        timpLimita = sf::seconds(45.f);
-        hpMaxim = 100;
-    }
-    else if (nivelDificultate == DificultateJoc::Mediu) {
-        timpLimita = sf::seconds(30.f);
-        hpMaxim = 50;
-    }
-    else {
-        timpLimita = sf::seconds(20.f);
-        hpMaxim = 1;
-    }
+    timpLimita = sf::seconds(45.f);
 
     hpCurent = hpMaxim;
     textHP.setString("HP: " + std::to_string(hpCurent));
@@ -153,23 +146,26 @@ void Joc::tranzitieLaGameOver()
     textScorFinal.setString(text);
 
     sf::FloatRect b1 = textGameOver.getLocalBounds();
+
     textGameOver.setOrigin({
         b1.position.x + b1.size.x / 2.f,
         b1.position.y + b1.size.y / 2.f
     });
 
     textGameOver.setPosition({
-        static_cast<float>(window.getSize().x) / 2.f,
+        static_cast<float>(Config::LATIME_FEREASTRA) / 2.f,
         80.f
     });
 
     sf::FloatRect b2 = textScorFinal.getLocalBounds();
+
     textScorFinal.setOrigin({
         b2.position.x + b2.size.x / 2.f,
         b2.position.y + b2.size.y / 2.f
     });
+
     textScorFinal.setPosition({
-        static_cast<float>(window.getSize().x) / 2.f,
+        static_cast<float>(Config::LATIME_FEREASTRA) / 2.f,
         150.f
     });
 }

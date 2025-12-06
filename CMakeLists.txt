@@ -59,6 +59,9 @@ endif()
 # NOTE: update executable name in .github/workflows/cmake.yml:25 when changing name here
 add_executable(${MAIN_EXECUTABLE_NAME}
         main.cpp
+        header/Static.cpp
+        header/Static.hpp
+        header/Exceptii.hpp
         header/Buton.cpp
         header/Buton.hpp
         header/Cuvant.cpp

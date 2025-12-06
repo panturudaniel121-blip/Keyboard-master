@@ -1,21 +1,22 @@
 #include "Cuvant.hpp"
 #include "Buton.hpp"
+#include "Static.hpp"
+#include "Exceptii.hpp"
 #include <fstream>
-#include <random>
 
 Cuvant::Cuvant()
-    : font(), textHelper(font, "", 40), asteaptaSpawn(false)
+    : font(), textHelper(font, "", 30), asteaptaSpawn(false)
 {
-    linieRosie.setSize({700.f, 10.f});
+    linieRosie.setSize({static_cast<float>(Config::LATIME_FEREASTRA), 10.f});
     linieRosie.setFillColor(sf::Color(200, 50, 50, 150));
-    linieRosie.setPosition({0.f, 750.f});
+    linieRosie.setPosition({0.f, static_cast<float>(Config::INALTIME_FEREASTRA) - 50.f});
 }
 
 void Cuvant::initializeaza(const sf::Font& fontIncarcat)
 {
     font = fontIncarcat;
     textHelper.setFont(font);
-    textHelper.setCharacterSize(40);
+    textHelper.setCharacterSize(30);
 
     incarcaDictionare();
 }
@@ -30,27 +31,29 @@ void Cuvant::incarcaDictionare()
 {
     auto incarca = [](const std::string& path, std::vector<std::string>& dest) {
         std::ifstream fin(path);
-        if (!fin.is_open()) return;
+
+        if (!fin.is_open()) {
+            throw EroareResursaCritica(path);
+        }
+
         std::string cuv;
         while (fin >> cuv) dest.push_back(cuv);
+
+        if (dest.empty()) {
+            throw EroareDateInvalide("Fisierul " + path + " este gol!");
+        }
     };
 
     cuvinteScurte.clear(); cuvinteMedii.clear(); cuvinteLungi.clear();
+
     incarca("Date/cuvinte_scurte.txt", cuvinteScurte);
     incarca("Date/cuvinte_medii.txt", cuvinteMedii);
     incarca("Date/cuvinte_lungi.txt", cuvinteLungi);
-
-    if (cuvinteScurte.empty()) cuvinteScurte.emplace_back("scurt");
-    if (cuvinteMedii.empty()) cuvinteMedii.emplace_back("mediu");
-    if (cuvinteLungi.empty()) cuvinteLungi.emplace_back("lungime");
 }
 
 std::string Cuvant::extrageCuvantAleatoriu(DificultateJoc dificultate)
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> procent(1, 100);
-    int p = procent(gen);
+    int p = Random::getInt(1, 100);
 
     std::vector<std::string>* sursa = &cuvinteScurte;
 
@@ -68,16 +71,14 @@ std::string Cuvant::extrageCuvantAleatoriu(DificultateJoc dificultate)
     }
 
     if (sursa->empty()) return "gol";
-    std::uniform_int_distribution<> rand_index(0, static_cast<int>(sursa->size()) - 1);
-    return (*sursa)[rand_index(gen)];
+
+    int index = Random::getInt(0, static_cast<int>(sursa->size()) - 1);
+    return (*sursa)[index];
 }
 
 void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-
-    int numarCuvinte = (std::uniform_int_distribution<>(0, 1)(gen) == 0) ? 2 : 3;
+    int numarCuvinte = (Random::getInt(0, 1) == 0) ? 2 : 3;
 
     float spatiuDisponibil = latimeEcran - 100.f;
     float pas = spatiuDisponibil / static_cast<float>(numarCuvinte);
@@ -89,11 +90,12 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
         float bazaViteza = 50.f;
         if (dificultate == DificultateJoc::Mediu) bazaViteza = 80.f;
         if (dificultate == DificultateJoc::Greu) bazaViteza = 120.f;
-        const float vitezaFinala = bazaViteza + static_cast<float>(std::uniform_int_distribution<>(0, 20)(gen));
 
-        const float xPos = startX + static_cast<float>(i) * pas + static_cast<float>(std::uniform_int_distribution<>(-20, 20)(gen));
+        float vitezaFinala = bazaViteza + static_cast<float>(Random::getInt(0, 20));
 
-        const float yPos = static_cast<float>(std::uniform_int_distribution<>(100, 350)(gen));
+        float xPos = startX + static_cast<float>(i) * pas + static_cast<float>(Random::getInt(-20, 20));
+
+        auto yPos = static_cast<float>(Random::getInt(100, 350));
 
         CuvantActiv nou;
         nou.text = textAles;
