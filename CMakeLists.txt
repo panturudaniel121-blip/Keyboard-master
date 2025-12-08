@@ -5,18 +5,14 @@ set(MAIN_EXECUTABLE_NAME "${MAIN_PROJECT_NAME}")
 
 project(${MAIN_PROJECT_NAME})
 
-# Recomand C++20 pentru SFML 3.0 (mai stabil decat 23 momentan)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
-# Include optiunile helper (daca exista)
 include(cmake/Options.cmake OPTIONAL)
 include(cmake/CompilerFlags.cmake OPTIONAL)
 include(cmake/CopyHelper.cmake OPTIONAL)
 
 ###############################################################################
-# 1. Configurare SFML
 ###############################################################################
 
 include(FetchContent)
@@ -37,7 +33,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(SFML)
 
 ###############################################################################
-# 2. Dependinte Sistem
 ###############################################################################
 
 find_package(Threads REQUIRED)
@@ -46,7 +41,6 @@ if(UNIX AND NOT APPLE)
 endif()
 
 ###############################################################################
-# 3. Executabilul si Sursele
 ###############################################################################
 
 add_executable(${MAIN_EXECUTABLE_NAME}
@@ -64,11 +58,9 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         header/Joc.cpp
 )
 
-# Configurare Include Directories
 target_include_directories(${MAIN_EXECUTABLE_NAME} SYSTEM PRIVATE ${SFML_SOURCE_DIR}/include)
 target_include_directories(${MAIN_EXECUTABLE_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-# Configurare Link Libraries (O SINGURA DATA, completa)
 target_link_directories(${MAIN_EXECUTABLE_NAME} PRIVATE ${SFML_BINARY_DIR}/lib)
 
 target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE
@@ -83,13 +75,9 @@ if(UNIX AND NOT APPLE)
     target_link_libraries(${MAIN_EXECUTABLE_NAME} PRIVATE X11)
 endif()
 
-# Sanitizers (Optional)
 if(COMMAND set_compiler_flags)
     set_compiler_flags(RUN_SANITIZERS TRUE TARGET_NAMES ${MAIN_EXECUTABLE_NAME})
 endif()
-
-###############################################################################
-# 4. Copiere Resurse (Copy Files)
 ###############################################################################
 
 install(TARGETS ${MAIN_EXECUTABLE_NAME} DESTINATION ${DESTINATION_DIR})
@@ -97,19 +85,12 @@ if(APPLE)
     install(FILES launcher.command DESTINATION ${DESTINATION_DIR})
 endif()
 
-# Copiem folderele necesare langa executabil
 if(COMMAND copy_files)
     copy_files(FILES tastatura.txt COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})
-    copy_files(DIRECTORY fonts COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})
-
-    # Atentie: In codul C++ folosim "Date/..." deci folderul trebuie sa se numeasca "Date" (sau "date")
     copy_files(DIRECTORY date COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})
-
-    # Daca ai redenumit folderul in "Sunet", asigura-te ca in C++ ai schimbat caile
-    # Daca fisierele audio sunt in "date", linia de mai jos e inutila, dar nu strica
-    # copy_files(DIRECTORY Sunet COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})
+    copy_files(DIRECTORY Sunet COPY_TO_DESTINATION TARGET_NAME ${MAIN_EXECUTABLE_NAME})
 else()
-    # Fallback standard CMake
+    # Fallback standard
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/fonts DESTINATION ${CMAKE_BINARY_DIR})
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/date DESTINATION ${CMAKE_BINARY_DIR})
 endif()
