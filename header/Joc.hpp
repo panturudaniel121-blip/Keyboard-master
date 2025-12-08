@@ -80,6 +80,8 @@ public:
     sf::Text textStat3;
     sf::Text textVersiune;
 
+    void copiazaStatisticiInClipboard() const;
+
     friend std::ostream& operator<<(std::ostream& out, const Joc& j);
 
 private:
@@ -104,11 +106,8 @@ private:
     void actualizeazaJucand();
 
     static void scrieInLog(const std::string& mesaj);
-    void configureazaTexteStatistici();
 
     static std::string obtineTimestamp();
-
-    static void actualizeazaGameOver();
 
     void incarcaMuzica();
 

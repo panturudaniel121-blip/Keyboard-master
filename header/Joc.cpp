@@ -8,6 +8,8 @@
 #include <iomanip>
 #include <iostream>
 #include <ctime>
+#include <SFML/Window/Clipboard.hpp>
+
 Joc::Joc()
     : window(sf::VideoMode({static_cast<unsigned int>(Config::LATIME_FEREASTRA),
                             static_cast<unsigned int>(Config::INALTIME_FEREASTRA)}),
@@ -67,6 +69,8 @@ Joc::Joc()
 
     muzicaMeniu.setLooping(true);
     muzicaMeniu.play();
+
+
 }
 
 
@@ -193,7 +197,9 @@ void Joc::initializeazaUIStatistici()
     textVersiune.setString("v0.2");
     textVersiune.setPosition({520.f, 770.f});
 
-    meniuStatistici.adaugaButon(new ButonMeniu({270.f, 600.f}, fontPrincipal));
+    meniuStatistici.adaugaButon(new ButonMeniu({120.f, 600.f}, fontPrincipal));
+
+    meniuStatistici.adaugaButon(new ButonClipboard({420.f, 600.f}, fontPrincipal));
 }
 
 
@@ -532,6 +538,21 @@ void Joc::toggleMute() {
     muzicaMeniu.setVolume(vol);
     muzicaJoc.setVolume(vol);
     muzicaPierdut.setVolume(vol);
+}
+
+void Joc::copiazaStatisticiInClipboard() const {
+    std::string continut = "=== Keyboard Master Stats ===\n";
+
+    continut += textStat1.getString().toAnsiString() + "\n";
+    continut += textStat2.getString().toAnsiString() + "\n";
+    continut += textStat3.getString().toAnsiString() + "\n";
+
+    continut += "=============================\n";
+    continut += "Joaca si tu Keyboard Master!";
+
+    sf::Clipboard::setString(continut);
+
+    scrieInLog("Statisticile au fost copiate in Clipboard!");
 }
 
 std::ostream& operator<<(std::ostream& out, const Joc& j)

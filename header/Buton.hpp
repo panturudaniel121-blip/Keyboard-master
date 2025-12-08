@@ -115,6 +115,16 @@ protected:
     void doPrint(std::ostream& out) const override;
 };
 
+class ButonClipboard : public Buton {
+public:
+    ButonClipboard(const sf::Vector2f& pos, const sf::Font& font);
+    Buton* clone() const override;
+    void executaActiune(Joc& joc) override;
+protected:
+    void doPrint(std::ostream& out) const override;
+};
+
+//*************************************************** Meniu
 class Meniu {
     std::vector<Buton*> butoane;
 

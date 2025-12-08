@@ -2,6 +2,7 @@
 #include "Joc.hpp"
 #include <algorithm>
 #include <iostream>
+#include <SFML/Window/Clipboard.hpp>
 
 Buton::Buton(const sf::Vector2f& pozitie, const sf::Vector2f& dimensiune,
              const std::string& text, const sf::Font& font, sf::Color culoare)
@@ -180,7 +181,7 @@ void ButonMute::doAfiseaza(sf::RenderWindow& window) const {
 void ButonMute::doPrint(std::ostream& out) const { out << "[Buton Mute]"; }
 
 ButonStatistici::ButonStatistici(const sf::Vector2f& pos, const sf::Font& font)
-    : Buton(pos, {180.f, 50.f}, "Statistici", font, sf::Color(100, 200, 200)) // Cyan deschis
+    : Buton(pos, {180.f, 50.f}, "Statistici", font, sf::Color(100, 200, 200))
 {}
 
 Buton* ButonStatistici::clone() const {
@@ -195,6 +196,23 @@ void ButonStatistici::doPrint(std::ostream& out) const {
     out << "[Buton Statistici]";
 }
 
+ButonClipboard::ButonClipboard(const sf::Vector2f& pos, const sf::Font& font)
+    : Buton(pos, {160.f, 50.f}, "Copiaza", font, sf::Color(200, 200, 50))
+{}
+
+Buton* ButonClipboard::clone() const {
+    return new ButonClipboard(*this);
+}
+
+void ButonClipboard::executaActiune(Joc& joc) {
+    joc.copiazaStatisticiInClipboard();
+}
+
+void ButonClipboard::doPrint(std::ostream& out) const {
+    out << "[Buton Clipboard]";
+}
+
+//*************************************************** Meniu
 Meniu::~Meniu() {
     for (const auto btn : butoane) delete btn;
     butoane.clear();
