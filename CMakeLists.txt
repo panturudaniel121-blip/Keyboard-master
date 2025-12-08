@@ -70,6 +70,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         header/Scor.hpp
         header/Joc.hpp
         header/Joc.cpp
+        header/CuvantSpecial.cpp
+        header/CuvantSpecial.hpp
 
 )
 

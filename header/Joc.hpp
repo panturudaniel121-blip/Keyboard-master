@@ -90,7 +90,6 @@ private:
 
     static void actualizeazaGameOver();
 
-    void gestioneazaMuzica(StareJoc stareNoua); // Helper pentru tranzitii
     void incarcaMuzica();
 
     void afiseaza();

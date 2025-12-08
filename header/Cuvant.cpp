@@ -82,9 +82,11 @@ std::string Cuvant::extrageCuvantAleatoriu(DificultateJoc dificultate)
 void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
 {
     const int numarCuvinte = (Random::getInt(0, 1) == 0) ? 2 : 3;
-
     const float spatiuDisponibil = latimeEcran - 100.f;
     const float pas = spatiuDisponibil / static_cast<float>(numarCuvinte);
+
+    const bool areSpecial = (Random::getInt(0, 1) == 1);
+    const int indexSpecial = areSpecial ? Random::getInt(0, numarCuvinte - 1) : -1;
 
     for (int i = 0; i < numarCuvinte; ++i) {
         constexpr float startX = 50.f;
@@ -95,10 +97,13 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
         if (dificultate == DificultateJoc::Greu) bazaViteza = 120.f;
 
         const float vitezaFinala = bazaViteza + static_cast<float>(Random::getInt(0, 20));
-
         const float xPos = startX + static_cast<float>(i) * pas + static_cast<float>(Random::getInt(-20, 20));
+        const auto yPos = static_cast<float>(Random::getInt(50, 300));
 
-        const auto yPos = static_cast<float>(Random::getInt(100, 300));
+        TipCuvant tipCurent = TipCuvant::Normal;
+        if (i == indexSpecial) {
+            tipCurent = CuvantSpecial::genereazaTipAleatoriu();
+        }
 
         CuvantActiv nou;
         nou.text = textAles;
@@ -107,6 +112,7 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
         nou.y = yPos;
         nou.viteza = vitezaFinala;
         nou.finalizat = false;
+        nou.tip = tipCurent;
 
         cuvinteActive.push_back(nou);
     }
@@ -164,15 +170,15 @@ int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate, Scor&
     return damage;
 }
 
-void Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate)
+TipCuvant Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate)
 {
     if (auto textEv = event.getIf<sf::Event::TextEntered>()) {
         char caracterTastat = static_cast<char>(std::tolower(static_cast<int>(textEv->unicode)));
-        if (caracterTastat < 32) return;
+
+        if (caracterTastat < 32) return TipCuvant::Normal;
 
         CuvantActiv* tinta = nullptr;
 
-        // 1. Cautam tinta existenta
         for (auto& cuv : cuvinteActive) {
             if (cuv.indexTastat > 0 && !cuv.finalizat) {
                 tinta = &cuv;
@@ -180,7 +186,6 @@ void Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, Dific
             }
         }
 
-        // 2. Cautam tinta noua
         if (!tinta) {
             float maxY = -1000.f;
             for (auto& cuv : cuvinteActive) {
@@ -206,8 +211,14 @@ void Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, Dific
             char asteptat = static_cast<char>(std::tolower(static_cast<int>(tinta->text[tinta->indexTastat])));
 
             if (asteptat == caracterTastat) {
-                tinta->indexTastat++;
-                if (tinta->indexTastat >= tinta->text.size()) {
+
+                if (tinta->tip == TipCuvant::BonusInstant) {
+                    tinta->finalizat = true;
+                } else {
+                    tinta->indexTastat++;
+                }
+
+                if (tinta->finalizat || tinta->indexTastat >= tinta->text.size()) {
                     tinta->finalizat = true;
 
                     int multiplicator = 1;
@@ -215,14 +226,17 @@ void Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, Dific
                     if (dificultate == DificultateJoc::Greu) multiplicator = 3;
 
                     scor_ref.adauga(10 * multiplicator);
+
+                    return tinta->tip;
                 }
-            }
-            else {
+            } else {
                 valCurentValid = false;
                 scor_ref.resetCombo();
             }
         }
     }
+
+    return TipCuvant::Normal;
 }
 
 void Cuvant::afiseaza(sf::RenderWindow& window)
@@ -230,7 +244,6 @@ void Cuvant::afiseaza(sf::RenderWindow& window)
     window.draw(linieRosie);
 
     for (const auto& cuv : cuvinteActive) {
-
         textHelper.setString(cuv.text);
         textHelper.setPosition({ cuv.x, cuv.y });
 
@@ -238,14 +251,13 @@ void Cuvant::afiseaza(sf::RenderWindow& window)
             textHelper.setFillColor(sf::Color(255, 165, 0));
         }
         else {
-            textHelper.setFillColor(sf::Color::Red);
+            textHelper.setFillColor(CuvantSpecial::getCuloare(cuv.tip));
         }
 
         window.draw(textHelper);
 
         if (!cuv.finalizat && cuv.indexTastat < cuv.text.size()) {
             sf::Vector2f pozitieLitera = textHelper.findCharacterPos(cuv.indexTastat);
-
             cursor.setPosition({pozitieLitera.x, pozitieLitera.y + 35.f});
             window.draw(cursor);
         }

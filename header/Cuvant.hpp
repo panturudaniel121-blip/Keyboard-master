@@ -4,6 +4,7 @@
 #include <vector>
 #include <deque>
 #include "Scor.hpp"
+#include "CuvantSpecial.hpp"
 
 enum class DificultateJoc;
 
@@ -14,6 +15,7 @@ struct CuvantActiv {
     float y;
     float viteza;
     bool finalizat;
+    TipCuvant tip;
 };
 
 class Cuvant
@@ -41,7 +43,7 @@ public:
 
     int actualizeaza(float dt, DificultateJoc dificultate, Scor& scor);
 
-    void gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate);
+    TipCuvant gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate);
 
     void afiseaza(sf::RenderWindow& window);
 

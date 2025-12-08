@@ -316,7 +316,18 @@ void Joc::gestioneazaEvenimenteStart(const sf::Event& event)
 
 void Joc::gestioneazaEvenimenteJucand(const sf::Event& event)
 {
-    cuvant.gestioneazaEvenimente(event, scor, nivelDificultate);
+    TipCuvant bonus = cuvant.gestioneazaEvenimente(event, scor, nivelDificultate);
+
+    if (bonus == TipCuvant::BonusHP) {
+
+        hpCurent += 10;
+        textHP.setString("HP: " + std::to_string(hpCurent));
+    }
+    else if (bonus == TipCuvant::BonusTimp) {
+        timpLimita += sf::seconds(3.f);
+
+    }
+
 }
 
 void Joc::gestioneazaEvenimenteGameOver(const sf::Event& event)
