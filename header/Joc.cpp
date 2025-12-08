@@ -5,6 +5,7 @@
 #include <ostream>
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 
 Joc::Joc()
     : window(sf::VideoMode({static_cast<unsigned int>(Config::LATIME_FEREASTRA),
@@ -30,7 +31,8 @@ Joc::Joc()
       meniuStart(),
       textTitluStart(fontPrincipal, ""),
       meniuPierdut(),
-      textMesajPierdut(fontPrincipal, "")
+      textMesajPierdut(fontPrincipal, ""),
+      sunetOprit(false)
 {
     window.setFramerateLimit(60);
 
@@ -50,9 +52,14 @@ Joc::Joc()
 
     scorBoard.SBincarcare();
 
+    incarcaMuzica();
+
     initializeazaUIGameOver();
     initializeazaUIStart();
     initializeazaUIPierdut();
+
+    muzicaMeniu.setLooping(true);
+    muzicaMeniu.play();
 }
 
 void Joc::initializeazaUIStart()
@@ -77,6 +84,9 @@ void Joc::initializeazaUIStart()
 
     meniuStart.adaugaButon(new ButonDificultate(
     {250.f, 500.f}, fontPrincipal, DificultateJoc::Greu, "Greu"));
+
+    meniuStart.adaugaButon(new ButonMute(
+        {590.f, 10.f}, fontPrincipal, &sunetOprit));
 }
 
 void Joc::initializeazaUIGameOver()
@@ -109,6 +119,29 @@ void Joc::initializeazaUIGameOver()
     meniuGameOver.adaugaButon(new ButonMeniu({360.f, 600.f}, fontPrincipal));
 }
 
+void Joc::initializeazaUIPierdut()
+{
+    textMesajPierdut.setString("AI PIERDUT!");
+    textMesajPierdut.setCharacterSize(60);
+    textMesajPierdut.setFillColor(sf::Color(200, 0, 0));
+    textMesajPierdut.setStyle(sf::Text::Bold);
+
+    const sf::FloatRect bounds = textMesajPierdut.getLocalBounds();
+    textMesajPierdut.setOrigin({
+        bounds.position.x + bounds.size.x / 2.0f,
+        bounds.position.y + bounds.size.y / 2.0f
+    });
+
+    textMesajPierdut.setPosition({
+        static_cast<float>(Config::LATIME_FEREASTRA) / 2.f,
+        300.f
+    });
+
+    meniuPierdut.adaugaButon(new ButonRestart({100.f, 450.f}, fontPrincipal));
+    meniuPierdut.adaugaButon(new ButonMeniu({260.f, 450.f}, fontPrincipal));
+    meniuPierdut.adaugaButon(new ButonIesire({440.f, 450.f}, fontPrincipal));
+}
+
 void Joc::setDificultate(const DificultateJoc dif) {
     nivelDificultate = dif;
 }
@@ -135,6 +168,21 @@ void Joc::incepeJoc() {
     textHP.setString("HP: " + std::to_string(hpCurent));
 
     cuvant.reseteaza();
+
+    muzicaMeniu.stop();
+    muzicaPierdut.stop();
+
+    std::string cale;
+    if (nivelDificultate == DificultateJoc::Usor) cale = Config::CALE_MUZICA_USOR;
+    else if (nivelDificultate == DificultateJoc::Mediu) cale = Config::CALE_MUZICA_MEDIU;
+    else cale = Config::CALE_MUZICA_GREU;
+
+    if (muzicaJoc.openFromFile(cale)) {
+        muzicaJoc.setLooping(true);
+        if (sunetOprit) muzicaJoc.setVolume(0);
+        else muzicaJoc.setVolume(100);
+        muzicaJoc.play();
+    }
 }
 
 void Joc::reseteazaClasament()
@@ -159,8 +207,16 @@ void Joc::mergiLaMeniu()
     textIntroduNume.setString("Introdu numele: (apasa Enter pt. a salva)");
 
     stareCurenta = StareJoc::SelectieDificultate;
-}
 
+    muzicaJoc.stop();
+    muzicaPierdut.stop();
+
+    if (muzicaMeniu.getStatus() != sf::SoundSource::Status::Playing) {
+        if (sunetOprit) muzicaMeniu.setVolume(0);
+        else muzicaMeniu.setVolume(100);
+        muzicaMeniu.play();
+    }
+}
 
 void Joc::tranzitieLaGameOver()
 {
@@ -192,6 +248,27 @@ void Joc::tranzitieLaGameOver()
         static_cast<float>(Config::LATIME_FEREASTRA) / 2.f,
         150.f
     });
+
+    muzicaJoc.stop();
+
+    if (muzicaMeniu.getStatus() != sf::SoundSource::Status::Playing) {
+        if (sunetOprit) muzicaMeniu.setVolume(0);
+        else muzicaMeniu.setVolume(100);
+        muzicaMeniu.play();
+    }
+}
+
+void Joc::tranzitieLaPierdut()
+{
+    stareCurenta = StareJoc::Pierdut;
+
+    muzicaJoc.stop();
+
+    if (sunetOprit) muzicaPierdut.setVolume(0);
+    else muzicaPierdut.setVolume(100);
+
+    muzicaPierdut.setLooping(false);
+    muzicaPierdut.play();
 }
 
 void Joc::ruleaza()
@@ -272,6 +349,20 @@ void Joc::gestioneazaEvenimenteGameOver(const sf::Event& event)
             numeJucator += static_cast<char>(unicode);
         }
         textNumeJucator.setString(numeJucator);
+    }
+}
+
+void Joc::gestioneazaEvenimentePierdut(const sf::Event& event)
+{
+    sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+    sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos);
+
+    meniuPierdut.actualizeazaHover(worldPos);
+
+    if (auto mouseEv = event.getIf<sf::Event::MouseButtonPressed>()) {
+        if (mouseEv->button == sf::Mouse::Button::Left) {
+            meniuPierdut.gestioneazaClick(worldPos, *this);
+        }
     }
 }
 
@@ -359,55 +450,37 @@ void Joc::afiseazaGameOver()
     meniuGameOver.deseneaza(window);
 }
 
-std::ostream& operator<<(std::ostream& out, const Joc& j)
-{
-    out << j.scor << "\n";
-    return out;
-}
-void Joc::initializeazaUIPierdut()
-{
-    textMesajPierdut.setString("AI PIERDUT!");
-    textMesajPierdut.setCharacterSize(60);
-    textMesajPierdut.setFillColor(sf::Color(200, 0, 0));
-    textMesajPierdut.setStyle(sf::Text::Bold);
-
-    const sf::FloatRect bounds = textMesajPierdut.getLocalBounds();
-    textMesajPierdut.setOrigin({
-        bounds.position.x + bounds.size.x / 2.0f,
-        bounds.position.y + bounds.size.y / 2.0f
-    });
-
-    textMesajPierdut.setPosition({
-        static_cast<float>(Config::LATIME_FEREASTRA) / 2.f,
-        300.f
-    });
-
-    meniuPierdut.adaugaButon(new ButonRestart({100.f, 450.f}, fontPrincipal));
-    meniuPierdut.adaugaButon(new ButonMeniu({260.f, 450.f}, fontPrincipal));
-    meniuPierdut.adaugaButon(new ButonIesire({440.f, 450.f}, fontPrincipal));
-}
-
-void Joc::tranzitieLaPierdut()
-{
-    stareCurenta = StareJoc::Pierdut;
-}
-
-void Joc::gestioneazaEvenimentePierdut(const sf::Event& event)
-{
-    sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
-    sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos);
-
-    meniuPierdut.actualizeazaHover(worldPos);
-
-    if (auto mouseEv = event.getIf<sf::Event::MouseButtonPressed>()) {
-        if (mouseEv->button == sf::Mouse::Button::Left) {
-            meniuPierdut.gestioneazaClick(worldPos, *this);
-        }
-    }
-}
-
 void Joc::afiseazaPierdut()
 {
     window.draw(textMesajPierdut);
     meniuPierdut.deseneaza(window);
+}
+
+void Joc::incarcaMuzica() {
+    if (!muzicaMeniu.openFromFile(Config::CALE_MUZICA_MENIU)) {
+        std::cerr << "Eroare: Nu s-a putut incarca muzica meniu\n";
+    }
+    if (!muzicaPierdut.openFromFile(Config::CALE_MUZICA_PIERDUT)) {
+        std::cerr << "Eroare: Nu s-a putut incarca muzica pierdut\n";
+    }
+}
+
+void Joc::toggleMute() {
+    sunetOprit = !sunetOprit;
+
+    if (sunetOprit) {
+        muzicaMeniu.setVolume(0);
+        muzicaJoc.setVolume(0);
+        muzicaPierdut.setVolume(0);
+    } else {
+        muzicaMeniu.setVolume(100);
+        muzicaJoc.setVolume(100);
+        muzicaPierdut.setVolume(100);
+    }
+}
+
+std::ostream& operator<<(std::ostream& out, const Joc& j)
+{
+    out << j.scor << "\n";
+    return out;
 }

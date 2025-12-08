@@ -3,6 +3,7 @@
 #include "Cuvant.hpp"
 #include "Scor.hpp"
 #include "Buton.hpp"
+#include "SFML/Audio/Music.hpp"
 
 
 enum class StareJoc {
@@ -47,6 +48,12 @@ class Joc
     Meniu meniuPierdut;
     sf::Text textMesajPierdut;
 
+    sf::Music muzicaMeniu;
+    sf::Music muzicaJoc;
+    sf::Music muzicaPierdut;
+
+    bool sunetOprit;
+
 public:
     Joc();
     void ruleaza();
@@ -59,6 +66,8 @@ public:
 
     void setDificultate(DificultateJoc dif);
     void mergiLaMeniu();
+
+    void toggleMute();
 
     friend std::ostream& operator<<(std::ostream& out, const Joc& j);
 
@@ -80,6 +89,9 @@ private:
     void actualizeazaJucand();
 
     static void actualizeazaGameOver();
+
+    void gestioneazaMuzica(StareJoc stareNoua); // Helper pentru tranzitii
+    void incarcaMuzica();
 
     void afiseaza();
     void afiseazaJucand();

@@ -8,7 +8,7 @@ protected:
 public:
     explicit EroareJoc(const std::string& msg) : mesaj("Eroare Joc: " + msg) {}
 
-    const char* what() const noexcept override {
+    [[nodiscard]] const char* what() const noexcept override {
         return mesaj.c_str();
     }
 };

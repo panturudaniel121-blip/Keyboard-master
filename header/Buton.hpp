@@ -94,6 +94,18 @@ protected:
     void doPrint(std::ostream& out) const override;
 };
 
+class ButonMute : public Buton {
+    bool* refMuted;
+public:
+    ButonMute(const sf::Vector2f& pos, const sf::Font& font, bool* stareMute);
+    Buton* clone() const override;
+    void executaActiune(Joc& joc) override;
+
+    void doAfiseaza(sf::RenderWindow& window) const override;
+protected:
+    void doPrint(std::ostream& out) const override;
+};
+
 class Meniu {
     std::vector<Buton*> butoane;
 

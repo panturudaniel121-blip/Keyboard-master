@@ -2,11 +2,16 @@
 #include <string>
 #include <random>
 struct Config {
-    static const int LATIME_FEREASTRA = 700;
-    static const int INALTIME_FEREASTRA = 800;
+    static constexpr int LATIME_FEREASTRA = 700;
+    static constexpr int INALTIME_FEREASTRA = 800;
     static const std::string TITLU_FEREASTRA;
     static const std::string CALE_FONT;
     static const std::string CALE_SCORURI;
+    static const std::string CALE_MUZICA_MENIU;
+    static const std::string CALE_MUZICA_USOR;
+    static const std::string CALE_MUZICA_MEDIU;
+    static const std::string CALE_MUZICA_GREU;
+    static const std::string CALE_MUZICA_PIERDUT;
 };
 
 class Random {

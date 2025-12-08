@@ -131,6 +131,53 @@ void ButonMeniu::executaActiune(Joc& joc) {
 }
 
 void ButonMeniu::doPrint(std::ostream& out) const { out << "[Buton Meniu]"; }
+ButonMute::ButonMute(const sf::Vector2f& pos, const sf::Font& font, bool* stareMute)
+    : Buton(pos, {100.f, 40.f}, "Sound: ON", font, sf::Color(50, 50, 50)),
+      refMuted(stareMute)
+{
+    textButton.setCharacterSize(16);
+
+    sf::FloatRect bounds = textButton.getLocalBounds();
+    textButton.setOrigin({
+        bounds.position.x + bounds.size.x / 2.0f,
+        bounds.position.y + bounds.size.y / 2.0f
+    });
+    textButton.setPosition({
+        pos.x + 100.f / 2.0f,
+        pos.y + 40.f / 2.0f
+    });
+}
+Buton* ButonMute::clone() const {
+    return new ButonMute(*this);
+}
+
+void ButonMute::executaActiune(Joc& joc) {
+    joc.toggleMute();
+}
+
+void ButonMute::doAfiseaza(sf::RenderWindow& window) const {
+    auto& textRef = const_cast<sf::Text&>(textButton);
+    auto& shapeRef = const_cast<sf::RectangleShape&>(shape);
+
+    if (*refMuted) {
+        textRef.setString("Sound: OFF");
+        shapeRef.setFillColor(sf::Color(150, 50, 50));
+    } else {
+        textRef.setString("Sound: ON");
+        shapeRef.setFillColor(sf::Color(50, 150, 50));
+    }
+
+    sf::FloatRect bounds = textRef.getLocalBounds();
+    textRef.setOrigin({
+        bounds.position.x + bounds.size.x / 2.0f,
+        bounds.position.y + bounds.size.y / 2.0f
+    });
+
+    window.draw(shape);
+    window.draw(textButton);
+}
+
+void ButonMute::doPrint(std::ostream& out) const { out << "[Buton Mute]"; }
 
 Meniu::~Meniu() {
     for (const auto btn : butoane) delete btn;
