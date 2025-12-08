@@ -7,9 +7,11 @@
 Cuvant::Cuvant()
     : font(), textHelper(font, "", 30), asteaptaSpawn(false)
 {
-    linieRosie.setSize({static_cast<float>(Config::LATIME_FEREASTRA), 10.f});
-    linieRosie.setFillColor(sf::Color(200, 50, 50, 150));
+    linieRosie.setSize({static_cast<float>(Config::LATIME_FEREASTRA), 60.f});
+    linieRosie.setFillColor(sf::Color(255, 50, 50, 200));
     linieRosie.setPosition({0.f, static_cast<float>(Config::INALTIME_FEREASTRA) - 50.f});
+    cursor.setSize({15.f, 3.f});
+    cursor.setFillColor(sf::Color::Black);
 }
 
 void Cuvant::initializeaza(const sf::Font& fontIncarcat)
@@ -78,24 +80,24 @@ std::string Cuvant::extrageCuvantAleatoriu(DificultateJoc dificultate)
 
 void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
 {
-    int numarCuvinte = (Random::getInt(0, 1) == 0) ? 2 : 3;
+    const int numarCuvinte = (Random::getInt(0, 1) == 0) ? 2 : 3;
 
-    float spatiuDisponibil = latimeEcran - 100.f;
-    float pas = spatiuDisponibil / static_cast<float>(numarCuvinte);
+    const float spatiuDisponibil = latimeEcran - 100.f;
+    const float pas = spatiuDisponibil / static_cast<float>(numarCuvinte);
 
     for (int i = 0; i < numarCuvinte; ++i) {
-        float startX = 50.f;
-        std::string textAles = extrageCuvantAleatoriu(dificultate);
+        constexpr float startX = 50.f;
+        const std::string textAles = extrageCuvantAleatoriu(dificultate);
 
         float bazaViteza = 50.f;
         if (dificultate == DificultateJoc::Mediu) bazaViteza = 80.f;
         if (dificultate == DificultateJoc::Greu) bazaViteza = 120.f;
 
-        float vitezaFinala = bazaViteza + static_cast<float>(Random::getInt(0, 20));
+        const float vitezaFinala = bazaViteza + static_cast<float>(Random::getInt(0, 20));
 
-        float xPos = startX + static_cast<float>(i) * pas + static_cast<float>(Random::getInt(-20, 20));
+        const float xPos = startX + static_cast<float>(i) * pas + static_cast<float>(Random::getInt(-20, 20));
 
-        auto yPos = static_cast<float>(Random::getInt(100, 350));
+        const auto yPos = static_cast<float>(Random::getInt(100, 350));
 
         CuvantActiv nou;
         nou.text = textAles;
@@ -209,7 +211,11 @@ void Cuvant::afiseaza(sf::RenderWindow& window)
         else {
             textHelper.setFillColor(sf::Color::Red);
         }
-
         window.draw(textHelper);
+        if (!cuv.finalizat && cuv.indexTastat < cuv.text.size()) {
+            sf::Vector2f pozitieLitera = textHelper.findCharacterPos(cuv.indexTastat);
+            cursor.setPosition({pozitieLitera.x, pozitieLitera.y + 40.f});
+            window.draw(cursor);
+        }
     }
 }

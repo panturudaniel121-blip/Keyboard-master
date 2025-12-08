@@ -31,6 +31,8 @@ class Cuvant
     sf::Clock ceasSpawn;
     bool asteaptaSpawn;
 
+    sf::RectangleShape cursor;
+
 public:
     Cuvant();
     void initializeaza(const sf::Font& fontIncarcat);
