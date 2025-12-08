@@ -60,21 +60,20 @@ Joc::Joc()
     scorBoard.SBincarcare();
     incarcaMuzica();
 
-    // Initializam toate ecranele
     initializeazaUIGameOver();
     initializeazaUIStart();
     initializeazaUIPierdut();
-    initializeazaUIStatistici(); // <--- NOU
+    initializeazaUIStatistici();
 
     muzicaMeniu.setLooping(true);
     muzicaMeniu.play();
 }
 
-// --- FUNCTII AJUTATOARE (Log + Data) ---
+
 std::string Joc::obtineTimestamp()
 {
     std::time_t t = std::time(nullptr);
-    std::tm* now = std::localtime(&t);
+    const std::tm* now = std::localtime(&t);
     std::stringstream ss;
     ss << (now->tm_year + 1900) << "-" << (now->tm_mon + 1) << "-" << now->tm_mday;
     return ss.str();
@@ -85,7 +84,7 @@ void Joc::scrieInLog(const std::string& mesaj)
     std::cout << "[LOG] " << mesaj << std::endl;
 }
 
-// --- INITIALIZARE ECRANE ---
+
 
 void Joc::initializeazaUIStart()
 {
@@ -131,11 +130,11 @@ void Joc::initializeazaUIGameOver()
     textTimer.setFillColor(sf::Color::Black);
     textTimer.setPosition({550.f, 30.f});
 
-    // Butoane Sus
+
     meniuGameOver.adaugaButon(new ButonIesire({570.f, 5.f}, fontPrincipal));
     meniuGameOver.adaugaButon(new ButonReset({20.f, 5.f}, fontPrincipal));
 
-    // Butoane Jos (Aliniate)
+
     meniuGameOver.adaugaButon(new ButonRestart({120.f, 600.f}, fontPrincipal));
     meniuGameOver.adaugaButon(new ButonMeniu({480.f, 600.f}, fontPrincipal));
 }
@@ -158,11 +157,11 @@ void Joc::initializeazaUIPierdut()
         300.f
     });
 
-    // Butoane Aliniate
+
     meniuPierdut.adaugaButon(new ButonRestart({100.f, 450.f}, fontPrincipal));
     meniuPierdut.adaugaButon(new ButonMeniu({460.f, 450.f}, fontPrincipal));
 
-    // Iesire separat jos
+
     meniuPierdut.adaugaButon(new ButonIesire({290.f, 550.f}, fontPrincipal));
 }
 
@@ -197,7 +196,7 @@ void Joc::initializeazaUIStatistici()
     meniuStatistici.adaugaButon(new ButonMeniu({270.f, 600.f}, fontPrincipal));
 }
 
-// --- TRANZITII DE STARE ---
+
 
 void Joc::setDificultate(const DificultateJoc dif) {
     nivelDificultate = dif;
@@ -308,13 +307,13 @@ void Joc::tranzitieLaPierdut()
     muzicaPierdut.setLooping(false);
     muzicaPierdut.play();
 }
-
+/*
 void Joc::tranzitieLaStatistici()
 {
     stareCurenta = StareJoc::Statistici;
 
-    // Actualizam textele
-    textStat1.setString("Dificultate jucata: " + std::to_string((int)nivelDificultate + 1)); // +1 ca sa fie 1-3
+
+    textStat1.setString("Dificultate jucata: " + std::to_string((int)nivelDificultate + 1));
     textStat2.setString("Data: " + obtineTimestamp());
 
     std::string calificativ = "Incepator";
@@ -325,8 +324,8 @@ void Joc::tranzitieLaStatistici()
 
     scrieInLog("Vizualizare statistici.");
 }
+*/
 
-// --- BUCLA PRINCIPALA ---
 
 void Joc::ruleaza()
 {
@@ -349,7 +348,7 @@ void Joc::gestioneazaEvenimente()
         else if (stareCurenta == StareJoc::Jucand)              gestioneazaEvenimenteJucand(*event);
         else if (stareCurenta == StareJoc::GameOver)            gestioneazaEvenimenteGameOver(*event);
         else if (stareCurenta == StareJoc::Pierdut)             gestioneazaEvenimentePierdut(*event);
-        else if (stareCurenta == StareJoc::Statistici)          gestioneazaEvenimenteStatistici(*event); // NOU
+        else if (stareCurenta == StareJoc::Statistici)          gestioneazaEvenimenteStatistici(*event);
     }
 }
 
@@ -368,12 +367,10 @@ void Joc::gestioneazaEvenimenteStart(const sf::Event& event)
 
 void Joc::gestioneazaEvenimenteJucand(const sf::Event& event)
 {
-    // Capturam bonusul
     TipCuvant bonus = cuvant.gestioneazaEvenimente(event, scor, nivelDificultate);
 
     if (bonus == TipCuvant::BonusHP) {
         hpCurent += 10;
-        // Fara limita superioara
         textHP.setString("HP: " + std::to_string(hpCurent));
     }
     else if (bonus == TipCuvant::BonusTimp) {
@@ -444,7 +441,6 @@ void Joc::actualizeaza()
     if (stareCurenta == StareJoc::Jucand) {
         actualizeazaJucand();
     }
-    // Celelalte stari sunt statice
 }
 
 void Joc::actualizeazaJucand()
@@ -480,7 +476,7 @@ void Joc::afiseaza()
     else if (stareCurenta == StareJoc::Jucand)              afiseazaJucand();
     else if (stareCurenta == StareJoc::GameOver)            afiseazaGameOver();
     else if (stareCurenta == StareJoc::Pierdut)             afiseazaPierdut();
-    else if (stareCurenta == StareJoc::Statistici)          afiseazaStatistici(); // NOU
+    else if (stareCurenta == StareJoc::Statistici)          afiseazaStatistici();
 
     window.display();
 }
