@@ -10,7 +10,8 @@ enum class StareJoc {
     SelectieDificultate,
     Jucand,
     GameOver,
-    Pierdut
+    Pierdut,
+    Statistici
 };
 
 class Joc
@@ -34,12 +35,15 @@ class Joc
     StareJoc stareCurenta;
     DificultateJoc nivelDificultate;
 
+    Meniu meniuStatistici;
     sf::Text textGameOver;
     sf::Text textScorFinal;
     sf::Text textIntroduNume;
     sf::Text textNumeJucator;
     std::string numeJucator;
+
     bool scorSalvat;
+
     Meniu meniuGameOver;
 
     Meniu meniuStart;
@@ -66,8 +70,15 @@ public:
 
     void setDificultate(DificultateJoc dif);
     void mergiLaMeniu();
+    void tranzitieLaStatistici();
 
     void toggleMute();
+
+    sf::Text textStatisticiTitlu;
+    sf::Text textStat1;
+    sf::Text textStat2;
+    sf::Text textStat3;
+    sf::Text textVersiune;
 
     friend std::ostream& operator<<(std::ostream& out, const Joc& j);
 
@@ -75,6 +86,7 @@ private:
     void initializeazaUIGameOver();
     void initializeazaUIStart();
     void initializeazaUIPierdut();
+    void initializeazaUIStatistici();
 
     void tranzitieLaGameOver();
     void tranzitieLaPierdut();
@@ -85,8 +97,16 @@ private:
     void gestioneazaEvenimenteStart(const sf::Event& event);
     void gestioneazaEvenimentePierdut(const sf::Event& event);
 
+    void gestioneazaEvenimenteStatistici(const sf::Event& event);
+    void afiseazaStatistici();
+
     void actualizeaza();
     void actualizeazaJucand();
+
+    static void scrieInLog(const std::string& mesaj);
+    void configureazaTexteStatistici();
+
+    static std::string obtineTimestamp();
 
     static void actualizeazaGameOver();
 

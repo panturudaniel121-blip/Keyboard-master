@@ -2,11 +2,12 @@
 #include "Buton.hpp"
 #include "Static.hpp"
 #include "Exceptii.hpp"
+#include "CuvantSpecial.hpp"
 #include <ostream>
 #include <sstream>
 #include <iomanip>
 #include <iostream>
-
+#include <ctime>
 Joc::Joc()
     : window(sf::VideoMode({static_cast<unsigned int>(Config::LATIME_FEREASTRA),
                             static_cast<unsigned int>(Config::INALTIME_FEREASTRA)}),
@@ -22,6 +23,7 @@ Joc::Joc()
       hpCurent(100), hpMaxim(100), textHP(fontPrincipal, ""),
       stareCurenta(StareJoc::SelectieDificultate),
       nivelDificultate(DificultateJoc::Mediu),
+      meniuStatistici(),
       textGameOver(fontPrincipal, ""),
       textScorFinal(fontPrincipal, ""),
       textIntroduNume(fontPrincipal, ""),
@@ -32,7 +34,12 @@ Joc::Joc()
       textTitluStart(fontPrincipal, ""),
       meniuPierdut(),
       textMesajPierdut(fontPrincipal, ""),
-      sunetOprit(false)
+      sunetOprit(false),
+      textStatisticiTitlu(fontPrincipal, ""),
+      textStat1(fontPrincipal, ""),
+      textStat2(fontPrincipal, ""),
+      textStat3(fontPrincipal, ""),
+      textVersiune(fontPrincipal, "")
 {
     window.setFramerateLimit(60);
 
@@ -42,25 +49,43 @@ Joc::Joc()
     }
 
     scor.initializareFont(fontPrincipal);
-
     cuvant.initializeaza(fontPrincipal);
 
+    textHP.setFont(fontPrincipal);
     textHP.setCharacterSize(24);
     textHP.setFillColor(sf::Color::Red);
     textHP.setPosition({20.f, 60.f});
     textHP.setStyle(sf::Text::Bold);
 
     scorBoard.SBincarcare();
-
     incarcaMuzica();
 
+    // Initializam toate ecranele
     initializeazaUIGameOver();
     initializeazaUIStart();
     initializeazaUIPierdut();
+    initializeazaUIStatistici(); // <--- NOU
 
     muzicaMeniu.setLooping(true);
     muzicaMeniu.play();
 }
+
+// --- FUNCTII AJUTATOARE (Log + Data) ---
+std::string Joc::obtineTimestamp()
+{
+    std::time_t t = std::time(nullptr);
+    std::tm* now = std::localtime(&t);
+    std::stringstream ss;
+    ss << (now->tm_year + 1900) << "-" << (now->tm_mon + 1) << "-" << now->tm_mday;
+    return ss.str();
+}
+
+void Joc::scrieInLog(const std::string& mesaj)
+{
+    std::cout << "[LOG] " << mesaj << std::endl;
+}
+
+// --- INITIALIZARE ECRANE ---
 
 void Joc::initializeazaUIStart()
 {
@@ -76,17 +101,10 @@ void Joc::initializeazaUIStart()
     });
     textTitluStart.setPosition({350.f, 200.f});
 
-    meniuStart.adaugaButon(new ButonDificultate(
-        {250.f, 300.f}, fontPrincipal, DificultateJoc::Usor, "Usor"));
-
-    meniuStart.adaugaButon(new ButonDificultate(
-        {250.f, 400.f}, fontPrincipal, DificultateJoc::Mediu, "Mediu"));
-
-    meniuStart.adaugaButon(new ButonDificultate(
-    {250.f, 500.f}, fontPrincipal, DificultateJoc::Greu, "Greu"));
-
-    meniuStart.adaugaButon(new ButonMute(
-        {590.f, 10.f}, fontPrincipal, &sunetOprit));
+    meniuStart.adaugaButon(new ButonDificultate({250.f, 300.f}, fontPrincipal, DificultateJoc::Usor, "Usor"));
+    meniuStart.adaugaButon(new ButonDificultate({250.f, 400.f}, fontPrincipal, DificultateJoc::Mediu, "Mediu"));
+    meniuStart.adaugaButon(new ButonDificultate({250.f, 500.f}, fontPrincipal, DificultateJoc::Greu, "Greu"));
+    meniuStart.adaugaButon(new ButonMute({590.f, 10.f}, fontPrincipal, &sunetOprit));
 }
 
 void Joc::initializeazaUIGameOver()
@@ -113,10 +131,13 @@ void Joc::initializeazaUIGameOver()
     textTimer.setFillColor(sf::Color::Black);
     textTimer.setPosition({550.f, 30.f});
 
+    // Butoane Sus
     meniuGameOver.adaugaButon(new ButonIesire({570.f, 5.f}, fontPrincipal));
     meniuGameOver.adaugaButon(new ButonReset({20.f, 5.f}, fontPrincipal));
-    meniuGameOver.adaugaButon(new ButonRestart({180.f, 600.f}, fontPrincipal));
-    meniuGameOver.adaugaButon(new ButonMeniu({360.f, 600.f}, fontPrincipal));
+
+    // Butoane Jos (Aliniate)
+    meniuGameOver.adaugaButon(new ButonRestart({120.f, 600.f}, fontPrincipal));
+    meniuGameOver.adaugaButon(new ButonMeniu({480.f, 600.f}, fontPrincipal));
 }
 
 void Joc::initializeazaUIPierdut()
@@ -137,10 +158,46 @@ void Joc::initializeazaUIPierdut()
         300.f
     });
 
+    // Butoane Aliniate
     meniuPierdut.adaugaButon(new ButonRestart({100.f, 450.f}, fontPrincipal));
-    meniuPierdut.adaugaButon(new ButonMeniu({260.f, 450.f}, fontPrincipal));
-    meniuPierdut.adaugaButon(new ButonIesire({440.f, 450.f}, fontPrincipal));
+    meniuPierdut.adaugaButon(new ButonMeniu({460.f, 450.f}, fontPrincipal));
+
+    // Iesire separat jos
+    meniuPierdut.adaugaButon(new ButonIesire({290.f, 550.f}, fontPrincipal));
 }
+
+void Joc::initializeazaUIStatistici()
+{
+    textStatisticiTitlu.setFont(fontPrincipal);
+    textStatisticiTitlu.setCharacterSize(30);
+    textStatisticiTitlu.setFillColor(sf::Color::Black);
+    textStatisticiTitlu.setString("--- STATISTICI SESIUNE ---");
+
+    sf::FloatRect b = textStatisticiTitlu.getLocalBounds();
+    textStatisticiTitlu.setOrigin({b.position.x + b.size.x/2.f, b.position.y + b.size.y/2.f});
+    textStatisticiTitlu.setPosition({static_cast<float>(Config::LATIME_FEREASTRA)/2.f, 100.f});
+
+    auto configText = [&](sf::Text& t, float y) {
+        t.setFont(fontPrincipal);
+        t.setCharacterSize(24);
+        t.setFillColor(sf::Color(50, 50, 50));
+        t.setPosition({100.f, y});
+    };
+
+    configText(textStat1, 200.f);
+    configText(textStat2, 250.f);
+    configText(textStat3, 300.f);
+
+    textVersiune.setFont(fontPrincipal);
+    textVersiune.setCharacterSize(14);
+    textVersiune.setFillColor(sf::Color(100, 100, 100));
+    textVersiune.setString("v1.0.3 - Final Build");
+    textVersiune.setPosition({520.f, 770.f});
+
+    meniuStatistici.adaugaButon(new ButonMeniu({270.f, 600.f}, fontPrincipal));
+}
+
+// --- TRANZITII DE STARE ---
 
 void Joc::setDificultate(const DificultateJoc dif) {
     nivelDificultate = dif;
@@ -148,10 +205,8 @@ void Joc::setDificultate(const DificultateJoc dif) {
 
 void Joc::incepeJoc() {
     stareCurenta = StareJoc::Jucand;
-
     scor.reset();
     ceasJoc.restart();
-
     timpLimita = sf::seconds(45.f);
     if (nivelDificultate == DificultateJoc::Usor) {
         hpMaxim = 100;
@@ -182,6 +237,8 @@ void Joc::incepeJoc() {
         else muzicaJoc.setVolume(100);
         muzicaJoc.play();
     }
+
+    scrieInLog("Joc inceput. Dificultate setata.");
 }
 
 void Joc::reseteazaClasament()
@@ -225,31 +282,14 @@ void Joc::tranzitieLaGameOver()
     textScorFinal.setString(text);
 
     sf::FloatRect b1 = textGameOver.getLocalBounds();
-
-    textGameOver.setOrigin({
-        b1.position.x + b1.size.x / 2.f,
-        b1.position.y + b1.size.y / 2.f
-    });
-
-    textGameOver.setPosition({
-        static_cast<float>(Config::LATIME_FEREASTRA) / 2.f,
-        80.f
-    });
+    textGameOver.setOrigin({b1.position.x + b1.size.x / 2.f, b1.position.y + b1.size.y / 2.f});
+    textGameOver.setPosition({static_cast<float>(Config::LATIME_FEREASTRA) / 2.f, 80.f});
 
     sf::FloatRect b2 = textScorFinal.getLocalBounds();
-
-    textScorFinal.setOrigin({
-        b2.position.x + b2.size.x / 2.f,
-        b2.position.y + b2.size.y / 2.f
-    });
-
-    textScorFinal.setPosition({
-        static_cast<float>(Config::LATIME_FEREASTRA) / 2.f,
-        150.f
-    });
+    textScorFinal.setOrigin({b2.position.x + b2.size.x / 2.f, b2.position.y + b2.size.y / 2.f});
+    textScorFinal.setPosition({static_cast<float>(Config::LATIME_FEREASTRA) / 2.f, 150.f});
 
     muzicaJoc.stop();
-
     if (muzicaMeniu.getStatus() != sf::SoundSource::Status::Playing) {
         if (sunetOprit) muzicaMeniu.setVolume(0);
         else muzicaMeniu.setVolume(100);
@@ -262,13 +302,31 @@ void Joc::tranzitieLaPierdut()
     stareCurenta = StareJoc::Pierdut;
 
     muzicaJoc.stop();
-
     if (sunetOprit) muzicaPierdut.setVolume(0);
     else muzicaPierdut.setVolume(100);
 
     muzicaPierdut.setLooping(false);
     muzicaPierdut.play();
 }
+
+void Joc::tranzitieLaStatistici()
+{
+    stareCurenta = StareJoc::Statistici;
+
+    // Actualizam textele
+    textStat1.setString("Dificultate jucata: " + std::to_string((int)nivelDificultate + 1)); // +1 ca sa fie 1-3
+    textStat2.setString("Data: " + obtineTimestamp());
+
+    std::string calificativ = "Incepator";
+    if (scor.getValoare() > 500) calificativ = "Expert";
+    else if (scor.getValoare() > 200) calificativ = "Avansat";
+
+    textStat3.setString("Calificativ: " + calificativ + " (" + std::to_string(scor.getValoare()) + " pct)");
+
+    scrieInLog("Vizualizare statistici.");
+}
+
+// --- BUCLA PRINCIPALA ---
 
 void Joc::ruleaza()
 {
@@ -287,17 +345,11 @@ void Joc::gestioneazaEvenimente()
         if (event->getIf<sf::Event::Closed>())
             window.close();
 
-        if (stareCurenta == StareJoc::SelectieDificultate) {
-            gestioneazaEvenimenteStart(*event);
-        }
-        else if (stareCurenta == StareJoc::Jucand) {
-            gestioneazaEvenimenteJucand(*event);
-        } else if (stareCurenta == StareJoc::GameOver) {
-            gestioneazaEvenimenteGameOver(*event);
-        }
-        else if (stareCurenta == StareJoc::Pierdut) {
-            gestioneazaEvenimentePierdut(*event);
-        }
+        if (stareCurenta == StareJoc::SelectieDificultate)      gestioneazaEvenimenteStart(*event);
+        else if (stareCurenta == StareJoc::Jucand)              gestioneazaEvenimenteJucand(*event);
+        else if (stareCurenta == StareJoc::GameOver)            gestioneazaEvenimenteGameOver(*event);
+        else if (stareCurenta == StareJoc::Pierdut)             gestioneazaEvenimentePierdut(*event);
+        else if (stareCurenta == StareJoc::Statistici)          gestioneazaEvenimenteStatistici(*event); // NOU
     }
 }
 
@@ -316,18 +368,17 @@ void Joc::gestioneazaEvenimenteStart(const sf::Event& event)
 
 void Joc::gestioneazaEvenimenteJucand(const sf::Event& event)
 {
+    // Capturam bonusul
     TipCuvant bonus = cuvant.gestioneazaEvenimente(event, scor, nivelDificultate);
 
     if (bonus == TipCuvant::BonusHP) {
-
         hpCurent += 10;
+        // Fara limita superioara
         textHP.setString("HP: " + std::to_string(hpCurent));
     }
     else if (bonus == TipCuvant::BonusTimp) {
         timpLimita += sf::seconds(3.f);
-
     }
-
 }
 
 void Joc::gestioneazaEvenimenteGameOver(const sf::Event& event)
@@ -366,7 +417,6 @@ void Joc::gestioneazaEvenimentePierdut(const sf::Event& event)
 {
     sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
     sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos);
-
     meniuPierdut.actualizeazaHover(worldPos);
 
     if (auto mouseEv = event.getIf<sf::Event::MouseButtonPressed>()) {
@@ -376,13 +426,25 @@ void Joc::gestioneazaEvenimentePierdut(const sf::Event& event)
     }
 }
 
+void Joc::gestioneazaEvenimenteStatistici(const sf::Event& event)
+{
+    sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+    sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos);
+    meniuStatistici.actualizeazaHover(worldPos);
+
+    if (auto mouseEv = event.getIf<sf::Event::MouseButtonPressed>()) {
+        if (mouseEv->button == sf::Mouse::Button::Left) {
+            meniuStatistici.gestioneazaClick(worldPos, *this);
+        }
+    }
+}
+
 void Joc::actualizeaza()
 {
     if (stareCurenta == StareJoc::Jucand) {
         actualizeazaJucand();
-    } else if (stareCurenta == StareJoc::GameOver) {
-        actualizeazaGameOver();
     }
+    // Celelalte stari sunt statice
 }
 
 void Joc::actualizeazaJucand()
@@ -410,25 +472,15 @@ void Joc::actualizeazaJucand()
     textTimer.setString("Timp: " + ss.str());
 }
 
-void Joc::actualizeazaGameOver()
-{
-}
-
 void Joc::afiseaza()
 {
     window.clear(fundal);
 
-    if (stareCurenta == StareJoc::SelectieDificultate) {
-        afiseazaStart();
-    }
-    else if (stareCurenta == StareJoc::Jucand) {
-        afiseazaJucand();
-    } else if (stareCurenta == StareJoc::GameOver) {
-        afiseazaGameOver();
-    }
-    else if (stareCurenta == StareJoc::Pierdut) {
-        afiseazaPierdut();
-    }
+    if (stareCurenta == StareJoc::SelectieDificultate)      afiseazaStart();
+    else if (stareCurenta == StareJoc::Jucand)              afiseazaJucand();
+    else if (stareCurenta == StareJoc::GameOver)            afiseazaGameOver();
+    else if (stareCurenta == StareJoc::Pierdut)             afiseazaPierdut();
+    else if (stareCurenta == StareJoc::Statistici)          afiseazaStatistici(); // NOU
 
     window.display();
 }
@@ -451,12 +503,9 @@ void Joc::afiseazaGameOver()
 {
     window.draw(textGameOver);
     window.draw(textScorFinal);
-
     scorBoard.afiseaza(window, fontPrincipal);
-
     window.draw(textIntroduNume);
     window.draw(textNumeJucator);
-
     meniuGameOver.deseneaza(window);
 }
 
@@ -466,27 +515,27 @@ void Joc::afiseazaPierdut()
     meniuPierdut.deseneaza(window);
 }
 
+void Joc::afiseazaStatistici()
+{
+    window.draw(textStatisticiTitlu);
+    window.draw(textStat1);
+    window.draw(textStat2);
+    window.draw(textStat3);
+    window.draw(textVersiune);
+    meniuStatistici.deseneaza(window);
+}
+
 void Joc::incarcaMuzica() {
-    if (!muzicaMeniu.openFromFile(Config::CALE_MUZICA_MENIU)) {
-        std::cerr << "Eroare: Nu s-a putut incarca muzica meniu\n";
-    }
-    if (!muzicaPierdut.openFromFile(Config::CALE_MUZICA_PIERDUT)) {
-        std::cerr << "Eroare: Nu s-a putut incarca muzica pierdut\n";
-    }
+    if (!muzicaMeniu.openFromFile(Config::CALE_MUZICA_MENIU)) std::cerr << "Eroare meniu music\n";
+    if (!muzicaPierdut.openFromFile(Config::CALE_MUZICA_PIERDUT)) std::cerr << "Eroare defeat music\n";
 }
 
 void Joc::toggleMute() {
     sunetOprit = !sunetOprit;
-
-    if (sunetOprit) {
-        muzicaMeniu.setVolume(0);
-        muzicaJoc.setVolume(0);
-        muzicaPierdut.setVolume(0);
-    } else {
-        muzicaMeniu.setVolume(100);
-        muzicaJoc.setVolume(100);
-        muzicaPierdut.setVolume(100);
-    }
+    float vol = sunetOprit ? 0.f : 100.f;
+    muzicaMeniu.setVolume(vol);
+    muzicaJoc.setVolume(vol);
+    muzicaPierdut.setVolume(vol);
 }
 
 std::ostream& operator<<(std::ostream& out, const Joc& j)
