@@ -4,6 +4,7 @@
 #include "Scor.hpp"
 #include "Buton.hpp"
 
+
 enum class StareJoc {
     SelectieDificultate,
     Jucand,
@@ -49,36 +50,40 @@ class Joc
 public:
     Joc();
     void ruleaza();
-    friend std::ostream& operator<<(std::ostream& out, const Joc& j);
 
     sf::RenderWindow& getWindow() { return window; }
+
     void reseteazaClasament();
     void restartJoc();
+    void incepeJoc();
 
     void setDificultate(DificultateJoc dif);
-    void incepeJoc();
+    void mergiLaMeniu();
+
+    friend std::ostream& operator<<(std::ostream& out, const Joc& j);
 
 private:
     void initializeazaUIGameOver();
     void initializeazaUIStart();
+    void initializeazaUIPierdut();
+
     void tranzitieLaGameOver();
+    void tranzitieLaPierdut();
 
     void gestioneazaEvenimente();
     void gestioneazaEvenimenteJucand(const sf::Event& event);
     void gestioneazaEvenimenteGameOver(const sf::Event& event);
     void gestioneazaEvenimenteStart(const sf::Event& event);
+    void gestioneazaEvenimentePierdut(const sf::Event& event);
 
     void actualizeaza();
     void actualizeazaJucand();
+
     static void actualizeazaGameOver();
 
     void afiseaza();
     void afiseazaJucand();
     void afiseazaGameOver();
     void afiseazaStart();
-
-    void initializeazaUIPierdut();
-    void tranzitieLaPierdut();
-    void gestioneazaEvenimentePierdut(const sf::Event& event);
     void afiseazaPierdut();
 };

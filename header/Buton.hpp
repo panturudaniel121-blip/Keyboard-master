@@ -85,6 +85,15 @@ protected:
     void doPrint(std::ostream& out) const override;
 };
 
+class ButonMeniu : public Buton {
+public:
+    ButonMeniu(const sf::Vector2f& pos, const sf::Font& font);
+    Buton* clone() const override;
+    void executaActiune(Joc& joc) override;
+protected:
+    void doPrint(std::ostream& out) const override;
+};
+
 class Meniu {
     std::vector<Buton*> butoane;
 

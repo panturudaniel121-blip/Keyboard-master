@@ -97,7 +97,7 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
 
         const float xPos = startX + static_cast<float>(i) * pas + static_cast<float>(Random::getInt(-20, 20));
 
-        const auto yPos = static_cast<float>(Random::getInt(100, 350));
+        const auto yPos = static_cast<float>(Random::getInt(100, 300));
 
         CuvantActiv nou;
         nou.text = textAles;
@@ -154,7 +154,9 @@ int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate)
 void Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate)
 {
     if (auto textEv = event.getIf<sf::Event::TextEntered>()) {
-        char caracterTastat = static_cast<char>(textEv->unicode);
+        char caracterTastat = static_cast<char>(std::tolower(static_cast<int>(textEv->unicode)));
+
+        if (caracterTastat < 32) return;
 
         CuvantActiv* tinta = nullptr;
 
@@ -169,17 +171,23 @@ void Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, Dific
             float maxY = -1000.f;
             for (auto& cuv : cuvinteActive) {
                 if (cuv.finalizat) continue;
-                if (!cuv.text.empty() && cuv.text[0] == caracterTastat) {
-                    if (cuv.y > maxY) {
-                        maxY = cuv.y;
-                        tinta = &cuv;
+                if (!cuv.text.empty()) {
+                    char primaLiteraCuvant = static_cast<char>(std::tolower(static_cast<int>(cuv.text[0])));
+
+                    if (primaLiteraCuvant == caracterTastat) {
+                        if (cuv.y > maxY) {
+                            maxY = cuv.y;
+                            tinta = &cuv;
+                        }
                     }
                 }
             }
         }
 
         if (tinta) {
-            if (tinta->text[tinta->indexTastat] == caracterTastat) {
+            char literaAsteptata = static_cast<char>(std::tolower(static_cast<int>(tinta->text[tinta->indexTastat])));
+
+            if (literaAsteptata == caracterTastat) {
                 tinta->indexTastat++;
 
                 if (tinta->indexTastat >= tinta->text.size()) {
@@ -211,10 +219,13 @@ void Cuvant::afiseaza(sf::RenderWindow& window)
         else {
             textHelper.setFillColor(sf::Color::Red);
         }
+
         window.draw(textHelper);
+
         if (!cuv.finalizat && cuv.indexTastat < cuv.text.size()) {
             sf::Vector2f pozitieLitera = textHelper.findCharacterPos(cuv.indexTastat);
-            cursor.setPosition({pozitieLitera.x, pozitieLitera.y + 40.f});
+
+            cursor.setPosition({pozitieLitera.x, pozitieLitera.y + 35.f});
             window.draw(cursor);
         }
     }

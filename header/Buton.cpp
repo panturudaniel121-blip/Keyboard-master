@@ -120,6 +120,18 @@ void ButonDificultate::doPrint(std::ostream& out) const {
     out << "[Dificultate: " << static_cast<int>(dificultateAsociata) << "]";
 }
 
+ButonMeniu::ButonMeniu(const sf::Vector2f& pos, const sf::Font& font)
+    : Buton(pos, {160.f, 50.f}, "Meniu", font, sf::Color(100, 100, 200))
+{}
+
+Buton* ButonMeniu::clone() const { return new ButonMeniu(*this); }
+
+void ButonMeniu::executaActiune(Joc& joc) {
+    joc.mergiLaMeniu();
+}
+
+void ButonMeniu::doPrint(std::ostream& out) const { out << "[Buton Meniu]"; }
+
 Meniu::~Meniu() {
     for (const auto btn : butoane) delete btn;
     butoane.clear();

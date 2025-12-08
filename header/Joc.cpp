@@ -62,7 +62,7 @@ void Joc::initializeazaUIStart()
     textTitluStart.setFillColor(sf::Color::Black);
     textTitluStart.setStyle(sf::Text::Bold);
 
-    sf::FloatRect bounds = textTitluStart.getLocalBounds();
+    const sf::FloatRect bounds = textTitluStart.getLocalBounds();
     textTitluStart.setOrigin({
         bounds.position.x + bounds.size.x / 2.0f,
         bounds.position.y + bounds.size.y / 2.0f
@@ -76,7 +76,7 @@ void Joc::initializeazaUIStart()
         {250.f, 400.f}, fontPrincipal, DificultateJoc::Mediu, "Mediu"));
 
     meniuStart.adaugaButon(new ButonDificultate(
-        {250.f, 500.f}, fontPrincipal, DificultateJoc::Greu, "Greu"));
+    {250.f, 500.f}, fontPrincipal, DificultateJoc::Greu, "Greu"));
 }
 
 void Joc::initializeazaUIGameOver()
@@ -105,10 +105,11 @@ void Joc::initializeazaUIGameOver()
 
     meniuGameOver.adaugaButon(new ButonIesire({570.f, 5.f}, fontPrincipal));
     meniuGameOver.adaugaButon(new ButonReset({20.f, 5.f}, fontPrincipal));
-    meniuGameOver.adaugaButon(new ButonRestart({280.f, 600.f}, fontPrincipal));
+    meniuGameOver.adaugaButon(new ButonRestart({180.f, 600.f}, fontPrincipal));
+    meniuGameOver.adaugaButon(new ButonMeniu({360.f, 600.f}, fontPrincipal));
 }
 
-void Joc::setDificultate(DificultateJoc dif) {
+void Joc::setDificultate(const DificultateJoc dif) {
     nivelDificultate = dif;
 }
 
@@ -149,6 +150,17 @@ void Joc::restartJoc()
 {
     incepeJoc();
 }
+
+void Joc::mergiLaMeniu()
+{
+    numeJucator = "";
+    textNumeJucator.setString("");
+    scorSalvat = false;
+    textIntroduNume.setString("Introdu numele: (apasa Enter pt. a salva)");
+
+    stareCurenta = StareJoc::SelectieDificultate;
+}
+
 
 void Joc::tranzitieLaGameOver()
 {
@@ -370,8 +382,9 @@ void Joc::initializeazaUIPierdut()
         300.f
     });
 
-    meniuPierdut.adaugaButon(new ButonRestart({280.f, 450.f}, fontPrincipal));
-    meniuPierdut.adaugaButon(new ButonIesire({290.f, 550.f}, fontPrincipal));
+    meniuPierdut.adaugaButon(new ButonRestart({100.f, 450.f}, fontPrincipal));
+    meniuPierdut.adaugaButon(new ButonMeniu({260.f, 450.f}, fontPrincipal));
+    meniuPierdut.adaugaButon(new ButonIesire({440.f, 450.f}, fontPrincipal));
 }
 
 void Joc::tranzitieLaPierdut()
