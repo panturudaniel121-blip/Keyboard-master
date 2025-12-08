@@ -130,12 +130,13 @@ void Joc::initializeazaUIGameOver()
     textTimer.setFillColor(sf::Color::Black);
     textTimer.setPosition({550.f, 30.f});
 
-
     meniuGameOver.adaugaButon(new ButonIesire({570.f, 5.f}, fontPrincipal));
     meniuGameOver.adaugaButon(new ButonReset({20.f, 5.f}, fontPrincipal));
 
-
     meniuGameOver.adaugaButon(new ButonRestart({120.f, 600.f}, fontPrincipal));
+
+    meniuGameOver.adaugaButon(new ButonStatistici({280.f, 600.f}, fontPrincipal));
+
     meniuGameOver.adaugaButon(new ButonMeniu({480.f, 600.f}, fontPrincipal));
 }
 
@@ -159,9 +160,8 @@ void Joc::initializeazaUIPierdut()
 
 
     meniuPierdut.adaugaButon(new ButonRestart({100.f, 450.f}, fontPrincipal));
+    meniuPierdut.adaugaButon(new ButonStatistici({260.f, 450.f}, fontPrincipal));
     meniuPierdut.adaugaButon(new ButonMeniu({460.f, 450.f}, fontPrincipal));
-
-
     meniuPierdut.adaugaButon(new ButonIesire({290.f, 550.f}, fontPrincipal));
 }
 
@@ -190,7 +190,7 @@ void Joc::initializeazaUIStatistici()
     textVersiune.setFont(fontPrincipal);
     textVersiune.setCharacterSize(14);
     textVersiune.setFillColor(sf::Color(100, 100, 100));
-    textVersiune.setString("v1.0.3 - Final Build");
+    textVersiune.setString("v0.2");
     textVersiune.setPosition({520.f, 770.f});
 
     meniuStatistici.adaugaButon(new ButonMeniu({270.f, 600.f}, fontPrincipal));
@@ -307,7 +307,7 @@ void Joc::tranzitieLaPierdut()
     muzicaPierdut.setLooping(false);
     muzicaPierdut.play();
 }
-/*
+
 void Joc::tranzitieLaStatistici()
 {
     stareCurenta = StareJoc::Statistici;
@@ -324,7 +324,7 @@ void Joc::tranzitieLaStatistici()
 
     scrieInLog("Vizualizare statistici.");
 }
-*/
+
 
 
 void Joc::ruleaza()

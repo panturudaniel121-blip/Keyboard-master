@@ -179,6 +179,22 @@ void ButonMute::doAfiseaza(sf::RenderWindow& window) const {
 
 void ButonMute::doPrint(std::ostream& out) const { out << "[Buton Mute]"; }
 
+ButonStatistici::ButonStatistici(const sf::Vector2f& pos, const sf::Font& font)
+    : Buton(pos, {180.f, 50.f}, "Statistici", font, sf::Color(100, 200, 200)) // Cyan deschis
+{}
+
+Buton* ButonStatistici::clone() const {
+    return new ButonStatistici(*this);
+}
+
+void ButonStatistici::executaActiune(Joc& joc) {
+    joc.tranzitieLaStatistici();
+}
+
+void ButonStatistici::doPrint(std::ostream& out) const {
+    out << "[Buton Statistici]";
+}
+
 Meniu::~Meniu() {
     for (const auto btn : butoane) delete btn;
     butoane.clear();
