@@ -10,6 +10,3 @@ int Random::getInt(int min, int max) {
     std::uniform_int_distribution<int> dist(min, max);
     return dist(generator);
 }
-
-void Random::init() {
-}
