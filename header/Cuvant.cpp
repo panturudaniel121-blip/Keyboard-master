@@ -5,7 +5,7 @@
 #include <fstream>
 
 Cuvant::Cuvant()
-    : font(), textHelper(font, "", 30), asteaptaSpawn(false)
+    : font(), textHelper(font, "", 30), asteaptaSpawn(false),valCurentValid(false)
 {
     linieRosie.setSize({static_cast<float>(Config::LATIME_FEREASTRA), 60.f});
     linieRosie.setFillColor(sf::Color(255, 50, 50, 200));
@@ -27,6 +27,7 @@ void Cuvant::reseteaza() {
     cuvinteActive.clear();
     ceasSpawn.restart();
     asteaptaSpawn = false;
+    valCurentValid = false;
 }
 
 void Cuvant::incarcaDictionare()
@@ -111,12 +112,18 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
     }
 }
 
-int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate)
+int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate, Scor& scor)
 {
     int damage = 0;
 
     if (cuvinteActive.empty()) {
         if (!asteaptaSpawn) {
+
+            if (valCurentValid) {
+                scor.cresteCombo();
+            }
+            valCurentValid = true;
+
             ceasSpawn.restart();
             asteaptaSpawn = true;
         }
@@ -129,7 +136,6 @@ int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate)
     }
 
     float yLimitaRosie = 750.f;
-
     auto it = cuvinteActive.begin();
     while (it != cuvinteActive.end()) {
         if (it->finalizat) {
@@ -141,13 +147,16 @@ int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate)
 
         if (it->y > yLimitaRosie) {
             damage += 1;
+
+            valCurentValid = false;
+            scor.resetCombo();
+
             it = cuvinteActive.erase(it);
         }
         else {
             ++it;
         }
     }
-
     return damage;
 }
 
@@ -155,11 +164,11 @@ void Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, Dific
 {
     if (auto textEv = event.getIf<sf::Event::TextEntered>()) {
         char caracterTastat = static_cast<char>(std::tolower(static_cast<int>(textEv->unicode)));
-
         if (caracterTastat < 32) return;
 
         CuvantActiv* tinta = nullptr;
 
+        // 1. Cautam tinta existenta
         for (auto& cuv : cuvinteActive) {
             if (cuv.indexTastat > 0 && !cuv.finalizat) {
                 tinta = &cuv;
@@ -167,14 +176,14 @@ void Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, Dific
             }
         }
 
+        // 2. Cautam tinta noua
         if (!tinta) {
             float maxY = -1000.f;
             for (auto& cuv : cuvinteActive) {
                 if (cuv.finalizat) continue;
                 if (!cuv.text.empty()) {
-                    char primaLiteraCuvant = static_cast<char>(std::tolower(static_cast<int>(cuv.text[0])));
-
-                    if (primaLiteraCuvant == caracterTastat) {
+                    char prima = static_cast<char>(std::tolower(static_cast<int>(cuv.text[0])));
+                    if (prima == caracterTastat) {
                         if (cuv.y > maxY) {
                             maxY = cuv.y;
                             tinta = &cuv;
@@ -182,14 +191,18 @@ void Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, Dific
                     }
                 }
             }
+
+            if (!tinta) {
+                valCurentValid = false;
+                scor_ref.resetCombo();
+            }
         }
 
         if (tinta) {
-            char literaAsteptata = static_cast<char>(std::tolower(static_cast<int>(tinta->text[tinta->indexTastat])));
+            char asteptat = static_cast<char>(std::tolower(static_cast<int>(tinta->text[tinta->indexTastat])));
 
-            if (literaAsteptata == caracterTastat) {
+            if (asteptat == caracterTastat) {
                 tinta->indexTastat++;
-
                 if (tinta->indexTastat >= tinta->text.size()) {
                     tinta->finalizat = true;
 
@@ -199,6 +212,10 @@ void Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, Dific
 
                     scor_ref.adauga(10 * multiplicator);
                 }
+            }
+            else {
+                valCurentValid = false;
+                scor_ref.resetCombo();
             }
         }
     }

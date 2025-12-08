@@ -149,8 +149,7 @@ void Joc::setDificultate(const DificultateJoc dif) {
 void Joc::incepeJoc() {
     stareCurenta = StareJoc::Jucand;
 
-    scor = Scor();
-    scor.initializareFont(fontPrincipal);
+    scor.reset();
     ceasJoc.restart();
 
     timpLimita = sf::seconds(45.f);
@@ -382,7 +381,7 @@ void Joc::actualizeazaJucand()
 
     constexpr float dt = 1.0f / 60.0f;
 
-    if (const int cuvintePierdute = cuvant.actualizeaza(dt, nivelDificultate); cuvintePierdute > 0) {
+    if (const int cuvintePierdute = cuvant.actualizeaza(dt, nivelDificultate, scor); cuvintePierdute > 0) {
         hpCurent -= cuvintePierdute * 10;
         if (hpCurent < 0) hpCurent = 0;
         textHP.setString("HP: " + std::to_string(hpCurent));

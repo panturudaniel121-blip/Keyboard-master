@@ -5,28 +5,60 @@
 #include <utility>
 
 Scor::Scor()
-    : valoare(0), font(), text(font, "", 30)
+    : valoare(0), font(), text(font, "", 30), multiplicator(1), textCombo(font, "", 24)
 {
     text.setCharacterSize(36);
     text.setFillColor(sf::Color::Black);
     text.setStyle(sf::Text::Bold);
     text.setPosition({20.f, 20.f});
     text.setString("Scor: 0");
+
+    textCombo.setCharacterSize(28);
+    textCombo.setFillColor(sf::Color(255, 215, 0));
+    textCombo.setOutlineColor(sf::Color::Black);
+    textCombo.setOutlineThickness(2.f);
+    textCombo.setStyle(sf::Text::Bold);
+    textCombo.setPosition({300.f, 25.f});
+    textCombo.setString("");
 }
 
 void Scor::initializareFont(const sf::Font& fontIncarcat) {
     font = fontIncarcat;
     text.setFont(font);
+    textCombo.setFont(font);
 }
 
 void Scor::adauga(int puncte)
 {
-    valoare += puncte;
+    valoare += puncte * multiplicator;
     text.setString("Scor: " + std::to_string(valoare));
+}
+
+void Scor::cresteCombo() {
+    if (multiplicator < 4) {
+        multiplicator++;
+        textCombo.setString("COMBO x" + std::to_string(multiplicator));
+    }
+}
+
+void Scor::resetCombo() {
+    if (multiplicator > 1) {
+        multiplicator = 1;
+        textCombo.setString("");
+    }
+}
+
+void Scor::reset() {
+    valoare = 0;
+    resetCombo();
+    text.setString("Scor: 0");
 }
 
 void Scor::afiseaza(sf::RenderWindow& window) const {
     window.draw(text);
+    if (multiplicator > 1) {
+        window.draw(textCombo);
+    }
 }
 
 std::istream& operator>>(std::istream& in, IntrareScor& intrare) {

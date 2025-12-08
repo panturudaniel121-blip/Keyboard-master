@@ -33,12 +33,13 @@ class Cuvant
 
     sf::RectangleShape cursor;
 
+    bool valCurentValid;
 public:
     Cuvant();
     void initializeaza(const sf::Font& fontIncarcat);
     void reseteaza();
 
-    int actualizeaza(float dt, DificultateJoc dificultate);
+    int actualizeaza(float dt, DificultateJoc dificultate, Scor& scor);
 
     void gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate);
 

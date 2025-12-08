@@ -8,12 +8,18 @@ class Scor
     int valoare;
     sf::Font font;
     sf::Text text;
+    int multiplicator;
+    sf::Text textCombo;
 
 public:
     Scor();
     void initializareFont(const sf::Font& fontIncarcat);
 
     void adauga(int puncte);
+
+    void cresteCombo();
+    void resetCombo();
+    void reset();
 
     void afiseaza(sf::RenderWindow& window) const;
     int getValoare() const { return valoare; }
