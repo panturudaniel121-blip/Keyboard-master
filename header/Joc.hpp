@@ -3,7 +3,7 @@
 #include "Cuvant.hpp"
 #include "Scor.hpp"
 #include "Buton.hpp"
-#include "SFML/Audio/Music.hpp"
+#include "SFML/Audio.hpp"
 
 
 enum class StareJoc {
