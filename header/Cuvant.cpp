@@ -122,6 +122,7 @@ int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate, Scor&
             if (valCurentValid) {
                 scor.cresteCombo();
             }
+
             valCurentValid = true;
 
             ceasSpawn.restart();
@@ -136,8 +137,10 @@ int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate, Scor&
     }
 
     float yLimitaRosie = 750.f;
+
     auto it = cuvinteActive.begin();
     while (it != cuvinteActive.end()) {
+
         if (it->finalizat) {
             it = cuvinteActive.erase(it);
             continue;
@@ -157,6 +160,7 @@ int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate, Scor&
             ++it;
         }
     }
+
     return damage;
 }
 
