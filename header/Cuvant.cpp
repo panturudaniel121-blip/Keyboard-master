@@ -74,7 +74,7 @@ std::string Cuvant::extrageCuvantAleatoriu(DificultateJoc dificultate)
 
     if (sursa->empty()) return "gol";
 
-    int index = Random::getInt(0, static_cast<int>(sursa->size()) - 1);
+    const int index = Random::getInt(0, static_cast<int>(sursa->size()) - 1);
     return (*sursa)[index];
 }
 

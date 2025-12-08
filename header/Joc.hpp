@@ -1,9 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "Cuvant.hpp"
 #include "Scor.hpp"
 #include "Buton.hpp"
-#include "SFML/Audio.hpp"
 
 
 enum class StareJoc {
