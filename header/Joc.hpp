@@ -7,7 +7,8 @@
 enum class StareJoc {
     SelectieDificultate,
     Jucand,
-    GameOver
+    GameOver,
+    Pierdut
 };
 
 class Joc
@@ -42,6 +43,9 @@ class Joc
     Meniu meniuStart;
     sf::Text textTitluStart;
 
+    Meniu meniuPierdut;
+    sf::Text textMesajPierdut;
+
 public:
     Joc();
     void ruleaza();
@@ -72,4 +76,9 @@ private:
     void afiseazaJucand();
     void afiseazaGameOver();
     void afiseazaStart();
+
+    void initializeazaUIPierdut();
+    void tranzitieLaPierdut();
+    void gestioneazaEvenimentePierdut(const sf::Event& event);
+    void afiseazaPierdut();
 };

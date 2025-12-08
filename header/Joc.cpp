@@ -1,9 +1,9 @@
 #include "Joc.hpp"
 #include "Buton.hpp"
-#include <ostream>
-#include <sstream>
 #include "Static.hpp"
 #include "Exceptii.hpp"
+#include <ostream>
+#include <sstream>
 #include <iomanip>
 
 Joc::Joc()
@@ -28,7 +28,9 @@ Joc::Joc()
       scorSalvat(false),
       meniuGameOver(),
       meniuStart(),
-      textTitluStart(fontPrincipal, "")
+      textTitluStart(fontPrincipal, ""),
+      meniuPierdut(),
+      textMesajPierdut(fontPrincipal, "")
 {
     window.setFramerateLimit(60);
 
@@ -50,6 +52,7 @@ Joc::Joc()
 
     initializeazaUIGameOver();
     initializeazaUIStart();
+    initializeazaUIPierdut();
 }
 
 void Joc::initializeazaUIStart()
@@ -117,6 +120,15 @@ void Joc::incepeJoc() {
     ceasJoc.restart();
 
     timpLimita = sf::seconds(45.f);
+    if (nivelDificultate == DificultateJoc::Usor) {
+        hpMaxim = 100;
+    }
+    else if (nivelDificultate == DificultateJoc::Mediu) {
+        hpMaxim = 50;
+    }
+    else {
+        hpMaxim = 1;
+    }
 
     hpCurent = hpMaxim;
     textHP.setString("HP: " + std::to_string(hpCurent));
@@ -192,8 +204,11 @@ void Joc::gestioneazaEvenimente()
         }
         else if (stareCurenta == StareJoc::Jucand) {
             gestioneazaEvenimenteJucand(*event);
-        } else {
+        } else if (stareCurenta == StareJoc::GameOver) {
             gestioneazaEvenimenteGameOver(*event);
+        }
+        else if (stareCurenta == StareJoc::Pierdut) {
+            gestioneazaEvenimentePierdut(*event);
         }
     }
 }
@@ -270,7 +285,10 @@ void Joc::actualizeazaJucand()
         textHP.setString("HP: " + std::to_string(hpCurent));
     }
 
-    if (timpRamas == 0 || hpCurent <= 0) {
+    if (hpCurent <= 0) {
+        tranzitieLaPierdut();
+    }
+    else if (timpRamas == 0) {
         tranzitieLaGameOver();
     }
 
@@ -292,8 +310,11 @@ void Joc::afiseaza()
     }
     else if (stareCurenta == StareJoc::Jucand) {
         afiseazaJucand();
-    } else {
+    } else if (stareCurenta == StareJoc::GameOver) {
         afiseazaGameOver();
+    }
+    else if (stareCurenta == StareJoc::Pierdut) {
+        afiseazaPierdut();
     }
 
     window.display();
@@ -330,4 +351,50 @@ std::ostream& operator<<(std::ostream& out, const Joc& j)
 {
     out << j.scor << "\n";
     return out;
+}
+void Joc::initializeazaUIPierdut()
+{
+    textMesajPierdut.setString("AI PIERDUT!");
+    textMesajPierdut.setCharacterSize(60);
+    textMesajPierdut.setFillColor(sf::Color(200, 0, 0));
+    textMesajPierdut.setStyle(sf::Text::Bold);
+
+    const sf::FloatRect bounds = textMesajPierdut.getLocalBounds();
+    textMesajPierdut.setOrigin({
+        bounds.position.x + bounds.size.x / 2.0f,
+        bounds.position.y + bounds.size.y / 2.0f
+    });
+
+    textMesajPierdut.setPosition({
+        static_cast<float>(Config::LATIME_FEREASTRA) / 2.f,
+        300.f
+    });
+
+    meniuPierdut.adaugaButon(new ButonRestart({280.f, 450.f}, fontPrincipal));
+    meniuPierdut.adaugaButon(new ButonIesire({290.f, 550.f}, fontPrincipal));
+}
+
+void Joc::tranzitieLaPierdut()
+{
+    stareCurenta = StareJoc::Pierdut;
+}
+
+void Joc::gestioneazaEvenimentePierdut(const sf::Event& event)
+{
+    sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+    sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos);
+
+    meniuPierdut.actualizeazaHover(worldPos);
+
+    if (auto mouseEv = event.getIf<sf::Event::MouseButtonPressed>()) {
+        if (mouseEv->button == sf::Mouse::Button::Left) {
+            meniuPierdut.gestioneazaClick(worldPos, *this);
+        }
+    }
+}
+
+void Joc::afiseazaPierdut()
+{
+    window.draw(textMesajPierdut);
+    meniuPierdut.deseneaza(window);
 }
