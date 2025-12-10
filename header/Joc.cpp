@@ -319,7 +319,7 @@ void Joc::tranzitieLaStatistici()
     stareCurenta = StareJoc::Statistici;
 
 
-    textStat1.setString("Dificultate jucata: " + std::to_string((int)nivelDificultate + 1));
+    textStat1.setString("Dificultate jucata: " + std::to_string(static_cast<int>(nivelDificultate) + 1));
     textStat2.setString("Data: " + obtineTimestamp());
 
     std::string calificativ = "Incepator";
