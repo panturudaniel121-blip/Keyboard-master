@@ -81,7 +81,7 @@ public:
     sf::Text textVersiune;
 
     void copiazaStatisticiInClipboard() const;
-
+    static void scrieInLog(const std::string& mesaj);
     friend std::ostream& operator<<(std::ostream& out, const Joc& j);
 
 private:
@@ -104,8 +104,6 @@ private:
 
     void actualizeaza();
     void actualizeazaJucand();
-
-    static void scrieInLog(const std::string& mesaj);
 
     static std::string obtineTimestamp();
 

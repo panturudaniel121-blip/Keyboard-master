@@ -2,7 +2,6 @@
 #include "Joc.hpp"
 #include <algorithm>
 #include <iostream>
-#include <SFML/Window/Clipboard.hpp>
 
 Buton::Buton(const sf::Vector2f& pozitie, const sf::Vector2f& dimensiune,
              const std::string& text, const sf::Font& font, sf::Color culoare)
@@ -237,12 +236,13 @@ void swap(Meniu& first, Meniu& second) noexcept {
 void Meniu::adaugaButon(Buton* btn) {
     butoane.push_back(btn);
 }
-
+//dynamic_cast cu altceva decat cout
 void Meniu::gestioneazaClick(const sf::Vector2f& mousePos, Joc& joc) const {
     for (const auto btn : butoane) {
         if (btn->esteMouseDeasupra(mousePos)) {
+
             if (dynamic_cast<ButonIesire*>(btn)) {
-                std::cout << "DEBUG: Exit pressed\n";
+                Joc::scrieInLog("Utilizatorul a apasat Butonul Iesire. Se inchide sesiunea...");
             }
             btn->executaActiune(joc);
             return;
