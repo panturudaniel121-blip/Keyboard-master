@@ -13,14 +13,20 @@ T clamp(T valoare, T minim, T maxim) {
 
 template <typename T>
 class StatisticaSesiune {
-    std::string nume;
+    std::string eticheta;
     T valoare;
 public:
-    StatisticaSesiune(std::string n, T v) : nume(std::move(n)), valoare(v) {}
+    StatisticaSesiune(std::string e, T v) : eticheta(std::move(e)), valoare(v) {}
+
     [[nodiscard]] std::string genereazaText() const {
-        return nume + ": " + std::to_string(valoare);
+        return eticheta + ": " + std::to_string(valoare);
     }
 };
+
+template <>
+inline std::string StatisticaSesiune<std::string>::genereazaText() const {
+    return eticheta + ": " + valoare;
+}
 
 struct Config {
     static constexpr int LATIME_FEREASTRA = 700;

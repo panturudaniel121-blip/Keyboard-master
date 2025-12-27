@@ -326,13 +326,18 @@ void Joc::tranzitieLaStatistici() {
     stareCurenta = StareJoc::Statistici;
 
     const StatisticaSesiune<int> statScor("Scor Final", scor.getValoare());
+
     std::string dataCurenta = obtineTimestamp();
+
+    const StatisticaSesiune<std::string> statData("Data Sesiune", dataCurenta);
+
     const StatisticaSesiune<float> statTimp("Timp ramas", ceasJoc.getElapsedTime().asSeconds());
 
-    textStat1.setString(statScor.genereazaText());
-    textStat3.setString(statTimp.genereazaText());
+    textStat1.setString(statData.genereazaText());
+    textStat2.setString(statTimp.genereazaText());
+    textStat3.setString(statScor.genereazaText());
 
-    Logger::log("Ecran statistici generat prin clase sablon.");
+    Logger::log("Ecran statistici generat prin clase sablon pentru: " + dataCurenta);
 }
 
 
@@ -382,7 +387,7 @@ void Joc::gestioneazaEvenimenteJucand(const sf::Event& event) {
         hpCurent += 10;
         hpCurent = clamp<int>(hpCurent, 0, 200);
         textHP.setString("HP: " + std::to_string(hpCurent));
-        Logger::getInstance().log("Bonus HP colectat. Viata curenta: " + std::to_string(hpCurent));
+        Logger::log("Bonus HP colectat. Viata curenta: " + std::to_string(hpCurent));
     }
 
 }
