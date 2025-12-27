@@ -287,14 +287,18 @@ void Joc::tranzitieLaGameOver()
 {
     stareCurenta = StareJoc::GameOver;
 
+    if (!scorSalvat) {
+        textIntroduNume.setString("Introdu numele: (apasa Enter pt. a salva)");
+    }
+
     const std::string text = "Scorul tau final: " + std::to_string(scor.getValoare());
     textScorFinal.setString(text);
 
-    sf::FloatRect b1 = textGameOver.getLocalBounds();
+    const sf::FloatRect b1 = textGameOver.getLocalBounds();
     textGameOver.setOrigin({b1.position.x + b1.size.x / 2.f, b1.position.y + b1.size.y / 2.f});
     textGameOver.setPosition({static_cast<float>(Config::LATIME_FEREASTRA) / 2.f, 80.f});
 
-    sf::FloatRect b2 = textScorFinal.getLocalBounds();
+    const sf::FloatRect b2 = textScorFinal.getLocalBounds();
     textScorFinal.setOrigin({b2.position.x + b2.size.x / 2.f, b2.position.y + b2.size.y / 2.f});
     textScorFinal.setPosition({static_cast<float>(Config::LATIME_FEREASTRA) / 2.f, 150.f});
 
@@ -322,7 +326,7 @@ void Joc::tranzitieLaStatistici() {
     stareCurenta = StareJoc::Statistici;
 
     const StatisticaSesiune<int> statScor("Scor Final", scor.getValoare());
-
+    std::string dataCurenta = obtineTimestamp();
     const StatisticaSesiune<float> statTimp("Timp ramas", ceasJoc.getElapsedTime().asSeconds());
 
     textStat1.setString(statScor.genereazaText());
@@ -378,6 +382,7 @@ void Joc::gestioneazaEvenimenteJucand(const sf::Event& event) {
         hpCurent += 10;
         hpCurent = clamp<int>(hpCurent, 0, 200);
         textHP.setString("HP: " + std::to_string(hpCurent));
+        Logger::getInstance().log("Bonus HP colectat. Viata curenta: " + std::to_string(hpCurent));
     }
 
 }
