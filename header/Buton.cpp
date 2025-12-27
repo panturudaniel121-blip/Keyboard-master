@@ -251,7 +251,7 @@ void Meniu::gestioneazaClick(const sf::Vector2f& mousePos, Joc& joc) const {
 }
 
 void Meniu::actualizeazaHover(const sf::Vector2f& mousePos) const {
-    for (auto btn : butoane) {
+    for (const auto btn : butoane) {
         btn->updateCuloare(mousePos);
     }
 }

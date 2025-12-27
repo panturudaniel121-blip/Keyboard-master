@@ -212,6 +212,10 @@ void Joc::incepeJoc() {
     stareCurenta = StareJoc::Jucand;
     scor.reset();
     ceasJoc.restart();
+    scorSalvat = false;
+    numeJucator = "";
+    textNumeJucator.setString("");
+    textIntroduNume.setString("Introdu numele: (apasa Enter pt. a salva)");
     timpLimita = sf::seconds(45.f);
     if (nivelDificultate == DificultateJoc::Usor) {
         hpMaxim = 100;
@@ -314,21 +318,17 @@ void Joc::tranzitieLaPierdut()
     muzicaPierdut.play();
 }
 
-void Joc::tranzitieLaStatistici()
-{
+void Joc::tranzitieLaStatistici() {
     stareCurenta = StareJoc::Statistici;
 
+    const StatisticaSesiune<int> statScor("Scor Final", scor.getValoare());
 
-    textStat1.setString("Dificultate jucata: " + std::to_string(static_cast<int>(nivelDificultate) + 1));
-    textStat2.setString("Data: " + obtineTimestamp());
+    const StatisticaSesiune<float> statTimp("Timp ramas", ceasJoc.getElapsedTime().asSeconds());
 
-    std::string calificativ = "Incepator";
-    if (scor.getValoare() > 500) calificativ = "Expert";
-    else if (scor.getValoare() > 200) calificativ = "Avansat";
+    textStat1.setString(statScor.genereazaText());
+    textStat3.setString(statTimp.genereazaText());
 
-    textStat3.setString("Calificativ: " + calificativ + " (" + std::to_string(scor.getValoare()) + " pct)");
-
-    scrieInLog("Vizualizare statistici.");
+    Logger::log("Ecran statistici generat prin clase sablon.");
 }
 
 
@@ -371,17 +371,15 @@ void Joc::gestioneazaEvenimenteStart(const sf::Event& event)
     }
 }
 
-void Joc::gestioneazaEvenimenteJucand(const sf::Event& event)
-{
+void Joc::gestioneazaEvenimenteJucand(const sf::Event& event) {
     TipCuvant bonus = cuvant.gestioneazaEvenimente(event, scor, nivelDificultate);
 
     if (bonus == TipCuvant::BonusHP) {
         hpCurent += 10;
+        hpCurent = clamp<int>(hpCurent, 0, 200);
         textHP.setString("HP: " + std::to_string(hpCurent));
     }
-    else if (bonus == TipCuvant::BonusTimp) {
-        timpLimita += sf::seconds(3.f);
-    }
+
 }
 
 void Joc::gestioneazaEvenimenteGameOver(const sf::Event& event)
