@@ -50,18 +50,19 @@ public:
     static int getInt(int min, int max);
 };
 
-class Logger {
+class ManagerSesiune {
 private:
-    Logger() = default;
+    ManagerSesiune() : jocInceput(false) {} // Constructor privat
+    bool jocInceput;
 public:
-    static Logger& getInstance() {
-        static Logger instance;
+    static ManagerSesiune& getInstance() {
+        static ManagerSesiune instance;
         return instance;
     }
-     void log(const std::string& mesaj) {
-        std::cout << "[GAME_LOG]: " << mesaj << std::endl;
-    }
 
-    Logger(const Logger&) = delete;
-    Logger& operator=(const Logger&) = delete;
+    // Functie non-statica (pentru a forta utilizarea getInstance)
+    void marcheazaInceput() { jocInceput = true; }
+
+    ManagerSesiune(const ManagerSesiune&) = delete;
+    void operator=(const ManagerSesiune&) = delete;
 };

@@ -216,6 +216,7 @@ void Joc::incepeJoc() {
     numeJucator = "";
     textNumeJucator.setString("");
     textIntroduNume.setString("Introdu numele: (apasa Enter pt. a salva)");
+    ManagerSesiune::getInstance().marcheazaInceput();
     timpLimita = sf::seconds(45.f);
     if (nivelDificultate == DificultateJoc::Usor) {
         hpMaxim = 100;
@@ -325,19 +326,13 @@ void Joc::tranzitieLaPierdut()
 void Joc::tranzitieLaStatistici() {
     stareCurenta = StareJoc::Statistici;
 
+    const std::string dataCurenta = obtineTimestamp();
+
     const StatisticaSesiune<int> statScor("Scor Final", scor.getValoare());
-
-    std::string dataCurenta = obtineTimestamp();
-
     const StatisticaSesiune<std::string> statData("Data Sesiune", dataCurenta);
 
-    const StatisticaSesiune<float> statTimp("Timp ramas", ceasJoc.getElapsedTime().asSeconds());
-
     textStat1.setString(statData.genereazaText());
-    textStat2.setString(statTimp.genereazaText());
     textStat3.setString(statScor.genereazaText());
-
-    Logger::log("Ecran statistici generat prin clase sablon pentru: " + dataCurenta);
 }
 
 
@@ -385,11 +380,12 @@ void Joc::gestioneazaEvenimenteJucand(const sf::Event& event) {
 
     if (bonus == TipCuvant::BonusHP) {
         hpCurent += 10;
-        hpCurent = clamp<int>(hpCurent, 0, 200);
-        textHP.setString("HP: " + std::to_string(hpCurent));
-        Logger::getInstance().log("Ecran statistici generat cu succes.");
-    }
 
+        hpCurent = clamp<int>(hpCurent, 0, 200);
+
+        textHP.setString("HP: " + std::to_string(hpCurent));
+
+    }
 }
 
 void Joc::gestioneazaEvenimenteGameOver(const sf::Event& event)
