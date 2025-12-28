@@ -223,7 +223,7 @@ void Joc::incepeJoc() {
     textNumeJucator.setString("");
     textIntroduNume.setString("Introdu numele: (apasa Enter pt. a salva)");
     ManagerSesiune::getInstance().marcheazaInceput();
-    timpLimita = sf::seconds(10.f);
+    timpLimita = sf::seconds(45.f);
     if (nivelDificultate == DificultateJoc::Usor) {
         hpMaxim = 100;
     }
@@ -338,21 +338,24 @@ void Joc::tranzitieLaPierdut()
 void Joc::tranzitieLaStatistici() {
     stareCurenta = StareJoc::Statistici;
 
-    float acuratete = (totalTasteApasate > 0) ? (static_cast<float>(totalTasteCorecte) / totalTasteApasate * 100.f) : 0.f;
+    float acuratete = (totalTasteApasate > 0) ?
+        ((static_cast<float>(totalTasteCorecte) / static_cast<float>(totalTasteApasate) * 100.f)) : 0.f;
+
     float minute = timpLimita.asSeconds() / 60.0f;
     float wpm = (minute > 0) ? (static_cast<float>(nrCuvintePrinse) / minute) : 0;
+    StatisticaSesiune<int> statScor("Scor Final", scor.getValoare());
+
+    StatisticaSesiune<float> statAcu("Acuratete", acuratete);
 
     textStat1.setString("Data: " + obtineTimestamp());
-    textStat2.setString("Scor Final: " + std::to_string(scor.getValoare()));
+    textStat2.setString(statScor.genereazaText());
     textStat3.setString("Cuvinte Totale: " + std::to_string(nrCuvintePrinse));
     textStat4.setString("Cuvinte Speciale: " + std::to_string(nrCuvinteSpeciale));
+    textStat5.setString(statAcu.genereazaText());
 
-    std::stringstream ssA, ssR;
-    ssA << std::fixed << std::setprecision(1) << "Acuratete: " << acuratete << "%";
-    textStat5.setString(ssA.str());
-
-    ssR << std::fixed << std::setprecision(1) << "Ritm: " << wpm << " WPM";
-    textStat6.setString(ssR.str());
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(1) << "Ritm: " << wpm << " WPM";
+    textStat6.setString(ss.str());
 }
 
 void Joc::ruleaza()
@@ -413,8 +416,9 @@ void Joc::gestioneazaEvenimenteJucand(const sf::Event& event) {
             textHP.setString("HP: " + std::to_string(hpCurent));
         }
         else if (bonus == TipCuvant::BonusTimp) {
-            timpLimita += sf::seconds(3.f);
-            scrieInLog("Bonus Timp activat! +5 secunde");
+            auto timpNou = clamp<float>(timpLimita.asSeconds() + 3.f, 0.f, 300.f);
+            timpLimita = sf::seconds(timpNou);
+            scrieInLog("Bonus Timp activat! +3 secunde");
         }
     }
 }
