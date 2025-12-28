@@ -92,6 +92,7 @@ public:
     sf::Text textVersiune;
 
     void copiazaStatisticiInClipboard() const;
+    void tranzitieLaGameOver();
     static void scrieInLog(const std::string& mesaj);
     friend std::ostream& operator<<(std::ostream& out, const Joc& j);
 
@@ -101,7 +102,6 @@ private:
     void initializeazaUIPierdut();
     void initializeazaUIStatistici();
 
-    void tranzitieLaGameOver();
     void tranzitieLaPierdut();
 
     void gestioneazaEvenimente();

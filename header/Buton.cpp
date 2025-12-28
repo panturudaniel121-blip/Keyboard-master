@@ -211,6 +211,18 @@ void ButonClipboard::doPrint(std::ostream& out) const {
     out << "[Buton Clipboard]";
 }
 
+ButonInapoi::ButonInapoi(const sf::Vector2f& pos, const sf::Font& font)
+    : Buton(pos, {160.f, 50.f}, "Inapoi", font, sf::Color(150, 150, 150))
+{}
+
+Buton* ButonInapoi::clone() const { return new ButonInapoi(*this); }
+
+void ButonInapoi::executaActiune(Joc& joc) {
+    joc.tranzitieLaGameOver();
+}
+
+void ButonInapoi::doPrint(std::ostream& out) const { out << "[Buton Inapoi]"; }
+
 //*************************************************** Meniu
 Meniu::~Meniu() {
     for (const auto btn : butoane) delete btn;

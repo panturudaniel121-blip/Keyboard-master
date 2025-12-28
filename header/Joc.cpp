@@ -139,11 +139,8 @@ void Joc::initializeazaUIGameOver()
 
     meniuGameOver.adaugaButon(new ButonIesire({570.f, 5.f}, fontPrincipal));
     meniuGameOver.adaugaButon(new ButonReset({20.f, 5.f}, fontPrincipal));
-
     meniuGameOver.adaugaButon(new ButonRestart({120.f, 600.f}, fontPrincipal));
-
     meniuGameOver.adaugaButon(new ButonStatistici({280.f, 600.f}, fontPrincipal));
-
     meniuGameOver.adaugaButon(new ButonMeniu({480.f, 600.f}, fontPrincipal));
 }
 
@@ -167,9 +164,8 @@ void Joc::initializeazaUIPierdut()
 
 
     meniuPierdut.adaugaButon(new ButonRestart({100.f, 450.f}, fontPrincipal));
-    meniuPierdut.adaugaButon(new ButonStatistici({260.f, 450.f}, fontPrincipal));
-    meniuPierdut.adaugaButon(new ButonMeniu({460.f, 450.f}, fontPrincipal));
-    meniuPierdut.adaugaButon(new ButonIesire({290.f, 550.f}, fontPrincipal));
+    meniuPierdut.adaugaButon(new ButonMeniu({290.f, 450.f}, fontPrincipal));
+    meniuPierdut.adaugaButon(new ButonIesire({500.f, 450.f}, fontPrincipal));
 }
 
 void Joc::initializeazaUIStatistici()
@@ -204,10 +200,10 @@ void Joc::initializeazaUIStatistici()
     textVersiune.setPosition({500.f, 760.f});
 
 
-    meniuStatistici.adaugaButon(new ButonMeniu({120.f, 600.f}, fontPrincipal));
-    meniuStatistici.adaugaButon(new ButonClipboard({420.f, 600.f}, fontPrincipal));
+    meniuStatistici.adaugaButon(new ButonMeniu({80.f, 600.f}, fontPrincipal));
+    meniuStatistici.adaugaButon(new ButonInapoi({270.f, 600.f}, fontPrincipal));
+    meniuStatistici.adaugaButon(new ButonClipboard({460.f, 600.f}, fontPrincipal));
 }
-
 
 
 void Joc::setDificultate(const DificultateJoc dif) {
@@ -223,7 +219,7 @@ void Joc::incepeJoc() {
     textNumeJucator.setString("");
     textIntroduNume.setString("Introdu numele: (apasa Enter pt. a salva)");
     ManagerSesiune::getInstance().marcheazaInceput();
-    timpLimita = sf::seconds(45.f);
+    timpLimita = sf::seconds(10.f);
     if (nivelDificultate == DificultateJoc::Usor) {
         hpMaxim = 100;
     }
