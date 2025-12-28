@@ -387,7 +387,7 @@ void Joc::gestioneazaEvenimenteJucand(const sf::Event& event) {
         hpCurent += 10;
         hpCurent = clamp<int>(hpCurent, 0, 200);
         textHP.setString("HP: " + std::to_string(hpCurent));
-        Logger::log("Bonus HP colectat. Viata curenta: " + std::to_string(hpCurent));
+        Logger::getInstance().log("Ecran statistici generat cu succes.");
     }
 
 }

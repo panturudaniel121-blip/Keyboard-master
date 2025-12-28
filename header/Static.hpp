@@ -58,8 +58,7 @@ public:
         static Logger instance;
         return instance;
     }
-    // Metoda de logare
-    static void log(const std::string& mesaj) {
+     void log(const std::string& mesaj) {
         std::cout << "[GAME_LOG]: " << mesaj << std::endl;
     }
 
