@@ -60,6 +60,12 @@ class Joc
 
     bool sunetOprit;
 
+    int nrCuvintePrinse = 0;
+    int nrGrupuriPrinse = 0;
+    int nrCuvinteSpeciale = 0;
+    int totalTasteApasate = 0;
+    int totalTasteCorecte = 0;
+
 public:
     Joc();
     void ruleaza();
@@ -80,6 +86,9 @@ public:
     sf::Text textStat1;
     sf::Text textStat2;
     sf::Text textStat3;
+    sf::Text textStat4;
+    sf::Text textStat5;
+    sf::Text textStat6;
     sf::Text textVersiune;
 
     void copiazaStatisticiInClipboard() const;

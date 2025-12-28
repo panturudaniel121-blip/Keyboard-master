@@ -43,7 +43,7 @@ public:
 
     int actualizeaza(float dt, DificultateJoc dificultate, Scor& scor);
 
-    TipCuvant gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate);
+    TipCuvant gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate,int& tasteCorecteRef);
 
     void afiseaza(sf::RenderWindow& window);
 

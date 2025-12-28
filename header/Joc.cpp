@@ -11,7 +11,7 @@
 #include <SFML/Window/Clipboard.hpp>
 
 Joc::Joc()
-    : window(sf::VideoMode({static_cast<unsigned int>(Config::LATIME_FEREASTRA),
+    :window(sf::VideoMode({static_cast<unsigned int>(Config::LATIME_FEREASTRA),
                             static_cast<unsigned int>(Config::INALTIME_FEREASTRA)}),
              Config::TITLU_FEREASTRA),
       fundal(52, 235, 137),
@@ -41,6 +41,9 @@ Joc::Joc()
       textStat1(fontPrincipal, ""),
       textStat2(fontPrincipal, ""),
       textStat3(fontPrincipal, ""),
+      textStat4(fontPrincipal, ""),
+      textStat5(fontPrincipal, ""),
+      textStat6(fontPrincipal, ""),
       textVersiune(fontPrincipal, "")
 {
     window.setFramerateLimit(60);
@@ -172,33 +175,36 @@ void Joc::initializeazaUIPierdut()
 void Joc::initializeazaUIStatistici()
 {
     textStatisticiTitlu.setFont(fontPrincipal);
-    textStatisticiTitlu.setCharacterSize(30);
+    textStatisticiTitlu.setCharacterSize(34);
     textStatisticiTitlu.setFillColor(sf::Color::Black);
     textStatisticiTitlu.setString("--- STATISTICI SESIUNE ---");
 
     sf::FloatRect b = textStatisticiTitlu.getLocalBounds();
     textStatisticiTitlu.setOrigin({b.position.x + b.size.x/2.f, b.position.y + b.size.y/2.f});
-    textStatisticiTitlu.setPosition({static_cast<float>(Config::LATIME_FEREASTRA)/2.f, 100.f});
+    textStatisticiTitlu.setPosition({static_cast<float>(Config::LATIME_FEREASTRA)/2.f, 80.f});
 
     auto configText = [&](sf::Text& t, float y) {
         t.setFont(fontPrincipal);
-        t.setCharacterSize(24);
-        t.setFillColor(sf::Color(50, 50, 50));
-        t.setPosition({100.f, y});
+        t.setCharacterSize(26);
+        t.setFillColor(sf::Color(40, 40, 40));
+        t.setPosition({120.f, y});
     };
 
-    configText(textStat1, 200.f);
-    configText(textStat2, 250.f);
+    configText(textStat1, 180.f);
+    configText(textStat2, 240.f);
     configText(textStat3, 300.f);
+    configText(textStat4, 360.f);
+    configText(textStat5, 420.f);
+    configText(textStat6, 480.f);
 
     textVersiune.setFont(fontPrincipal);
     textVersiune.setCharacterSize(14);
-    textVersiune.setFillColor(sf::Color(100, 100, 100));
-    textVersiune.setString("v0.2");
-    textVersiune.setPosition({520.f, 770.f});
+    textVersiune.setFillColor(sf::Color(120, 120, 120));
+    textVersiune.setString("v0.3 - Keyboard Master");
+    textVersiune.setPosition({500.f, 760.f});
+
 
     meniuStatistici.adaugaButon(new ButonMeniu({120.f, 600.f}, fontPrincipal));
-
     meniuStatistici.adaugaButon(new ButonClipboard({420.f, 600.f}, fontPrincipal));
 }
 
@@ -217,7 +223,7 @@ void Joc::incepeJoc() {
     textNumeJucator.setString("");
     textIntroduNume.setString("Introdu numele: (apasa Enter pt. a salva)");
     ManagerSesiune::getInstance().marcheazaInceput();
-    timpLimita = sf::seconds(45.f);
+    timpLimita = sf::seconds(10.f);
     if (nivelDificultate == DificultateJoc::Usor) {
         hpMaxim = 100;
     }
@@ -235,6 +241,12 @@ void Joc::incepeJoc() {
 
     muzicaMeniu.stop();
     muzicaPierdut.stop();
+
+    nrCuvintePrinse = 0;
+    nrGrupuriPrinse = 0;
+    nrCuvinteSpeciale = 0;
+    totalTasteApasate = 0;
+    totalTasteCorecte = 0;
 
     std::string cale;
     if (nivelDificultate == DificultateJoc::Usor) cale = Config::CALE_MUZICA_USOR;
@@ -326,16 +338,22 @@ void Joc::tranzitieLaPierdut()
 void Joc::tranzitieLaStatistici() {
     stareCurenta = StareJoc::Statistici;
 
-    const std::string dataCurenta = obtineTimestamp();
+    float acuratete = (totalTasteApasate > 0) ? (static_cast<float>(totalTasteCorecte) / totalTasteApasate * 100.f) : 0.f;
+    float minute = timpLimita.asSeconds() / 60.0f;
+    float wpm = (minute > 0) ? (static_cast<float>(nrCuvintePrinse) / minute) : 0;
 
-    const StatisticaSesiune<int> statScor("Scor Final", scor.getValoare());
-    const StatisticaSesiune<std::string> statData("Data Sesiune", dataCurenta);
+    textStat1.setString("Data: " + obtineTimestamp());
+    textStat2.setString("Scor Final: " + std::to_string(scor.getValoare()));
+    textStat3.setString("Cuvinte Totale: " + std::to_string(nrCuvintePrinse));
+    textStat4.setString("Cuvinte Speciale: " + std::to_string(nrCuvinteSpeciale));
 
-    textStat1.setString(statData.genereazaText());
-    textStat3.setString(statScor.genereazaText());
+    std::stringstream ssA, ssR;
+    ssA << std::fixed << std::setprecision(1) << "Acuratete: " << acuratete << "%";
+    textStat5.setString(ssA.str());
+
+    ssR << std::fixed << std::setprecision(1) << "Ritm: " << wpm << " WPM";
+    textStat6.setString(ssR.str());
 }
-
-
 
 void Joc::ruleaza()
 {
@@ -375,16 +393,29 @@ void Joc::gestioneazaEvenimenteStart(const sf::Event& event)
     }
 }
 
+
 void Joc::gestioneazaEvenimenteJucand(const sf::Event& event) {
-    TipCuvant bonus = cuvant.gestioneazaEvenimente(event, scor, nivelDificultate);
+    if (event.getIf<sf::Event::TextEntered>()) {
+        totalTasteApasate++;
+    }
 
-    if (bonus == TipCuvant::BonusHP) {
-        hpCurent += 10;
+    TipCuvant bonus = cuvant.gestioneazaEvenimente(event, scor, nivelDificultate, totalTasteCorecte);
 
-        hpCurent = clamp<int>(hpCurent, 0, 200);
+    if (bonus != TipCuvant::Niciunul) {
+        nrCuvintePrinse++;
 
-        textHP.setString("HP: " + std::to_string(hpCurent));
+        if (bonus != TipCuvant::Normal) {
+            nrCuvinteSpeciale++;
+        }
 
+        if (bonus == TipCuvant::BonusHP) {
+            hpCurent = clamp<int>(hpCurent + 10, 0, 200);
+            textHP.setString("HP: " + std::to_string(hpCurent));
+        }
+        else if (bonus == TipCuvant::BonusTimp) {
+            timpLimita += sf::seconds(3.f);
+            scrieInLog("Bonus Timp activat! +5 secunde");
+        }
     }
 }
 
@@ -550,6 +581,8 @@ void Joc::afiseazaStatistici()
     window.draw(textStat1);
     window.draw(textStat2);
     window.draw(textStat3);
+    window.draw(textStat4);
+    window.draw(textStat5);
     window.draw(textVersiune);
     meniuStatistici.deseneaza(window);
 }
@@ -573,13 +606,14 @@ void Joc::copiazaStatisticiInClipboard() const {
     continut += textStat1.getString().toAnsiString() + "\n";
     continut += textStat2.getString().toAnsiString() + "\n";
     continut += textStat3.getString().toAnsiString() + "\n";
+    continut += textStat4.getString().toAnsiString() + "\n";
+    continut += textStat5.getString().toAnsiString() + "\n";
 
     continut += "=============================\n";
     continut += "Joaca si tu Keyboard Master!";
 
     sf::Clipboard::setString(continut);
-
-    scrieInLog("Statisticile au fost copiate in Clipboard!");
+    scrieInLog("Statisticile complete au fost copiate!");
 }
 
 std::ostream& operator<<(std::ostream& out, const Joc& j)

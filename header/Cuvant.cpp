@@ -170,12 +170,12 @@ int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate, Scor&
     return damage;
 }
 
-TipCuvant Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate)
+TipCuvant Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate, int& tasteCorecte)
 {
     if (auto textEv = event.getIf<sf::Event::TextEntered>()) {
         char caracterTastat = static_cast<char>(std::tolower(static_cast<int>(textEv->unicode)));
 
-        if (caracterTastat < 32) return TipCuvant::Normal;
+        if (caracterTastat < 32) return TipCuvant::Niciunul;
 
         CuvantActiv* tinta = nullptr;
 
@@ -190,13 +190,10 @@ TipCuvant Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, 
             float maxY = -1000.f;
             for (auto& cuv : cuvinteActive) {
                 if (cuv.finalizat) continue;
-                if (!cuv.text.empty()) {
-                    char prima = static_cast<char>(std::tolower(static_cast<int>(cuv.text[0])));
-                    if (prima == caracterTastat) {
-                        if (cuv.y > maxY) {
-                            maxY = cuv.y;
-                            tinta = &cuv;
-                        }
+                if (!cuv.text.empty() && static_cast<char>(std::tolower(static_cast<int>(cuv.text[0]))) == caracterTastat) {
+                    if (cuv.y > maxY) {
+                        maxY = cuv.y;
+                        tinta = &cuv;
                     }
                 }
             }
@@ -204,39 +201,34 @@ TipCuvant Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, 
             if (!tinta) {
                 valCurentValid = false;
                 scor_ref.resetCombo();
+                return TipCuvant::Niciunul;
             }
         }
 
-        if (tinta) {
-            char asteptat = static_cast<char>(std::tolower(static_cast<int>(tinta->text[tinta->indexTastat])));
+        char asteptat = static_cast<char>(std::tolower(static_cast<int>(tinta->text[tinta->indexTastat])));
 
-            if (asteptat == caracterTastat) {
+        if (caracterTastat == asteptat) {
+            tasteCorecte++;
 
-                if (tinta->tip == TipCuvant::BonusInstant) {
-                    tinta->finalizat = true;
-                } else {
-                    tinta->indexTastat++;
-                }
-
-                if (tinta->finalizat || tinta->indexTastat >= tinta->text.size()) {
-                    tinta->finalizat = true;
-
-                    int multiplicator = 1;
-                    if (dificultate == DificultateJoc::Mediu) multiplicator = 2;
-                    if (dificultate == DificultateJoc::Greu) multiplicator = 3;
-
-                    scor_ref.adauga(10 * multiplicator);
-
-                    return tinta->tip;
-                }
+            if (tinta->tip == TipCuvant::BonusInstant) {
+                tinta->finalizat = true;
             } else {
-                valCurentValid = false;
-                scor_ref.resetCombo();
+                tinta->indexTastat++;
             }
+
+            if (tinta->finalizat || tinta->indexTastat >= tinta->text.size()) {
+                tinta->finalizat = true;
+                int multiplicator = (dificultate == DificultateJoc::Greu) ? 3 : (dificultate == DificultateJoc::Mediu ? 2 : 1);
+                scor_ref.adauga(10 * multiplicator);
+                return tinta->tip;
+            }
+        } else {
+            valCurentValid = false;
+            scor_ref.resetCombo();
         }
     }
 
-    return TipCuvant::Normal;
+    return TipCuvant::Niciunul;
 }
 
 void Cuvant::afiseaza(sf::RenderWindow& window)

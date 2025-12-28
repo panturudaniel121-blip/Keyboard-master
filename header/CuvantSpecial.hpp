@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 
 enum class TipCuvant {
+    Niciunul,
     Normal,
     BonusHP,
     BonusTimp,

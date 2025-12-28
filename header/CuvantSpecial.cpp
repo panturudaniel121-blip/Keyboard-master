@@ -3,7 +3,7 @@
 
 sf::Color CuvantSpecial::getCuloare(TipCuvant tip) {
     switch (tip) {
-        case TipCuvant::BonusHP:      return sf::Color(0, 150, 0);
+        case TipCuvant::BonusHP:      return {0, 150, 0};
         case TipCuvant::BonusTimp:    return sf::Color::Blue;
         case TipCuvant::BonusInstant: return sf::Color::Black;
         default:                      return sf::Color::Red;
