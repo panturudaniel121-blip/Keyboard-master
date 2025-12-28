@@ -364,11 +364,11 @@ void Joc::gestioneazaEvenimente()
 
 void Joc::gestioneazaEvenimenteStart(const sf::Event& event)
 {
-    sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
-    sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos);
+    const sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+    const sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos);
     meniuStart.actualizeazaHover(worldPos);
 
-    if (auto mouseEv = event.getIf<sf::Event::MouseButtonPressed>()) {
+    if (const auto mouseEv = event.getIf<sf::Event::MouseButtonPressed>()) {
         if (mouseEv->button == sf::Mouse::Button::Left) {
             meniuStart.gestioneazaClick(worldPos, *this);
         }
@@ -439,7 +439,7 @@ void Joc::gestioneazaEvenimenteStatistici(const sf::Event& event)
     sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos);
     meniuStatistici.actualizeazaHover(worldPos);
 
-    if (auto mouseEv = event.getIf<sf::Event::MouseButtonPressed>()) {
+    if (const auto mouseEv = event.getIf<sf::Event::MouseButtonPressed>()) {
         if (mouseEv->button == sf::Mouse::Button::Left) {
             meniuStatistici.gestioneazaClick(worldPos, *this);
         }
@@ -448,9 +448,18 @@ void Joc::gestioneazaEvenimenteStatistici(const sf::Event& event)
 
 void Joc::actualizeaza()
 {
-    if (stareCurenta == StareJoc::Jucand) {
-        actualizeazaJucand();
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+    {
+        timpApasareEsc += 1.0f / 60.0f;
+
+        if (timpApasareEsc >= 2.0f)
+            window.close();
     }
+    else
+        timpApasareEsc = 0.0f;
+    if (stareCurenta == StareJoc::Jucand)
+        actualizeazaJucand();
 }
 
 void Joc::actualizeazaJucand()
@@ -487,6 +496,20 @@ void Joc::afiseaza()
     else if (stareCurenta == StareJoc::GameOver)            afiseazaGameOver();
     else if (stareCurenta == StareJoc::Pierdut)             afiseazaPierdut();
     else if (stareCurenta == StareJoc::Statistici)          afiseazaStatistici();
+
+    if (timpApasareEsc > 0.0f)
+    {
+        sf::RectangleShape fundalBara({200.f, 20.f});
+        fundalBara.setPosition({Config::LATIME_FEREASTRA / 2.f - 100.f, 20.f});
+        fundalBara.setFillColor(sf::Color(50, 50, 50, 150));
+
+        sf::RectangleShape incarcareBara({(timpApasareEsc / 2.0f) * 200.f, 20.f});
+        incarcareBara.setPosition({Config::LATIME_FEREASTRA / 2.f - 100.f, 20.f});
+        incarcareBara.setFillColor(sf::Color::Red);
+
+        window.draw(fundalBara);
+        window.draw(incarcareBara);
+    }
 
     window.display();
 }

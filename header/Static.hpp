@@ -52,7 +52,7 @@ public:
 
 class ManagerSesiune {
 private:
-    ManagerSesiune() : jocInceput(false) {} // Constructor privat
+    ManagerSesiune() : jocInceput(false) {}
     bool jocInceput;
 public:
     static ManagerSesiune& getInstance() {
@@ -60,7 +60,6 @@ public:
         return instance;
     }
 
-    // Functie non-statica (pentru a forta utilizarea getInstance)
     void marcheazaInceput() { jocInceput = true; }
 
     ManagerSesiune(const ManagerSesiune&) = delete;

@@ -56,6 +56,9 @@ class Joc
     sf::Music muzicaJoc;
     sf::Music muzicaPierdut;
 
+    float timpApasareEsc = 0.0f;
+    const float PRAG_IESIRE = 1.0f;
+
     bool sunetOprit;
 
 public:
