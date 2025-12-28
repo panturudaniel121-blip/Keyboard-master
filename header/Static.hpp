@@ -16,7 +16,7 @@ class StatisticaSesiune {
     std::string eticheta;
     T valoare;
 public:
-    StatisticaSesiune(std::string e, T v) : eticheta(std::move(e)), valoare(v) {}
+    StatisticaSesiune(std::string  e, const T& v) : eticheta(std::move(e)), valoare(v) {}
 
     [[nodiscard]] std::string genereazaText() const {
         return eticheta + ": " + std::to_string(valoare);
@@ -51,15 +51,18 @@ public:
 };
 
 class Logger {
+private:
     Logger() = default;
 public:
     static Logger& getInstance() {
         static Logger instance;
         return instance;
     }
+    // Metoda de logare
     static void log(const std::string& mesaj) {
-        std::cout << "[GAME LOG]: " << mesaj << std::endl;
+        std::cout << "[GAME_LOG]: " << mesaj << std::endl;
     }
+
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
 };
