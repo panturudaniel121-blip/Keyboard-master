@@ -221,7 +221,19 @@ void ButonInapoi::executaActiune(Joc& joc) {
     joc.tranzitieLaGameOver();
 }
 
-void ButonInapoi::doPrint(std::ostream& out) const { out << "[Buton Inapoi]"; }
+ButonInfo::ButonInfo(const sf::Vector2f& pos, const sf::Font& font)
+    : Buton(pos, {80.f, 40.f}, "Info", font, sf::Color(100, 100, 100)) {
+    textButton.setCharacterSize(16);
+}
+
+Buton* ButonInfo::clone() const { return new ButonInfo(*this); }
+
+void ButonInfo::executaActiune(Joc& joc) {
+    joc.tranzitieLaInfo();
+}
+
+void ButonInfo::doPrint(std::ostream& out) const { out << "[Buton Info]"; }
+
 
 //*************************************************** Meniu
 Meniu::~Meniu() {

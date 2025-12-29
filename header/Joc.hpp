@@ -5,13 +5,13 @@
 #include "Scor.hpp"
 #include "Buton.hpp"
 
-
 enum class StareJoc {
     SelectieDificultate,
     Jucand,
     GameOver,
     Pierdut,
-    Statistici
+    Statistici,
+    Info
 };
 
 class Joc
@@ -66,6 +66,11 @@ class Joc
     int totalTasteApasate = 0;
     int totalTasteCorecte = 0;
 
+    sf::Text textInfoTitlu;
+    sf::Text textInfoLabels[7];
+    sf::Text textInfoDescs[7];
+    Meniu meniuInfo;
+
 public:
     Joc();
     void ruleaza();
@@ -79,6 +84,8 @@ public:
     void setDificultate(DificultateJoc dif);
     void mergiLaMeniu();
     void tranzitieLaStatistici();
+    void tranzitieLaInfo();
+
 
     void toggleMute();
 
@@ -101,6 +108,7 @@ private:
     void initializeazaUIStart();
     void initializeazaUIPierdut();
     void initializeazaUIStatistici();
+    void initializeazaUIInfo();
 
     void tranzitieLaPierdut();
 
@@ -109,6 +117,7 @@ private:
     void gestioneazaEvenimenteGameOver(const sf::Event& event);
     void gestioneazaEvenimenteStart(const sf::Event& event);
     void gestioneazaEvenimentePierdut(const sf::Event& event);
+    void gestioneazaEvenimenteInfo(const sf::Event& event);
 
     void gestioneazaEvenimenteStatistici(const sf::Event& event);
     void afiseazaStatistici();
@@ -125,4 +134,5 @@ private:
     void afiseazaGameOver();
     void afiseazaStart();
     void afiseazaPierdut();
+    void afiseazaInfo();
 };

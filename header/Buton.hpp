@@ -129,6 +129,14 @@ public:
     ButonInapoi(const sf::Vector2f& pos, const sf::Font& font);
     Buton* clone() const override;
     void executaActiune(Joc& joc) override;
+
+};
+
+class ButonInfo : public Buton {
+public:
+    ButonInfo(const sf::Vector2f& pos, const sf::Font& font);
+    Buton* clone() const override;
+    void executaActiune(Joc& joc) override;
 protected:
     void doPrint(std::ostream& out) const override;
 };
