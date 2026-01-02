@@ -39,6 +39,8 @@ struct Config {
     static const std::string CALE_MUZICA_MEDIU;
     static const std::string CALE_MUZICA_GREU;
     static const std::string CALE_MUZICA_PIERDUT;
+    static const std::string CALE_SCORURI_ENDLESS;
+    static const std::string CALE_MUZICA_ENDLESS;
 };
 
 

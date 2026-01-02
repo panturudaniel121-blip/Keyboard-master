@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <utility>
 
+#include "Static.hpp"
+
 Scor::Scor()
     : valoare(0), font(), text(font, "", 30), multiplicator(1), textCombo(font, "", 24)
 {
@@ -63,18 +65,25 @@ void Scor::afiseaza(sf::RenderWindow& window) const {
 
 std::istream& operator>>(std::istream& in, IntrareScor& intrare) {
     in >> intrare.nume >> intrare.scor;
+    if (!(in >> intrare.timpDisplay)) {
+        intrare.timpDisplay = "-";
+    }
     return in;
 }
+
 std::ostream& operator<<(std::ostream& out, const IntrareScor& intrare) {
-    out << intrare.nume << " " << intrare.scor << '\n';
+    out << intrare.nume << " " << intrare.scor << " " << intrare.timpDisplay << '\n';
     return out;
 }
+
 Scor_board::Scor_board(std::string  fisier) : fisierScoruri(std::move(fisier)) {
     board.reserve(10);
 }
 void Scor_board::SBincarcare() {
     std::ifstream fin(fisierScoruri);
-    if (!fin.is_open()) throw std::runtime_error("Eroare");
+    if (!fin.is_open()) {
+        return;
+    }
     board.clear();
     IntrareScor intrare;
     while (fin >> intrare) board.push_back(intrare);
@@ -84,8 +93,8 @@ void Scor_board::SBresetare() {
     board.clear();
     SBactualizare();
 }
-void Scor_board::adaugaScor(const std::string& nume, int scor) {
-    board.push_back({nume, scor});
+void Scor_board::adaugaScor(const std::string& nume, int scor, const std::string& timp) {
+    board.push_back({nume, scor, timp});
     std::ranges::sort(board, std::greater<>());
     if (board.size() > 10) board.resize(10);
     SBactualizare();
@@ -98,19 +107,34 @@ void Scor_board::SBactualizare() const {
 void Scor_board::afiseaza(sf::RenderWindow& window, const sf::Font& font) const {
     sf::Text textAfisare(font, "", 28);
     textAfisare.setFillColor(sf::Color::Black);
+
     float yPos = 250.f;
-    textAfisare.setString("Top 10 Scoruri:");
+
+    textAfisare.setString("Top 10 Scoruri | Timp");
     textAfisare.setStyle(sf::Text::Bold | sf::Text::Underlined);
-    textAfisare.setPosition({250.f, yPos});
+
+    sf::FloatRect b = textAfisare.getLocalBounds();
+    textAfisare.setOrigin({b.size.x / 2.f, 0.f});
+    textAfisare.setPosition({static_cast<float>(Config::LATIME_FEREASTRA) / 2.f, yPos});
+
     window.draw(textAfisare);
     yPos += 50.f;
+
     textAfisare.setStyle(sf::Text::Regular);
+    textAfisare.setOrigin({0.f, 0.f});
+
     int rank = 1;
     for (const auto& intrare : board) {
         std::stringstream ss;
-        ss << std::setw(2) << rank << ". " << std::setw(15) << std::left << intrare.nume << " : " << intrare.scor;
+        ss << std::setw(2) << rank << ". "
+           << std::setw(12) << std::left << intrare.nume
+           << " : " << std::setw(6) << intrare.scor
+           << " | " << intrare.timpDisplay;
+
         textAfisare.setString(ss.str());
-        textAfisare.setPosition({200.f, yPos});
+        sf::FloatRect r = textAfisare.getLocalBounds();
+        textAfisare.setPosition({(static_cast<float>(Config::LATIME_FEREASTRA) - r.size.x) / 2.f, yPos});
+
         window.draw(textAfisare);
         yPos += 35.f;
         rank++;

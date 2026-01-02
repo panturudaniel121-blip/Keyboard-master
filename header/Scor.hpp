@@ -29,6 +29,7 @@ public:
 struct IntrareScor {
     std::string nume;
     int scor;
+    std::string timpDisplay;
     bool operator>(const IntrareScor& other) const { return scor > other.scor; }
 };
 
@@ -41,6 +42,7 @@ public:
     void SBresetare();
     void SBactualizare() const;
     void adaugaScor(const std::string& nume, int scor);
+    void adaugaScor(const std::string& nume, int scor, const std::string& timp = "-");
     void afiseaza(sf::RenderWindow& window, const sf::Font& font) const;
     friend std::istream& operator>>(std::istream& in, IntrareScor& intrare);
     friend std::ostream& operator<<(std::ostream& out, const IntrareScor& intrare);

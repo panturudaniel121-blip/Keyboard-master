@@ -23,6 +23,7 @@ class Joc
     Cuvant cuvant;
     Scor scor;
     Scor_board scorBoard;
+    Scor_board scorBoardEndless;
 
     sf::Clock ceasJoc;
     sf::Time timpLimita;
@@ -71,6 +72,8 @@ class Joc
     sf::Text textInfoDescs[7];
     Meniu meniuInfo;
 
+    int waveCurent = 1;
+    sf::Text textWave;
 public:
     Joc();
     void ruleaza();

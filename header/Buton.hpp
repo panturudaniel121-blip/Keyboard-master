@@ -7,7 +7,8 @@ class Joc;
 enum class DificultateJoc {
     Usor,
     Mediu,
-    Greu
+    Greu,
+    Endless
 };
 
 // --- Clasa de Baza

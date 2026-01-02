@@ -10,6 +10,15 @@
 #include <ctime>
 #include <SFML/Window/Clipboard.hpp>
 
+std::string formateazaSecunde(float secundeTotal) {
+    const int minute = static_cast<int>(secundeTotal) / 60;
+    const int secunde = static_cast<int>(secundeTotal) % 60;
+    std::stringstream ss;
+    ss << std::setw(2) << std::setfill('0') << minute << ":"
+       << std::setw(2) << std::setfill('0') << secunde;
+    return ss.str();
+}
+
 Joc::Joc()
     :window(sf::VideoMode({static_cast<unsigned int>(Config::LATIME_FEREASTRA),
                             static_cast<unsigned int>(Config::INALTIME_FEREASTRA)}),
@@ -19,6 +28,7 @@ Joc::Joc()
       cuvant(),
       scor(),
       scorBoard(Config::CALE_SCORURI),
+      scorBoardEndless(Config::CALE_SCORURI_ENDLESS),
       ceasJoc(),
       timpLimita(sf::seconds(30.f)),
       textTimer(fontPrincipal, ""),
@@ -38,24 +48,27 @@ Joc::Joc()
       textMesajPierdut(fontPrincipal, ""),
       sunetOprit(false),
       textInfoTitlu(fontPrincipal, ""),
+
       textInfoLabels{
                     {fontPrincipal, ""},
                     {fontPrincipal, ""},
                     {fontPrincipal, ""},
                     {fontPrincipal, ""},
-{fontPrincipal, ""},
-{fontPrincipal, ""},
-{fontPrincipal, ""},
+                    {fontPrincipal, ""},
+                    {fontPrincipal, ""},
+                    {fontPrincipal, ""},
       },
       textInfoDescs{
                       {fontPrincipal, ""},
                       {fontPrincipal, ""},
                       {fontPrincipal, ""},
                       {fontPrincipal, ""},
-{fontPrincipal, ""},
-{fontPrincipal, ""},
-{fontPrincipal, ""},
+                      {fontPrincipal, ""},
+                      {fontPrincipal, ""},
+                      {fontPrincipal, ""},
           },
+      waveCurent(1),
+      textWave(fontPrincipal, ""),
       textStatisticiTitlu(fontPrincipal, ""),
       textStat1(fontPrincipal, ""),
       textStat2(fontPrincipal, ""),
@@ -76,12 +89,12 @@ Joc::Joc()
     cuvant.initializeaza(fontPrincipal);
 
     textTimer.setFont(fontPrincipal);
-    textTimer.setCharacterSize(24);
+    textTimer.setCharacterSize(30);
     textTimer.setFillColor(sf::Color::Black);
-    textTimer.setPosition({550.f, 30.f});
+    textTimer.setPosition({525.f, 30.f});
 
     textHP.setFont(fontPrincipal);
-    textHP.setCharacterSize(24);
+    textHP.setCharacterSize(30);
     textHP.setFillColor(sf::Color::Red);
     textHP.setPosition({20.f, 60.f});
     textHP.setStyle(sf::Text::Bold);
@@ -98,6 +111,10 @@ Joc::Joc()
     muzicaMeniu.setLooping(true);
     muzicaMeniu.play();
 
+    textWave.setFont(fontPrincipal);
+    textWave.setCharacterSize(30);
+    textWave.setFillColor(sf::Color::Red);
+    textWave.setPosition({525.f, 60.f});
 }
 
 
@@ -134,6 +151,7 @@ void Joc::initializeazaUIStart()
     meniuStart.adaugaButon(new ButonDificultate({250.f, 300.f}, fontPrincipal, DificultateJoc::Usor, "Usor"));
     meniuStart.adaugaButon(new ButonDificultate({250.f, 400.f}, fontPrincipal, DificultateJoc::Mediu, "Mediu"));
     meniuStart.adaugaButon(new ButonDificultate({250.f, 500.f}, fontPrincipal, DificultateJoc::Greu, "Greu"));
+    meniuStart.adaugaButon(new ButonDificultate({250.f, 600.f}, fontPrincipal, DificultateJoc::Endless, "Endless"));
     meniuStart.adaugaButon(new ButonMute({590.f, 10.f}, fontPrincipal, &sunetOprit));
     meniuStart.adaugaButon(new ButonInfo({20.f, 740.f}, fontPrincipal));
 }
@@ -276,11 +294,17 @@ void Joc::incepeJoc() {
     ceasJoc.restart();
     scorSalvat = false;
     numeJucator = "";
+    waveCurent = 1;
+    textWave.setString("Wave: 1");
     textNumeJucator.setString("");
     textIntroduNume.setString("Introdu numele: (apasa Enter pt. a salva)");
     ManagerSesiune::getInstance().marcheazaInceput();
     timpLimita = sf::seconds(45.f);
-    if (nivelDificultate == DificultateJoc::Usor) {
+    if (nivelDificultate == DificultateJoc::Endless) {
+        hpMaxim = 10;
+        timpLimita = sf::seconds(0.f);
+    }
+    else if (nivelDificultate == DificultateJoc::Usor) {
         hpMaxim = 100;
     }
     else if (nivelDificultate == DificultateJoc::Mediu) {
@@ -305,9 +329,14 @@ void Joc::incepeJoc() {
     totalTasteCorecte = 0;
 
     std::string cale;
-    if (nivelDificultate == DificultateJoc::Usor) cale = Config::CALE_MUZICA_USOR;
-    else if (nivelDificultate == DificultateJoc::Mediu) cale = Config::CALE_MUZICA_MEDIU;
-    else cale = Config::CALE_MUZICA_GREU;
+    if (nivelDificultate == DificultateJoc::Usor)
+        cale = Config::CALE_MUZICA_USOR;
+    else if (nivelDificultate == DificultateJoc::Mediu)
+        cale = Config::CALE_MUZICA_MEDIU;
+    else if (nivelDificultate == DificultateJoc::Greu)
+        cale = Config::CALE_MUZICA_GREU;
+    else
+        cale = Config::CALE_MUZICA_ENDLESS;
 
     if (muzicaJoc.openFromFile(cale)) {
         muzicaJoc.setLooping(true);
@@ -397,8 +426,7 @@ void Joc::tranzitieLaStatistici() {
     float acuratete = (totalTasteApasate > 0) ?
         ((static_cast<float>(totalTasteCorecte) / static_cast<float>(totalTasteApasate) * 100.f)) : 0.f;
 
-    const float minute = timpLimita.asSeconds() / 60.0f;
-    const float wpm = (minute > 0) ? (static_cast<float>(nrCuvintePrinse) / minute) : 0;
+    float timpScurs = ceasJoc.getElapsedTime().asSeconds();
 
     const StatisticaSesiune<std::string> statData("Data", obtineTimestamp());
     const StatisticaSesiune<int> statScor("Scor Final", scor.getValoare());
@@ -410,9 +438,15 @@ void Joc::tranzitieLaStatistici() {
     textStat4.setString("Cuvinte Speciale: " + std::to_string(nrCuvinteSpeciale));
     textStat5.setString(statAcu.genereazaText());
 
-    std::stringstream ss;
-    ss << std::fixed << std::setprecision(1) << "Ritm: " << wpm << " WPM";
-    textStat6.setString(ss.str());
+    if (nivelDificultate == DificultateJoc::Endless) {
+        textStat6.setString("Timp Rezistat: " + formateazaSecunde(timpScurs));
+    } else {
+        const float minute = timpLimita.asSeconds() / 60.0f;
+        const float wpm = (minute > 0) ? (static_cast<float>(nrCuvintePrinse) / minute) : 0;
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(1) << "Ritm: " << wpm << " WPM";
+        textStat6.setString(ss.str());
+    }
 }
 
 void Joc::tranzitieLaInfo() {
@@ -506,7 +540,21 @@ void Joc::gestioneazaEvenimenteGameOver(const sf::Event& event)
             numeJucator.pop_back();
         }
         else if (unicode == 13 && !numeJucator.empty()) {
-            scorBoard.adaugaScor(numeJucator, scor.getValoare());
+
+            float timpFinalSeconds = 0.f;
+            if (nivelDificultate == DificultateJoc::Endless) {
+                timpFinalSeconds = ceasJoc.getElapsedTime().asSeconds();
+            } else {
+                timpFinalSeconds = ceasJoc.getElapsedTime().asSeconds();
+            }
+            std::string timpString = formateazaSecunde(timpFinalSeconds);
+
+            if (nivelDificultate == DificultateJoc::Endless) {
+                scorBoardEndless.adaugaScor(numeJucator, scor.getValoare(), timpString);
+            } else {
+                scorBoard.adaugaScor(numeJucator, scor.getValoare(), timpString);
+            }
+
             scorSalvat = true;
             textIntroduNume.setString("Scor salvat! Felicitari!");
         }
@@ -579,27 +627,47 @@ void Joc::actualizeaza()
 
 void Joc::actualizeazaJucand()
 {
-    float timpRamas = timpLimita.asSeconds() - ceasJoc.getElapsedTime().asSeconds();
-    if (timpRamas < 0) timpRamas = 0;
-
     constexpr float dt = 1.0f / 60.0f;
 
-    if (const int cuvintePierdute = cuvant.actualizeaza(dt, nivelDificultate, scor); cuvintePierdute > 0) {
+    int cuvintePierdute = cuvant.actualizeaza(dt, nivelDificultate, scor, waveCurent);
+
+    if (nivelDificultate == DificultateJoc::Endless && cuvant.aGeneratGrupNou()) {
+        waveCurent++;
+        textWave.setString("Wave: " + std::to_string(waveCurent));
+        Joc::scrieInLog("Wave nou: " + std::to_string(waveCurent));
+    }
+
+    if (cuvintePierdute > 0) {
         hpCurent -= cuvintePierdute * 10;
         if (hpCurent < 0) hpCurent = 0;
         textHP.setString("HP: " + std::to_string(hpCurent));
     }
 
     if (hpCurent <= 0) {
-        tranzitieLaPierdut();
-    }
-    else if (timpRamas == 0) {
-        tranzitieLaGameOver();
+        if (nivelDificultate == DificultateJoc::Endless) {
+            tranzitieLaGameOver();
+        } else {
+            tranzitieLaPierdut();
+        }
+        return;
     }
 
-    std::stringstream ss;
-    ss << std::fixed << std::setprecision(1) << timpRamas;
-    textTimer.setString("Timp: " + ss.str());
+    if (nivelDificultate == DificultateJoc::Endless) {
+        float timpScurs = ceasJoc.getElapsedTime().asSeconds();
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(1) << timpScurs;
+        textTimer.setString("Timp: " + ss.str() + "s");
+    }
+    else {
+        float timpRamas = timpLimita.asSeconds() - ceasJoc.getElapsedTime().asSeconds();
+        if (timpRamas <= 0) {
+            timpRamas = 0;
+            tranzitieLaGameOver();
+        }
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(1) << timpRamas;
+        textTimer.setString("Timp: " + ss.str());
+    }
 }
 
 void Joc::afiseaza()
@@ -619,7 +687,7 @@ void Joc::afiseaza()
         fundalBara.setPosition({Config::LATIME_FEREASTRA / 2.f - 100.f, 20.f});
         fundalBara.setFillColor(sf::Color(50, 50, 50, 150));
 
-        sf::RectangleShape incarcareBara({(timpApasareEsc / 2.0f) * 200.f, 20.f});
+        sf::RectangleShape incarcareBara({(timpApasareEsc / 1.0f) * 200.f, 20.f});
         incarcareBara.setPosition({Config::LATIME_FEREASTRA / 2.f - 100.f, 20.f});
         incarcareBara.setFillColor(sf::Color::Red);
 
@@ -642,13 +710,23 @@ void Joc::afiseazaJucand()
     scor.afiseaza(window);
     window.draw(textTimer);
     window.draw(textHP);
+
+    if (nivelDificultate == DificultateJoc::Endless) {
+        window.draw(textWave);
+    }
 }
 
 void Joc::afiseazaGameOver()
 {
     window.draw(textGameOver);
     window.draw(textScorFinal);
-    scorBoard.afiseaza(window, fontPrincipal);
+
+    if (nivelDificultate == DificultateJoc::Endless) {
+        scorBoardEndless.afiseaza(window, fontPrincipal);
+    } else {
+        scorBoard.afiseaza(window, fontPrincipal);
+    }
+
     window.draw(textIntroduNume);
     window.draw(textNumeJucator);
     meniuGameOver.deseneaza(window);
@@ -701,13 +779,15 @@ void Joc::toggleMute() {
 void Joc::copiazaStatisticiInClipboard() const {
     std::string continut = "=== Keyboard Master Stats ===\n";
 
+    continut += "Mod: " + std::string(nivelDificultate == DificultateJoc::Endless ? "Endless" : "Normal") + "\n";
     continut += textStat1.getString().toAnsiString() + "\n";
     continut += textStat2.getString().toAnsiString() + "\n";
-    continut += textStat3.getString().toAnsiString() + "\n";
-    continut += textStat4.getString().toAnsiString() + "\n";
-    continut += textStat5.getString().toAnsiString() + "\n";
-    continut += textStat6.getString().toAnsiString() + "\n";
 
+    if (nivelDificultate == DificultateJoc::Endless) {
+        continut += textStat6.getString().toAnsiString() + "\n";
+    }
+
+    continut += textStat5.getString().toAnsiString() + "\n";
     continut += "=============================\n";
     continut += "Joaca si tu Keyboard Master!";
 

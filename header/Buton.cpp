@@ -98,6 +98,7 @@ ButonDificultate::ButonDificultate(const sf::Vector2f& pos, const sf::Font& font
       dificultateAsociata(dif)
 {
     if (dif == DificultateJoc::Usor) culoareNormala = sf::Color(50, 200, 50);
+    else if (dif == DificultateJoc::Endless) culoareNormala = sf::Color(33, 33, 33);
     else if (dif == DificultateJoc::Mediu) culoareNormala = sf::Color(200, 200, 50);
     else culoareNormala = sf::Color(200, 50, 50);
 

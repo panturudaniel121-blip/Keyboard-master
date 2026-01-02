@@ -23,32 +23,34 @@ class Cuvant
     std::vector<std::string> cuvinteScurte;
     std::vector<std::string> cuvinteMedii;
     std::vector<std::string> cuvinteLungi;
-
     std::deque<CuvantActiv> cuvinteActive;
-
     sf::Font font;
     sf::RectangleShape linieRosie;
     sf::Text textHelper;
-
     sf::Clock ceasSpawn;
     bool asteaptaSpawn;
-
     sf::RectangleShape cursor;
-
     bool valCurentValid;
+    bool grupNouGenerat = false;
+
 public:
     Cuvant();
     void initializeaza(const sf::Font& fontIncarcat);
     void reseteaza();
-
-    int actualizeaza(float dt, DificultateJoc dificultate, Scor& scor);
+    int actualizeaza(float dt, DificultateJoc dificultate, Scor& scor, int waveIndex = 1);
 
     TipCuvant gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate,int& tasteCorecteRef);
 
     void afiseaza(sf::RenderWindow& window);
 
+    bool aGeneratGrupNou() {
+        const bool temp = grupNouGenerat;
+        grupNouGenerat = false;
+        return temp;
+    }
+
 private:
     void incarcaDictionare();
-    void spawneazaGrup(float latimeEcran, DificultateJoc dificultate);
+    void spawneazaGrup(float latimeEcran, DificultateJoc dificultate, int waveIndex);
     std::string extrageCuvantAleatoriu(DificultateJoc dificultate);
 };

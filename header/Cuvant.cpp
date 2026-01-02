@@ -79,7 +79,7 @@ std::string Cuvant::extrageCuvantAleatoriu(DificultateJoc dificultate)
     return (*sursa)[index];
 }
 
-void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
+void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate, int waveIndex)
 {
     const int numarCuvinte = (Random::getInt(0, 1) == 0) ? 2 : 3;
     const float spatiuDisponibil = latimeEcran - 100.f;
@@ -96,6 +96,12 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
         if (dificultate == DificultateJoc::Mediu) bazaViteza = 80.f;
         if (dificultate == DificultateJoc::Greu) bazaViteza = 120.f;
 
+        if (dificultate == DificultateJoc::Endless) {
+            bazaViteza = 60.f;
+            const float bonusViteza = static_cast<float>(waveIndex / 5) * 20.f;
+            bazaViteza += bonusViteza;
+        }
+
         const float vitezaFinala = bazaViteza + static_cast<float>(Random::getInt(0, 20));
         const float xPos = startX + static_cast<float>(i) * pas + static_cast<float>(Random::getInt(-20, 20));
         const auto yPos = static_cast<float>(Random::getInt(50, 300));
@@ -103,6 +109,10 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
         TipCuvant tipCurent = TipCuvant::Normal;
         if (i == indexSpecial) {
             tipCurent = CuvantSpecial::genereazaTipAleatoriu();
+
+            if (dificultate == DificultateJoc::Endless && tipCurent == TipCuvant::BonusTimp) {
+                tipCurent = TipCuvant::Normal;
+            }
         }
 
         CuvantActiv nou;
@@ -118,7 +128,7 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate)
     }
 }
 
-int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate, Scor& scor)
+int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate, Scor& scor, int waveIndex)
 {
     int damage = 0;
 
@@ -136,8 +146,9 @@ int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate, Scor&
         }
         else {
             if (ceasSpawn.getElapsedTime().asSeconds() > 1.0f) {
-                spawneazaGrup(700.f, dificultate);
+                spawneazaGrup(700.f, dificultate,waveIndex);
                 asteaptaSpawn = false;
+                grupNouGenerat = true;
             }
         }
     }
