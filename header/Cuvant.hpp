@@ -5,6 +5,7 @@
 #include <deque>
 #include "Scor.hpp"
 #include "CuvantSpecial.hpp"
+#include "Efecte.hpp"
 
 enum class DificultateJoc;
 
@@ -16,6 +17,7 @@ struct CuvantActiv {
     float viteza;
     bool finalizat;
     TipCuvant tip;
+    float timpRamaneOverlay = 0.0f;
 };
 
 class Cuvant
@@ -39,8 +41,7 @@ public:
     void reseteaza();
     int actualizeaza(float dt, DificultateJoc dificultate, Scor& scor, int waveIndex = 1);
 
-    TipCuvant gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate,int& tasteCorecteRef);
-
+    TipCuvant gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate, int& tasteCorecteRef, ManagerEfecte& efecteRef);
     void afiseaza(sf::RenderWindow& window);
 
     bool aGeneratGrupNou() {

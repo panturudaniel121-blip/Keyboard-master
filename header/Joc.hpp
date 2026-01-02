@@ -4,6 +4,7 @@
 #include "Cuvant.hpp"
 #include "Scor.hpp"
 #include "Buton.hpp"
+#include "Efecte.hpp"
 
 enum class StareJoc {
     SelectieDificultate,
@@ -74,6 +75,8 @@ class Joc
 
     int waveCurent = 1;
     sf::Text textWave;
+
+    ManagerEfecte efecte;
 public:
     Joc();
     void ruleaza();

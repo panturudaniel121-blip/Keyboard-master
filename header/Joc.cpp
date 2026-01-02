@@ -119,6 +119,8 @@ Joc::Joc()
     textWave.setCharacterSize(30);
     textWave.setFillColor(sf::Color::Red);
     textWave.setPosition({525.f, 60.f});
+
+    efecte.incarcaSunete();
 }
 
 
@@ -307,7 +309,7 @@ void Joc::incepeJoc() {
     ManagerSesiune::getInstance().marcheazaInceput();
     timpLimita = sf::seconds(45.f);
     if (nivelDificultate == DificultateJoc::Endless) {
-        hpMaxim = 10;
+        hpMaxim = 100;
         timpLimita = sf::seconds(0.f);
     }
     else if (nivelDificultate == DificultateJoc::Usor) {
@@ -436,13 +438,17 @@ void Joc::tranzitieLaStatistici() {
 
     const StatisticaSesiune<std::string> statData("Data", obtineTimestamp());
     const StatisticaSesiune<int> statScor("Scor Final", scor.getValoare());
-    const StatisticaSesiune<float> statAcu("Acuratete", acuratete);
 
     textStat1.setString(statData.genereazaText());
     textStat2.setString(statScor.genereazaText());
     textStat3.setString("Cuvinte Totale: " + std::to_string(nrCuvintePrinse));
     textStat4.setString("Cuvinte Speciale: " + std::to_string(nrCuvinteSpeciale));
-    textStat5.setString(statAcu.genereazaText());
+
+
+    std::stringstream ssAcu;
+
+    ssAcu << "Acuratete: " << std::fixed << std::setprecision(0) << acuratete << "%";
+    textStat5.setString(ssAcu.str());
 
     if (nivelDificultate == DificultateJoc::Endless) {
         textStat6.setString("Timp Rezistat: " + formateazaSecunde(timpScurs));
@@ -504,7 +510,7 @@ void Joc::gestioneazaEvenimenteJucand(const sf::Event& event) {
         totalTasteApasate++;
     }
 
-    TipCuvant bonus = cuvant.gestioneazaEvenimente(event, scor, nivelDificultate, totalTasteCorecte);
+    TipCuvant bonus = cuvant.gestioneazaEvenimente(event, scor, nivelDificultate, totalTasteCorecte, efecte);
 
     if (bonus != TipCuvant::Niciunul) {
         nrCuvintePrinse++;
@@ -634,7 +640,7 @@ void Joc::actualizeaza()
 void Joc::actualizeazaJucand()
 {
     constexpr float dt = 1.0f / 60.0f;
-
+    efecte.actualizeaza(dt);
     int cuvintePierdute = cuvant.actualizeaza(dt, nivelDificultate, scor, waveCurent);
 
     if (nivelDificultate == DificultateJoc::Endless && cuvant.aGeneratGrupNou()) {
@@ -713,6 +719,7 @@ void Joc::afiseazaStart()
 void Joc::afiseazaJucand()
 {
     cuvant.afiseaza(window);
+    efecte.deseneaza(window);
     scor.afiseaza(window);
     window.draw(textTimer);
     window.draw(textHP);

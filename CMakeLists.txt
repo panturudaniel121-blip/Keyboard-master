@@ -72,6 +72,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         header/Joc.cpp
         header/CuvantSpecial.cpp
         header/CuvantSpecial.hpp
+        header/Efecte.cpp
+        header/Efecte.hpp
 
 )
 

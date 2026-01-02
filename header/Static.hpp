@@ -41,6 +41,8 @@ struct Config {
     static const std::string CALE_MUZICA_PIERDUT;
     static const std::string CALE_SCORURI_ENDLESS;
     static const std::string CALE_MUZICA_ENDLESS;
+    static const std::string CALE_SUNET_TASTA;
+    static const std::string CALE_SUNET_BOOM;
 };
 
 
@@ -50,6 +52,7 @@ private:
 
 public:
     static int getInt(int min, int max);
+    static float getFloat(float min, float max);
 };
 
 class ManagerSesiune {

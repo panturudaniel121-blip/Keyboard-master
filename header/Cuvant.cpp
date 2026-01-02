@@ -3,6 +3,8 @@
 #include "Static.hpp"
 #include "Exceptii.hpp"
 #include <fstream>
+#include "Efecte.hpp"
+
 
 Cuvant::Cuvant()
     : font(), textHelper(font, "", 30), asteaptaSpawn(false),valCurentValid(false)
@@ -98,7 +100,8 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate, int wa
 
         if (dificultate == DificultateJoc::Endless) {
             bazaViteza = 60.f;
-            const float bonusViteza = static_cast<float>(waveIndex / 5) * 20.f;
+            const int treaptaViteza = waveIndex / 5;
+            const float bonusViteza = static_cast<float>(treaptaViteza) * 20.f;
             bazaViteza += bonusViteza;
         }
 
@@ -131,42 +134,44 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate, int wa
 int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate, Scor& scor, int waveIndex)
 {
     int damage = 0;
+    float yLimitaRosie = static_cast<float>(Config::INALTIME_FEREASTRA) - 50.f;
 
     if (cuvinteActive.empty()) {
         if (!asteaptaSpawn) {
-
             if (valCurentValid) {
                 scor.cresteCombo();
             }
-
             valCurentValid = true;
-
             ceasSpawn.restart();
             asteaptaSpawn = true;
         }
         else {
             if (ceasSpawn.getElapsedTime().asSeconds() > 1.0f) {
-                spawneazaGrup(700.f, dificultate,waveIndex);
+                spawneazaGrup(static_cast<float>(Config::LATIME_FEREASTRA), dificultate, waveIndex);
                 asteaptaSpawn = false;
                 grupNouGenerat = true;
             }
         }
     }
 
-    float yLimitaRosie = 750.f;
-
     auto it = cuvinteActive.begin();
     while (it != cuvinteActive.end()) {
 
         if (it->finalizat) {
-            it = cuvinteActive.erase(it);
+            it->timpRamaneOverlay -= dt;
+            if (it->timpRamaneOverlay <= 0.0f) {
+                it = cuvinteActive.erase(it);
+                continue;
+            }
+            ++it;
             continue;
         }
 
         it->y += it->viteza * dt;
 
         if (it->y > yLimitaRosie) {
-            damage += 1;
+
+            damage++;
 
             valCurentValid = false;
             scor.resetCombo();
@@ -177,11 +182,10 @@ int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate, Scor&
             ++it;
         }
     }
-
     return damage;
 }
 
-TipCuvant Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate, int& tasteCorecte)
+TipCuvant Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate, int& tasteCorecteRef, ManagerEfecte& efecteRef)
 {
     if (auto textEv = event.getIf<sf::Event::TextEntered>()) {
         char caracterTastat = static_cast<char>(std::tolower(static_cast<int>(textEv->unicode)));
@@ -219,7 +223,18 @@ TipCuvant Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, 
         char asteptat = static_cast<char>(std::tolower(static_cast<int>(tinta->text[tinta->indexTastat])));
 
         if (caracterTastat == asteptat) {
-            tasteCorecte++;
+            tasteCorecteRef++;
+
+            textHelper.setString(tinta->text);
+            textHelper.setPosition({tinta->x, tinta->y});
+
+            sf::Vector2f pozLitera = textHelper.findCharacterPos(tinta->indexTastat);
+
+            pozLitera.x += 10.f;
+            pozLitera.y += 20.f;
+
+            efecteRef.spawnLiteraCorecta(pozLitera);
+            efecteRef.playTasta();
 
             if (tinta->tip == TipCuvant::BonusInstant) {
                 tinta->finalizat = true;
@@ -229,10 +244,26 @@ TipCuvant Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, 
 
             if (tinta->finalizat || tinta->indexTastat >= tinta->text.size()) {
                 tinta->finalizat = true;
+                tinta->timpRamaneOverlay = 0.5f;
 
-                int puncteBaza = 10;
-                int multiplicatorDificultate = (dificultate == DificultateJoc::Greu) ? 3 : (dificultate == DificultateJoc::Mediu ? 2 : 1);
-                int puncteTotale = puncteBaza * multiplicatorDificultate;
+                const sf::FloatRect bounds = textHelper.getGlobalBounds();
+                const sf::Vector2f centruCuvant = {
+                    tinta->x + (bounds.size.x / 2.f),
+                    tinta->y + (bounds.size.y / 2.f)
+                };
+
+                sf::Color culoareExplozie = CuvantSpecial::getCuloare(tinta->tip);
+                efecteRef.playBoom();
+
+                if (tinta->tip == TipCuvant::Normal) {
+                    culoareExplozie = sf::Color(255, 100, 50);
+                }
+
+                efecteRef.spawnExplozieCuvant(centruCuvant, culoareExplozie);
+
+                constexpr int puncteBaza = 10;
+                const int multiplicatorDificultate = (dificultate == DificultateJoc::Greu) ? 3 : (dificultate == DificultateJoc::Mediu ? 2 : 1);
+                const int puncteTotale = puncteBaza * multiplicatorDificultate;
 
                 if (tinta->tip == TipCuvant::BonusTripluScor) {
                     scor_ref.adauga(puncteTotale * 3);
@@ -242,7 +273,6 @@ TipCuvant Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, 
                     scor_ref.adauga(puncteTotale);
                 }
                 else {
-                    // Puncte normale
                     scor_ref.adauga(puncteTotale);
                 }
 
@@ -262,14 +292,30 @@ void Cuvant::afiseaza(sf::RenderWindow& window)
     window.draw(linieRosie);
 
     for (const auto& cuv : cuvinteActive) {
-        textHelper.setString(cuv.text);
-        textHelper.setPosition({ cuv.x, cuv.y });
 
-        if (cuv.indexTastat > 0) {
-            textHelper.setFillColor(sf::Color(255, 165, 0));
+
+        if (cuv.finalizat) {
+            sf::Color culoareFade = sf::Color(255, 215, 0);
+
+            float alphaRatio = cuv.timpRamaneOverlay / 0.5f;
+            culoareFade.a = static_cast<unsigned char>(255.0f * alphaRatio);
+            textHelper.setFillColor(culoareFade);
+
+            float ridicare = (0.5f - cuv.timpRamaneOverlay) * 50.0f;
+
+            textHelper.setString(cuv.text);
+            textHelper.setPosition({ cuv.x, cuv.y - ridicare });
+
         }
         else {
-            textHelper.setFillColor(CuvantSpecial::getCuloare(cuv.tip));
+            textHelper.setString(cuv.text);
+            textHelper.setPosition({ cuv.x, cuv.y });
+
+            if (cuv.indexTastat > 0) {
+                textHelper.setFillColor(sf::Color(255, 165, 0));
+            } else {
+                textHelper.setFillColor(CuvantSpecial::getCuloare(cuv.tip));
+            }
         }
 
         window.draw(textHelper);

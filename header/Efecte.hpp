@@ -1,0 +1,39 @@
+#pragma once
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <vector>
+
+struct Particula {
+    sf::Vector2f pozitie;
+    sf::Vector2f viteza;
+
+    float durataViata = 0.f;
+    float durataMaxima = 0.f;
+
+    sf::Color culoareStart;
+    float marime = 1.0f;
+};
+
+class ManagerEfecte {
+    std::vector<Particula> particule;
+    sf::RectangleShape shapeParticula;
+
+    // --- ORDINEA ESTE CRITICA ---
+    sf::SoundBuffer bufferTasta;
+    sf::SoundBuffer bufferBoom;
+
+    sf::Sound sunetTasta;
+    sf::Sound sunetBoom;
+public:
+    ManagerEfecte();
+
+    void incarcaSunete();
+    void actualizeaza(float dt);
+    void deseneaza(sf::RenderWindow& window);
+
+    void spawnLiteraCorecta(sf::Vector2f pos);
+    void spawnExplozieCuvant(sf::Vector2f pos, sf::Color culoareBaza);
+
+    void playTasta();
+    void playBoom();
+};
