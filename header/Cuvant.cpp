@@ -229,10 +229,25 @@ TipCuvant Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, 
 
             if (tinta->finalizat || tinta->indexTastat >= tinta->text.size()) {
                 tinta->finalizat = true;
-                int multiplicator = (dificultate == DificultateJoc::Greu) ? 3 : (dificultate == DificultateJoc::Mediu ? 2 : 1);
-                scor_ref.adauga(10 * multiplicator);
+
+                int puncteBaza = 10;
+                int multiplicatorDificultate = (dificultate == DificultateJoc::Greu) ? 3 : (dificultate == DificultateJoc::Mediu ? 2 : 1);
+                int puncteTotale = puncteBaza * multiplicatorDificultate;
+
+                if (tinta->tip == TipCuvant::BonusTripluScor) {
+                    scor_ref.adauga(puncteTotale * 3);
+                }
+                else if (tinta->tip == TipCuvant::BonusComboMax) {
+                    scor_ref.setMultiplicator(3);
+                    scor_ref.adauga(puncteTotale);
+                }
+                else {
+                    // Puncte normale
+                    scor_ref.adauga(puncteTotale);
+                }
+
                 return tinta->tip;
-            }
+            };
         } else {
             valCurentValid = false;
             scor_ref.resetCombo();

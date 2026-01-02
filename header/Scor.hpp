@@ -20,7 +20,7 @@ public:
     void cresteCombo();
     void resetCombo();
     void reset();
-
+    void setMultiplicator(int m);
     void afiseaza(sf::RenderWindow& window) const;
     int getValoare() const { return valoare; }
     friend std::ostream& operator<<(std::ostream& out, const Scor& s);
@@ -41,9 +41,8 @@ public:
     void SBincarcare();
     void SBresetare();
     void SBactualizare() const;
-    void adaugaScor(const std::string& nume, int scor);
     void adaugaScor(const std::string& nume, int scor, const std::string& timp = "-");
-    void afiseaza(sf::RenderWindow& window, const sf::Font& font) const;
+    void afiseaza(sf::RenderWindow& window, const sf::Font& font,bool arataTimp) const;
     friend std::istream& operator>>(std::istream& in, IntrareScor& intrare);
     friend std::ostream& operator<<(std::ostream& out, const IntrareScor& intrare);
 };

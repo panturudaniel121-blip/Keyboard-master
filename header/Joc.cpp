@@ -57,6 +57,8 @@ Joc::Joc()
                     {fontPrincipal, ""},
                     {fontPrincipal, ""},
                     {fontPrincipal, ""},
+                    {fontPrincipal, ""},
+                    {fontPrincipal, ""}
       },
       textInfoDescs{
                       {fontPrincipal, ""},
@@ -66,6 +68,8 @@ Joc::Joc()
                       {fontPrincipal, ""},
                       {fontPrincipal, ""},
                       {fontPrincipal, ""},
+                      {fontPrincipal, ""},
+                      {fontPrincipal, ""}
           },
       waveCurent(1),
       textWave(fontPrincipal, ""),
@@ -261,12 +265,14 @@ void Joc::initializeazaUIInfo() {
         {"Cuvant NEGRU:", "Se scrie automat dupa prima litera.", sf::Color::Black},
         {"Cuvant VERDE:", "Iti reface HP-ul cu +10 puncte.", sf::Color(0, 150, 0)},
         {"Cuvant ALBASTRU:", "Primesti bonus de +3 secunde.", sf::Color::Blue},
+        {"Cuvant AURIU:",    "Primesti TRIPLU scor pe cuvant.",    sf::Color(255, 215, 0)},
+        {"Cuvant MOV:",      "Seteaza COMBO-ul direct la x3.",     sf::Color(255, 0, 255)},
         {"OBIECTIV:", "Scrie cuvintele inainte sa expire timpul.", sf::Color(50, 50, 50)},
         {"CONDITIE:", "Daca HP-ul ajunge la 0, ai pierdut.", sf::Color::Red},
         {"IESIRE:", "Tine apasat ESC pentru a iesi.", sf::Color(100, 100, 100)}
     };
 
-    for (int i = 0; i < 7; ++i) {
+    for (int i = 0; i < 9; ++i) {
         textInfoLabels[i].setFont(fontPrincipal);
         textInfoLabels[i].setString(date[i].label);
         textInfoLabels[i].setFillColor(date[i].culoare);
@@ -281,7 +287,7 @@ void Joc::initializeazaUIInfo() {
         textInfoDescs[i].setPosition({280.f, 130.f + (static_cast<float>(i) * 60.f)});
     }
 
-    meniuInfo.adaugaButon(new ButonMeniu({270.f, 600.f}, fontPrincipal));
+    meniuInfo.adaugaButon(new ButonMeniu({270.f, 700.f}, fontPrincipal));
 }
 
 void Joc::setDificultate(const DificultateJoc dif) {
@@ -547,7 +553,7 @@ void Joc::gestioneazaEvenimenteGameOver(const sf::Event& event)
             } else {
                 timpFinalSeconds = ceasJoc.getElapsedTime().asSeconds();
             }
-            std::string timpString = formateazaSecunde(timpFinalSeconds);
+            const std::string timpString = formateazaSecunde(timpFinalSeconds);
 
             if (nivelDificultate == DificultateJoc::Endless) {
                 scorBoardEndless.adaugaScor(numeJucator, scor.getValoare(), timpString);
@@ -722,9 +728,9 @@ void Joc::afiseazaGameOver()
     window.draw(textScorFinal);
 
     if (nivelDificultate == DificultateJoc::Endless) {
-        scorBoardEndless.afiseaza(window, fontPrincipal);
+        scorBoardEndless.afiseaza(window, fontPrincipal,true);
     } else {
-        scorBoard.afiseaza(window, fontPrincipal);
+        scorBoard.afiseaza(window, fontPrincipal,false);
     }
 
     window.draw(textIntroduNume);

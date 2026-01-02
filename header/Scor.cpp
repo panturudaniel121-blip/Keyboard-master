@@ -104,13 +104,17 @@ void Scor_board::SBactualizare() const {
     for (const auto& intrare : board) fout << intrare;
     fout.close();
 }
-void Scor_board::afiseaza(sf::RenderWindow& window, const sf::Font& font) const {
+void Scor_board::afiseaza(sf::RenderWindow& window, const sf::Font& font,bool arataTimp) const {
     sf::Text textAfisare(font, "", 28);
     textAfisare.setFillColor(sf::Color::Black);
 
     float yPos = 250.f;
 
-    textAfisare.setString("Top 10 Scoruri | Timp");
+    if (arataTimp) {
+        textAfisare.setString("Top 10 Scoruri | Timp");
+    } else {
+        textAfisare.setString("Top 10 Scoruri");
+    }
     textAfisare.setStyle(sf::Text::Bold | sf::Text::Underlined);
 
     sf::FloatRect b = textAfisare.getLocalBounds();
@@ -126,14 +130,21 @@ void Scor_board::afiseaza(sf::RenderWindow& window, const sf::Font& font) const 
     int rank = 1;
     for (const auto& intrare : board) {
         std::stringstream ss;
+
         ss << std::setw(2) << rank << ". "
            << std::setw(12) << std::left << intrare.nume
-           << " : " << std::setw(6) << intrare.scor
-           << " | " << intrare.timpDisplay;
+           << " : " << std::setw(6) << intrare.scor;
+
+        if (arataTimp) {
+            ss << " | " << intrare.timpDisplay;
+        }
 
         textAfisare.setString(ss.str());
+
         sf::FloatRect r = textAfisare.getLocalBounds();
-        textAfisare.setPosition({(static_cast<float>(Config::LATIME_FEREASTRA) - r.size.x) / 2.f, yPos});
+        float xPos = (static_cast<float>(Config::LATIME_FEREASTRA) - r.size.x) / 2.f;
+
+        textAfisare.setPosition({xPos, yPos});
 
         window.draw(textAfisare);
         yPos += 35.f;
@@ -143,4 +154,10 @@ void Scor_board::afiseaza(sf::RenderWindow& window, const sf::Font& font) const 
 std::ostream& operator<<(std::ostream& out, const Scor& s) {
     out << "Scor curent  " << s.getValoare() << "\n";
     return out;
+}
+void Scor::setMultiplicator(const int m) {
+    if (m > 0 && m <= 4) {
+        multiplicator = m;
+        textCombo.setString("COMBO x" + std::to_string(multiplicator));
+    }
 }

@@ -6,7 +6,9 @@ enum class TipCuvant {
     Normal,
     BonusHP,
     BonusTimp,
-    BonusInstant
+    BonusInstant,
+    BonusTripluScor,
+    BonusComboMax
 };
 
 class CuvantSpecial {
