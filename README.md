@@ -2,15 +2,26 @@
 
 „Keyboard Master” este un joc destinat testării abilităților de a scrie repede. Scopul acestui joc este de a tasta cuvintele
 care apar în partea superioară a ecranului, care se deplasează în jos cu o viteză constantă. Jucătorul va avea un anumit HP, 
-care va scădea pentru fiecare cuvânt care nu a fost scris la timp. Ce doresc să implementez până la finalizarea proiectului:
+care va scădea pentru fiecare cuvânt care nu a fost scris la timp. 
 
-- 3 opțiuni diferite de dificultate, care să influențeze viteza cuvintelor, lungimea lor și HP-ul cu care jucătorul începe
-- o tabelă de scor și un sistem de highscore
-- efecte vizuale și auditive.
-
-Până în acest punct, am implementat un cuvânt care este ales aleatoriu dintr-o listă, iar după tastarea acestuia apare altul.
-Ai 30 de secunde să scrii cât mai multe cuvinte, pentru fiecare cuvânt scorul este incrementat cu 1, iar la final scorul este
-introdus într-o tabelă de scor, dacă se încadrează.
+Implementari:
+-3 dificultati 
+-un mod endless
+-Cuvinte speciale cu efecte diferite:
+  Cuvant ROSU: Cuvant normal de baza. 
+  Cuvant NEGRU: Se scrie automat dupa prima litera. 
+  Cuvant VERDE: Iti reface HP-ul cu +10 puncte. 
+  Cuvant ALBASTRU: Primesti bonus de +3 secunde.
+  Cuvant AURIU: Primesti TRIPLU scor pe cuvant.   
+  Cuvant MOV: Seteaza COMBO-ul direct la x3. 
+  Cuvant GRI: NU il tasta! Iti scade viata! 
+-Tine apasat ESC pentru a iesi. 
+-Un sistem de combo
+-Melodii diferite pentru fiecare dificultate
+-Efecte vizuale si sonore la scrierea cuvintelor
+-Achievementuri in joc
+-Scoreboard
+-Statistici pentru joc
 
 | Laborant  | Link template                                |
 |-----------|----------------------------------------------|
