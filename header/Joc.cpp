@@ -3,6 +3,7 @@
 #include "Static.hpp"
 #include "Exceptii.hpp"
 #include "CuvantSpecial.hpp"
+#include "Achievements.hpp"
 #include <ostream>
 #include <sstream>
 #include <iomanip>
@@ -123,6 +124,8 @@ Joc::Joc()
     textWave.setPosition({525.f, 60.f});
 
     efecte.incarcaSunete();
+
+    managerAchievements.initializeaza(fontPrincipal);
 }
 
 
@@ -162,6 +165,7 @@ void Joc::initializeazaUIStart()
     meniuStart.adaugaButon(new ButonDificultate({250.f, 600.f}, fontPrincipal, DificultateJoc::Endless, "Endless"));
     meniuStart.adaugaButon(new ButonMute({590.f, 10.f}, fontPrincipal, &sunetOprit));
     meniuStart.adaugaButon(new ButonInfo({20.f, 740.f}, fontPrincipal));
+    meniuStart.adaugaButon(new ButonAchievements({530.f, 740.f}, fontPrincipal));
 }
 
 void Joc::initializeazaUIGameOver()
@@ -468,6 +472,10 @@ void Joc::tranzitieLaInfo() {
     stareCurenta = StareJoc::Info;
 }
 
+void Joc::tranzitieLaAchievements() {
+    stareCurenta = StareJoc::Achievements;
+}
+
 void Joc::ruleaza()
 {
     while (window.isOpen())
@@ -491,6 +499,7 @@ void Joc::gestioneazaEvenimente()
         else if (stareCurenta == StareJoc::Pierdut)             gestioneazaEvenimentePierdut(*event);
         else if (stareCurenta == StareJoc::Statistici)          gestioneazaEvenimenteStatistici(*event);
         else if (stareCurenta == StareJoc::Info)                gestioneazaEvenimenteInfo(* event);
+        else if (stareCurenta == StareJoc::Achievements)        gestioneazaEvenimenteAchievements(*event);
         }
     }
 
@@ -631,6 +640,30 @@ void Joc::gestioneazaEvenimenteInfo(const sf::Event& event) {
     }
 }
 
+void Joc::gestioneazaEvenimenteAchievements(const sf::Event& event) {
+    sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+    sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos);
+
+    managerAchievements.actualizeaza(0.f, worldPos);
+
+    if (const auto mouseEv = event.getIf<sf::Event::MouseButtonPressed>()) {
+        if (mouseEv->button == sf::Mouse::Button::Left) {
+            if (managerAchievements.aDatClickMeniu(worldPos)) {
+                mergiLaMeniu();
+            }
+            if (managerAchievements.aDatClickReset(worldPos)) {
+                ResetAchievements();
+            }
+        }
+    }
+
+    if (const auto keyEv = event.getIf<sf::Event::KeyPressed>()) {
+        if (keyEv->code == sf::Keyboard::Key::Escape) {
+            mergiLaMeniu();
+        }
+    }
+}
+
 void Joc::actualizeaza()
 {
 
@@ -651,6 +684,17 @@ void Joc::actualizeazaJucand()
 {
     constexpr float dt = 1.0f / 60.0f;
     efecte.actualizeaza(dt);
+    managerAchievements.actualizeaza(dt, {0,0});
+    float acuratete = (totalTasteApasate > 0) ?
+        ((static_cast<float>(totalTasteCorecte) / static_cast<float>(totalTasteApasate) * 100.f)) : 0.f;
+    managerAchievements.verificaConditii(
+        scor.getValoare(),
+        scor.getCombo(),
+        waveCurent,
+        nrCuvintePrinse,
+        acuratete,
+        hpCurent
+    );
     int cuvintePierdute = cuvant.actualizeaza(dt, nivelDificultate, scor, waveCurent);
 
     if (nivelDificultate == DificultateJoc::Endless && cuvant.aGeneratGrupNou()) {
@@ -702,6 +746,7 @@ void Joc::afiseaza()
     else if (stareCurenta == StareJoc::Pierdut)             afiseazaPierdut();
     else if (stareCurenta == StareJoc::Statistici)          afiseazaStatistici();
     else if (stareCurenta == StareJoc::Info)                afiseazaInfo();
+    else if (stareCurenta == StareJoc::Achievements)        afiseazaAchievements();
 
     if (timpApasareEsc > 0.0f)
     {
@@ -737,6 +782,8 @@ void Joc::afiseazaJucand()
     if (nivelDificultate == DificultateJoc::Endless) {
         window.draw(textWave);
     }
+    managerAchievements.deseneazaNotificare(window);
+
 }
 
 void Joc::afiseazaGameOver()
@@ -786,6 +833,10 @@ void Joc::afiseazaInfo()
     meniuInfo.deseneaza(window);
 }
 
+void Joc::afiseazaAchievements() {
+    managerAchievements.deseneazaMeniu(window);
+}
+
 void Joc::incarcaMuzica() {
     if (!muzicaMeniu.openFromFile(Config::CALE_MUZICA_MENIU)) std::cerr << "Eroare meniu music\n";
     if (!muzicaPierdut.openFromFile(Config::CALE_MUZICA_PIERDUT)) std::cerr << "Eroare defeat music\n";
@@ -824,6 +875,11 @@ void Joc::copiazaStatisticiInClipboard() const {
     continut += "Joaca si tu Keyboard Master!";
 
     sf::Clipboard::setString(continut);
+}
+
+void Joc::ResetAchievements() {
+    managerAchievements.reseteazaProgres();
+    Joc::scrieInLog("Achievements resetate manual!");
 }
 
 std::ostream& operator<<(std::ostream& out, const Joc& j)

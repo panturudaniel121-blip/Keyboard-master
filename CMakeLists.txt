@@ -74,6 +74,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         header/CuvantSpecial.hpp
         header/Efecte.cpp
         header/Efecte.hpp
+        header/Achievements.cpp
+        header/Achievements.hpp
 
 )
 

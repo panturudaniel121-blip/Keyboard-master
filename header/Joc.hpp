@@ -5,6 +5,7 @@
 #include "Scor.hpp"
 #include "Buton.hpp"
 #include "Efecte.hpp"
+#include "Achievements.hpp"
 
 enum class StareJoc {
     SelectieDificultate,
@@ -12,7 +13,8 @@ enum class StareJoc {
     GameOver,
     Pierdut,
     Statistici,
-    Info
+    Info,
+    Achievements
 };
 
 class Joc
@@ -77,6 +79,9 @@ class Joc
     sf::Text textWave;
 
     ManagerEfecte efecte;
+
+    ManagerAchievements managerAchievements;
+
 public:
     Joc();
     void ruleaza();
@@ -91,7 +96,9 @@ public:
     void mergiLaMeniu();
     void tranzitieLaStatistici();
     void tranzitieLaInfo();
+    void tranzitieLaAchievements();
 
+    void ResetAchievements();
 
     void toggleMute();
 
@@ -124,6 +131,7 @@ private:
     void gestioneazaEvenimenteStart(const sf::Event& event);
     void gestioneazaEvenimentePierdut(const sf::Event& event);
     void gestioneazaEvenimenteInfo(const sf::Event& event);
+    void gestioneazaEvenimenteAchievements(const sf::Event& event);
 
     void gestioneazaEvenimenteStatistici(const sf::Event& event);
     void afiseazaStatistici();
@@ -141,4 +149,5 @@ private:
     void afiseazaStart();
     void afiseazaPierdut();
     void afiseazaInfo();
+    void afiseazaAchievements();
 };

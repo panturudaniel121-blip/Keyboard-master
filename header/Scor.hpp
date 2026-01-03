@@ -23,6 +23,7 @@ public:
     void setMultiplicator(int m);
     void afiseaza(sf::RenderWindow& window) const;
     int getValoare() const { return valoare; }
+    int getCombo() const { return multiplicator; }
     friend std::ostream& operator<<(std::ostream& out, const Scor& s);
 };
 
