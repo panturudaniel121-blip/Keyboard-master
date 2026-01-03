@@ -8,7 +8,8 @@ enum class TipCuvant {
     BonusTimp,
     BonusInstant,
     BonusTripluScor,
-    BonusComboMax
+    BonusComboMax,
+    Capcana
 };
 
 class CuvantSpecial {

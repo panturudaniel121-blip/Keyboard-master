@@ -94,29 +94,40 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate, int wa
         constexpr float startX = 50.f;
         const std::string textAles = extrageCuvantAleatoriu(dificultate);
 
-        float bazaViteza = 50.f;
-        if (dificultate == DificultateJoc::Mediu) bazaViteza = 80.f;
-        if (dificultate == DificultateJoc::Greu) bazaViteza = 120.f;
-
-        if (dificultate == DificultateJoc::Endless) {
-            bazaViteza = 60.f;
-            const int treaptaViteza = waveIndex / 5;
-            const float bonusViteza = static_cast<float>(treaptaViteza) * 20.f;
-            bazaViteza += bonusViteza;
-        }
-
-        const float vitezaFinala = bazaViteza + static_cast<float>(Random::getInt(0, 20));
-        const float xPos = startX + static_cast<float>(i) * pas + static_cast<float>(Random::getInt(-20, 20));
-        const auto yPos = static_cast<float>(Random::getInt(50, 300));
-
         TipCuvant tipCurent = TipCuvant::Normal;
-        if (i == indexSpecial) {
-            tipCurent = CuvantSpecial::genereazaTipAleatoriu();
 
+        if (Random::getInt(1, 100) <= 10) {
+            tipCurent = TipCuvant::Capcana;
+        }
+        else if (i == indexSpecial) {
+            tipCurent = CuvantSpecial::genereazaTipAleatoriu();
             if (dificultate == DificultateJoc::Endless && tipCurent == TipCuvant::BonusTimp) {
                 tipCurent = TipCuvant::Normal;
             }
         }
+
+        float vitezaFinala = 0.f;
+
+        if (tipCurent == TipCuvant::Capcana) {
+            vitezaFinala = 200.f;
+        }
+        else {
+            float bazaViteza = 50.f;
+            if (dificultate == DificultateJoc::Mediu) bazaViteza = 80.f;
+            if (dificultate == DificultateJoc::Greu) bazaViteza = 120.f;
+
+            if (dificultate == DificultateJoc::Endless) {
+                bazaViteza = 60.f;
+                const int treaptaViteza = waveIndex / 5;
+                const float bonusViteza = static_cast<float>(treaptaViteza) * 20.f;
+                bazaViteza += bonusViteza;
+            }
+
+            vitezaFinala = bazaViteza + static_cast<float>(Random::getInt(0, 20));
+        }
+
+        const float xPos = startX + static_cast<float>(i) * pas + static_cast<float>(Random::getInt(-20, 20));
+        const auto yPos = static_cast<float>(Random::getInt(50, 300));
 
         CuvantActiv nou;
         nou.text = textAles;
@@ -126,6 +137,7 @@ void Cuvant::spawneazaGrup(float latimeEcran, DificultateJoc dificultate, int wa
         nou.viteza = vitezaFinala;
         nou.finalizat = false;
         nou.tip = tipCurent;
+        nou.timpRamaneOverlay = 0.0f;
 
         cuvinteActive.push_back(nou);
     }
@@ -171,10 +183,11 @@ int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate, Scor&
 
         if (it->y > yLimitaRosie) {
 
-            damage++;
-
-            valCurentValid = false;
-            scor.resetCombo();
+            if (it->tip != TipCuvant::Capcana) {
+                damage++;
+                valCurentValid = false;
+                scor.resetCombo();
+            }
 
             it = cuvinteActive.erase(it);
         }
@@ -202,27 +215,60 @@ TipCuvant Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, 
         }
 
         if (!tinta) {
-            float maxY = -1000.f;
+            CuvantActiv* candidatSafe = nullptr;
+            CuvantActiv* candidatCapcana = nullptr;
+
+            float maxY_Safe = -1000.f;
+            float maxY_Capcana = -1000.f;
+
             for (auto& cuv : cuvinteActive) {
                 if (cuv.finalizat) continue;
+
                 if (!cuv.text.empty() && static_cast<char>(std::tolower(static_cast<int>(cuv.text[0]))) == caracterTastat) {
-                    if (cuv.y > maxY) {
-                        maxY = cuv.y;
-                        tinta = &cuv;
+
+                    if (cuv.tip == TipCuvant::Capcana) {
+                        if (cuv.y > maxY_Capcana) {
+                            maxY_Capcana = cuv.y;
+                            candidatCapcana = &cuv;
+                        }
+                    } else {
+                        if (cuv.y > maxY_Safe) {
+                            maxY_Safe = cuv.y;
+                            candidatSafe = &cuv;
+                        }
                     }
                 }
             }
 
-            if (!tinta) {
-                valCurentValid = false;
-                scor_ref.resetCombo();
-                return TipCuvant::Niciunul;
+            if (candidatSafe) {
+                tinta = candidatSafe;
             }
+            else if (candidatCapcana) {
+                tinta = candidatCapcana;
+            }
+        }
+        if (!tinta) {
+            valCurentValid = false;
+            scor_ref.resetCombo();
+            return TipCuvant::Niciunul;
         }
 
         char asteptat = static_cast<char>(std::tolower(static_cast<int>(tinta->text[tinta->indexTastat])));
 
         if (caracterTastat == asteptat) {
+
+            if (tinta->tip == TipCuvant::Capcana) {
+                sf::FloatRect bounds = textHelper.getGlobalBounds();
+                sf::Vector2f centruCuvant = {tinta->x + bounds.size.x/2.f, tinta->y + bounds.size.y/2.f};
+                efecteRef.spawnExplozieCuvant(centruCuvant, sf::Color(50, 50, 50));
+                efecteRef.playBoom();
+                scor_ref.resetCombo();
+                valCurentValid = false;
+                tinta->finalizat = true;
+                tinta->timpRamaneOverlay = 0.0f;
+                return TipCuvant::Capcana;
+            }
+
             tasteCorecteRef++;
 
             textHelper.setString(tinta->text);
@@ -326,4 +372,12 @@ void Cuvant::afiseaza(sf::RenderWindow& window)
             window.draw(cursor);
         }
     }
+}
+
+bool Cuvant::aGeneratGrupNou() {
+    if (grupNouGenerat) {
+        grupNouGenerat = false;
+        return true;
+    }
+    return false;
 }

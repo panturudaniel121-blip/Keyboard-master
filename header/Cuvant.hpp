@@ -44,11 +44,7 @@ public:
     TipCuvant gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate, int& tasteCorecteRef, ManagerEfecte& efecteRef);
     void afiseaza(sf::RenderWindow& window);
 
-    bool aGeneratGrupNou() {
-        const bool temp = grupNouGenerat;
-        grupNouGenerat = false;
-        return temp;
-    }
+    bool aGeneratGrupNou();
 
 private:
     void incarcaDictionare();

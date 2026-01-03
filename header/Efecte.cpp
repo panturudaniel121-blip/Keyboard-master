@@ -4,25 +4,26 @@
 #include <iostream>
 
 ManagerEfecte::ManagerEfecte()
-    : bufferTasta(),
-      bufferBoom(),
-      sunetTasta(bufferTasta),
-      sunetBoom(bufferBoom)
+    : bufferTasta(), bufferBoom(), sunetBoom(bufferBoom)
 {
     shapeParticula.setSize({5.f, 5.f});
     shapeParticula.setOrigin({2.5f, 2.5f});
+
+    indexSunetCurent = 0;
 }
 
 void ManagerEfecte::incarcaSunete() {
-    // Incarcam sunetul pentru tasta
     if (!bufferTasta.loadFromFile(Config::CALE_SUNET_TASTA)) {
         std::cerr << "[Eroare] Nu s-a putut incarca sunetul de tasta: " << Config::CALE_SUNET_TASTA << "\n";
-    } else {
-        sunetTasta.setBuffer(bufferTasta);
-        sunetTasta.setVolume(50.f);
     }
-
-    // Incarcam sunetul pentru explozie
+    else {
+        poolSuneteTasta.clear();
+        for (int i = 0; i < 10; ++i) {
+            sf::Sound s(bufferTasta);
+            s.setVolume(50.f);
+            poolSuneteTasta.push_back(s);
+        }
+    }
     if (!bufferBoom.loadFromFile(Config::CALE_SUNET_BOOM)) {
         std::cerr << "[Eroare] Nu s-a putut incarca sunetul de boom: " << Config::CALE_SUNET_BOOM << "\n";
     } else {
@@ -31,7 +32,6 @@ void ManagerEfecte::incarcaSunete() {
     }
 }
 
-// ... restul functiilor raman neschimbate ...
 void ManagerEfecte::actualizeaza(float dt) {
     auto it = particule.begin();
     while (it != particule.end()) {
@@ -91,9 +91,18 @@ void ManagerEfecte::spawnExplozieCuvant(sf::Vector2f pos, sf::Color culoareBaza)
 }
 
 void ManagerEfecte::playTasta() {
+    if (poolSuneteTasta.empty()) return;
+
+    sf::Sound& sunetAles = poolSuneteTasta[indexSunetCurent];
+
     float pitch = Random::getFloat(0.9f, 1.1f);
-    sunetTasta.setPitch(pitch);
-    sunetTasta.play();
+    sunetAles.setPitch(pitch);
+
+    sunetAles.play();
+    indexSunetCurent++;
+    if (indexSunetCurent >=  static_cast<int>(poolSuneteTasta.size())) {
+        indexSunetCurent = 0;
+    }
 }
 
 void ManagerEfecte::playBoom() {

@@ -69,8 +69,8 @@ class Joc
     int totalTasteCorecte = 0;
 
     sf::Text textInfoTitlu;
-    sf::Text textInfoLabels[9];
-    sf::Text textInfoDescs[9];
+    sf::Text textInfoLabels[10];
+    sf::Text textInfoDescs[10];
     Meniu meniuInfo;
 
     int waveCurent = 1;

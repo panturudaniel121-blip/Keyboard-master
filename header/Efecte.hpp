@@ -18,11 +18,12 @@ class ManagerEfecte {
     std::vector<Particula> particule;
     sf::RectangleShape shapeParticula;
 
-    // --- ORDINEA ESTE CRITICA ---
     sf::SoundBuffer bufferTasta;
     sf::SoundBuffer bufferBoom;
 
-    sf::Sound sunetTasta;
+    std::vector<sf::Sound> poolSuneteTasta;
+    int indexSunetCurent = 0;
+
     sf::Sound sunetBoom;
 public:
     ManagerEfecte();

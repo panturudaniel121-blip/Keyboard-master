@@ -58,7 +58,8 @@ Joc::Joc()
                     {fontPrincipal, ""},
                     {fontPrincipal, ""},
                     {fontPrincipal, ""},
-                    {fontPrincipal, ""}
+                    {fontPrincipal, ""},
+                    {fontPrincipal, ""},
       },
       textInfoDescs{
                       {fontPrincipal, ""},
@@ -69,7 +70,8 @@ Joc::Joc()
                       {fontPrincipal, ""},
                       {fontPrincipal, ""},
                       {fontPrincipal, ""},
-                      {fontPrincipal, ""}
+                      {fontPrincipal, ""},
+                      {fontPrincipal, ""},
           },
       waveCurent(1),
       textWave(fontPrincipal, ""),
@@ -263,18 +265,19 @@ void Joc::initializeazaUIInfo() {
     };
 
     const InfoLinie date[] = {
+        {"OBIECTIV:", "Scrie cuvintele inainte sa expire timpul.", sf::Color(50, 50, 50)},
+        {"CONDITIE:", "Daca HP-ul ajunge la 0, ai pierdut.", sf::Color::Red},
+        {"IESIRE:", "Tine apasat ESC pentru a iesi.", sf::Color(100, 100, 100)},
         {"Cuvant ROSU:", "Cuvant normal de baza.", sf::Color::Red},
         {"Cuvant NEGRU:", "Se scrie automat dupa prima litera.", sf::Color::Black},
         {"Cuvant VERDE:", "Iti reface HP-ul cu +10 puncte.", sf::Color(0, 150, 0)},
         {"Cuvant ALBASTRU:", "Primesti bonus de +3 secunde.", sf::Color::Blue},
         {"Cuvant AURIU:",    "Primesti TRIPLU scor pe cuvant.",    sf::Color(255, 215, 0)},
         {"Cuvant MOV:",      "Seteaza COMBO-ul direct la x3.",     sf::Color(255, 0, 255)},
-        {"OBIECTIV:", "Scrie cuvintele inainte sa expire timpul.", sf::Color(50, 50, 50)},
-        {"CONDITIE:", "Daca HP-ul ajunge la 0, ai pierdut.", sf::Color::Red},
-        {"IESIRE:", "Tine apasat ESC pentru a iesi.", sf::Color(100, 100, 100)}
+        {"Cuvant GRI:",    "NU il tasta! Iti scade viata!",      sf::Color(80, 80, 80)},
     };
 
-    for (int i = 0; i < 9; ++i) {
+    for (int i = 0; i < 10; ++i) {
         textInfoLabels[i].setFont(fontPrincipal);
         textInfoLabels[i].setString(date[i].label);
         textInfoLabels[i].setFillColor(date[i].culoare);
@@ -302,7 +305,7 @@ void Joc::incepeJoc() {
     ceasJoc.restart();
     scorSalvat = false;
     numeJucator = "";
-    waveCurent = 1;
+    waveCurent = 0;
     textWave.setString("Wave: 1");
     textNumeJucator.setString("");
     textIntroduNume.setString("Introdu numele: (apasa Enter pt. a salva)");
@@ -515,6 +518,13 @@ void Joc::gestioneazaEvenimenteJucand(const sf::Event& event) {
     if (bonus != TipCuvant::Niciunul) {
         nrCuvintePrinse++;
 
+        if (bonus == TipCuvant::Capcana) {
+            hpCurent -= 30;
+            if (hpCurent < 0) hpCurent = 0;
+            textHP.setString("HP: " + std::to_string(hpCurent));
+            scrieInLog("Ai lovit o capcana! -20 HP");
+            return;
+        }
         if (bonus != TipCuvant::Normal) {
             nrCuvinteSpeciale++;
         }
@@ -792,20 +802,28 @@ void Joc::toggleMute() {
 void Joc::copiazaStatisticiInClipboard() const {
     std::string continut = "=== Keyboard Master Stats ===\n";
 
-    continut += "Mod: " + std::string(nivelDificultate == DificultateJoc::Endless ? "Endless" : "Normal") + "\n";
-    continut += textStat1.getString().toAnsiString() + "\n";
-    continut += textStat2.getString().toAnsiString() + "\n";
-
+    std::string detaliiMod;
     if (nivelDificultate == DificultateJoc::Endless) {
-        continut += textStat6.getString().toAnsiString() + "\n";
+        detaliiMod = "Endless";
+    } else {
+        detaliiMod = "Normal - ";
+        if (nivelDificultate == DificultateJoc::Usor) detaliiMod += "Usor";
+        else if (nivelDificultate == DificultateJoc::Mediu) detaliiMod += "Mediu";
+        else if (nivelDificultate == DificultateJoc::Greu) detaliiMod += "Greu";
     }
 
-    continut += textStat5.getString().toAnsiString() + "\n";
-    continut += "=============================\n";
+    continut += "Mod: " + detaliiMod + "\n\n";
+
+    continut += textStat1.getString().toAnsiString() + "\n";
+    continut += textStat2.getString().toAnsiString() + "\n";
+    continut += textStat3.getString().toAnsiString() + "\n";
+    continut += textStat4.getString().toAnsiString() + "\n";
+    continut += textStat6.getString().toAnsiString() + "\n";
+
+    continut += "\n=============================\n";
     continut += "Joaca si tu Keyboard Master!";
 
     sf::Clipboard::setString(continut);
-    scrieInLog("Statisticile complete au fost copiate!");
 }
 
 std::ostream& operator<<(std::ostream& out, const Joc& j)
