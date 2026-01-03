@@ -539,7 +539,7 @@ void Joc::gestioneazaEvenimenteJucand(const sf::Event& event) {
         }
 
         if (bonus == TipCuvant::BonusHP) {
-            hpCurent = clamp<int>(hpCurent + 10, 0, hpMaxim);
+            hpCurent = clamp<int>(hpCurent + 10, 0, 1000);
             textHP.setString("HP: " + std::to_string(hpCurent));
         }
         else if (bonus == TipCuvant::BonusTimp) {
