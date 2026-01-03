@@ -5,22 +5,39 @@ care apar în partea superioară a ecranului, care se deplasează în jos cu o v
 care va scădea pentru fiecare cuvânt care nu a fost scris la timp. 
 
 Implementari:
--3 dificultati 
--un mod endless
+
+-3 dificultati: Usor, Mediu, Greu
+
+-Un mod endless
+
 -Cuvinte speciale cu efecte diferite:
-  Cuvant ROSU: Cuvant normal de baza. 
-  Cuvant NEGRU: Se scrie automat dupa prima litera. 
-  Cuvant VERDE: Iti reface HP-ul cu +10 puncte. 
-  Cuvant ALBASTRU: Primesti bonus de +3 secunde.
-  Cuvant AURIU: Primesti TRIPLU scor pe cuvant.   
-  Cuvant MOV: Seteaza COMBO-ul direct la x3. 
-  Cuvant GRI: NU il tasta! Iti scade viata! 
+
+    Cuvant ROSU: Cuvant normal de baza. 
+  
+    Cuvant NEGRU: Se scrie automat dupa prima litera. 
+  
+    Cuvant VERDE: Iti reface HP-ul cu +10 puncte. 
+  
+    Cuvant ALBASTRU: Primesti bonus de +3 secunde.
+  
+    Cuvant AURIU: Primesti TRIPLU scor pe cuvant.   
+  
+    Cuvant MOV: Seteaza COMBO-ul direct la x3. 
+  
+    Cuvant GRI: NU il tasta! Iti scade viata! 
+  
 -Tine apasat ESC pentru a iesi. 
+
 -Un sistem de combo
+
 -Melodii diferite pentru fiecare dificultate
+
 -Efecte vizuale si sonore la scrierea cuvintelor
+
 -Achievementuri in joc
+
 -Scoreboard
+
 -Statistici pentru joc
 
 | Laborant  | Link template                                |
