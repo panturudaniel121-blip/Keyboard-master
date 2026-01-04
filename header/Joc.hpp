@@ -82,6 +82,15 @@ class Joc
 
     ManagerAchievements managerAchievements;
 
+    sf::Text textStatisticiTitlu;
+    sf::Text textStat1;
+    sf::Text textStat2;
+    sf::Text textStat3;
+    sf::Text textStat4;
+    sf::Text textStat5;
+    sf::Text textStat6;
+    sf::Text textVersiune;
+
 public:
     Joc();
     void ruleaza();
@@ -101,15 +110,6 @@ public:
     void ResetAchievements();
 
     void toggleMute();
-
-    sf::Text textStatisticiTitlu;
-    sf::Text textStat1;
-    sf::Text textStat2;
-    sf::Text textStat3;
-    sf::Text textStat4;
-    sf::Text textStat5;
-    sf::Text textStat6;
-    sf::Text textVersiune;
 
     void copiazaStatisticiInClipboard() const;
     void tranzitieLaGameOver();
