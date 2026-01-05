@@ -200,134 +200,127 @@ int Cuvant::actualizeaza(const float dt, const DificultateJoc dificultate, Scor&
 
 TipCuvant Cuvant::gestioneazaEvenimente(const sf::Event& event, Scor& scor_ref, DificultateJoc dificultate, int& tasteCorecteRef, ManagerEfecte& efecteRef)
 {
-    if (auto textEv = event.getIf<sf::Event::TextEntered>()) {
-        char caracterTastat = static_cast<char>(std::tolower(static_cast<int>(textEv->unicode)));
+    auto textEv = event.getIf<sf::Event::TextEntered>();
+    if (!textEv) return TipCuvant::Niciunul;
 
-        if (caracterTastat < 32) return TipCuvant::Niciunul;
+    char caracterTastat = static_cast<char>(std::tolower(static_cast<int>(textEv->unicode)));
+    if (caracterTastat < 32) return TipCuvant::Niciunul;
 
-        CuvantActiv* tinta = nullptr;
+    CuvantActiv* tinta = gasesteTinta(caracterTastat);
+    if (!tinta) {
+        valCurentValid = false;
+        scor_ref.resetCombo();
+        return TipCuvant::Niciunul;
+    }
 
-        for (auto& cuv : cuvinteActive) {
-            if (cuv.indexTastat > 0 && !cuv.finalizat) {
-                tinta = &cuv;
-                break;
-            }
+    return proceseazaTinta(tinta, caracterTastat, scor_ref, dificultate, tasteCorecteRef, efecteRef);
+}
+
+CuvantActiv* Cuvant::gasesteTinta(char caracterTastat) {
+
+    for (auto& cuv : cuvinteActive) {
+        if (cuv.indexTastat > 0 && !cuv.finalizat) {
+            return &cuv;
         }
+    }
 
-        if (!tinta) {
-            CuvantActiv* candidatSafe = nullptr;
-            CuvantActiv* candidatCapcana = nullptr;
+    CuvantActiv* candidatSafe = nullptr;
+    CuvantActiv* candidatCapcana = nullptr;
 
-            float maxY_Safe = -1000.f;
-            float maxY_Capcana = -1000.f;
+    float maxY_Safe = -1000.f;
+    float maxY_Capcana = -1000.f;
 
-            for (auto& cuv : cuvinteActive) {
-                if (cuv.finalizat) continue;
+    for (auto& cuv : cuvinteActive) {
+        if (cuv.finalizat) continue;
 
-                if (!cuv.text.empty() && static_cast<char>(std::tolower(static_cast<int>(cuv.text[0]))) == caracterTastat) {
-
-                    if (cuv.tip == TipCuvant::Capcana) {
-                        if (cuv.y > maxY_Capcana) {
-                            maxY_Capcana = cuv.y;
-                            candidatCapcana = &cuv;
-                        }
-                    } else {
-                        if (cuv.y > maxY_Safe) {
-                            maxY_Safe = cuv.y;
-                            candidatSafe = &cuv;
-                        }
-                    }
+        if (!cuv.text.empty() && static_cast<char>(std::tolower(static_cast<int>(cuv.text[0]))) == caracterTastat) {
+            if (cuv.tip == TipCuvant::Capcana) {
+                if (cuv.y > maxY_Capcana) {
+                    maxY_Capcana = cuv.y;
+                    candidatCapcana = &cuv;
                 }
-            }
-
-            if (candidatSafe) {
-                tinta = candidatSafe;
-            }
-            else if (candidatCapcana) {
-                tinta = candidatCapcana;
-            }
-        }
-        if (!tinta) {
-            valCurentValid = false;
-            scor_ref.resetCombo();
-            return TipCuvant::Niciunul;
-        }
-
-        char asteptat = static_cast<char>(std::tolower(static_cast<int>(tinta->text[tinta->indexTastat])));
-
-        if (caracterTastat == asteptat) {
-
-            if (tinta->tip == TipCuvant::Capcana) {
-                sf::FloatRect bounds = textHelper.getGlobalBounds();
-                sf::Vector2f centruCuvant = {tinta->x + bounds.size.x/2.f, tinta->y + bounds.size.y/2.f};
-                efecteRef.spawnExplozieCuvant(centruCuvant, sf::Color(50, 50, 50));
-                efecteRef.playBoom();
-                scor_ref.resetCombo();
-                valCurentValid = false;
-                tinta->finalizat = true;
-                tinta->timpRamaneOverlay = 0.0f;
-                return TipCuvant::Capcana;
-            }
-
-            tasteCorecteRef++;
-
-            textHelper.setString(tinta->text);
-            textHelper.setPosition({tinta->x, tinta->y});
-
-            sf::Vector2f pozLitera = textHelper.findCharacterPos(tinta->indexTastat);
-
-            pozLitera.x += 10.f;
-            pozLitera.y += 20.f;
-
-            efecteRef.spawnLiteraCorecta(pozLitera);
-            efecteRef.playTasta();
-
-            if (tinta->tip == TipCuvant::BonusInstant) {
-                tinta->finalizat = true;
             } else {
-                tinta->indexTastat++;
+                if (cuv.y > maxY_Safe) {
+                    maxY_Safe = cuv.y;
+                    candidatSafe = &cuv;
+                }
             }
-
-            if (tinta->finalizat || tinta->indexTastat >= tinta->text.size()) {
-                tinta->finalizat = true;
-                tinta->timpRamaneOverlay = 0.5f;
-
-                const sf::FloatRect bounds = textHelper.getGlobalBounds();
-                const sf::Vector2f centruCuvant = {
-                    tinta->x + (bounds.size.x / 2.f),
-                    tinta->y + (bounds.size.y / 2.f)
-                };
-
-                sf::Color culoareExplozie = CuvantSpecial::getCuloare(tinta->tip);
-                efecteRef.playBoom();
-
-                if (tinta->tip == TipCuvant::Normal) {
-                    culoareExplozie = sf::Color(255, 100, 50);
-                }
-
-                efecteRef.spawnExplozieCuvant(centruCuvant, culoareExplozie);
-
-                constexpr int puncteBaza = 10;
-                const int multiplicatorDificultate = (dificultate == DificultateJoc::Greu) ? 3 : (dificultate == DificultateJoc::Mediu ? 2 : 1);
-                const int puncteTotale = puncteBaza * multiplicatorDificultate;
-
-                if (tinta->tip == TipCuvant::BonusTripluScor) {
-                    scor_ref.adauga(puncteTotale * 3);
-                }
-                else if (tinta->tip == TipCuvant::BonusComboMax) {
-                    scor_ref.setMultiplicator(3);
-                    scor_ref.adauga(puncteTotale);
-                }
-                else {
-                    scor_ref.adauga(puncteTotale);
-                }
-
-                return tinta->tip;
-            };
-        } else {
-            valCurentValid = false;
-            scor_ref.resetCombo();
         }
+    }
+
+    if (candidatSafe) return candidatSafe;
+    if (candidatCapcana) return candidatCapcana;
+
+    return nullptr;
+}
+
+TipCuvant Cuvant::proceseazaTinta(CuvantActiv* tinta, char caracterTastat, Scor& scor_ref, DificultateJoc dificultate, int& tasteCorecteRef, ManagerEfecte& efecteRef) {
+
+    char asteptat = static_cast<char>(std::tolower(static_cast<int>(tinta->text[tinta->indexTastat])));
+    if (caracterTastat == asteptat) {
+        if (tinta->tip == TipCuvant::Capcana) {
+            sf::FloatRect bounds = textHelper.getGlobalBounds();
+            sf::Vector2f centruCuvant = {tinta->x + bounds.size.x/2.f, tinta->y + bounds.size.y/2.f};
+
+            efecteRef.spawnExplozieCuvant(centruCuvant, sf::Color(50, 50, 50));
+            efecteRef.playBoom();
+            scor_ref.resetCombo();
+
+            valCurentValid = false;
+            tinta->finalizat = true;
+            tinta->timpRamaneOverlay = 0.0f;
+            return TipCuvant::Capcana;
+        }
+        tasteCorecteRef++;
+
+        textHelper.setString(tinta->text);
+        textHelper.setPosition({tinta->x, tinta->y});
+        sf::Vector2f pozLitera = textHelper.findCharacterPos(tinta->indexTastat);
+        pozLitera.x += 10.f;
+        pozLitera.y += 20.f;
+        efecteRef.spawnLiteraCorecta(pozLitera);
+        efecteRef.playTasta();
+
+        if (tinta->tip == TipCuvant::BonusInstant) {
+            tinta->finalizat = true;
+        } else {
+            tinta->indexTastat++;
+        }
+
+        if (tinta->finalizat || tinta->indexTastat >= tinta->text.size()) {
+            tinta->finalizat = true;
+            tinta->timpRamaneOverlay = 0.5f;
+
+            const sf::FloatRect bounds = textHelper.getGlobalBounds();
+            const sf::Vector2f centruCuvant = {
+                tinta->x + (bounds.size.x / 2.f),
+                tinta->y + (bounds.size.y / 2.f)
+            };
+
+            sf::Color culoareExplozie = CuvantSpecial::getCuloare(tinta->tip);
+            if (tinta->tip == TipCuvant::Normal) culoareExplozie = sf::Color(255, 100, 50);
+
+            efecteRef.playBoom();
+            efecteRef.spawnExplozieCuvant(centruCuvant, culoareExplozie);
+
+            constexpr int puncteBaza = 10;
+            const int multiplicatorDificultate = (dificultate == DificultateJoc::Greu) ? 3 : (dificultate == DificultateJoc::Mediu ? 2 : 1);
+            const int puncteTotale = puncteBaza * multiplicatorDificultate;
+            if (tinta->tip == TipCuvant::BonusTripluScor) {
+                scor_ref.adauga(puncteTotale * 3);
+            }
+            else if (tinta->tip == TipCuvant::BonusComboMax) {
+                scor_ref.setMultiplicator(3);
+                scor_ref.adauga(puncteTotale);
+            }
+            else {
+                scor_ref.adauga(puncteTotale);
+            }
+            return tinta->tip;
+        }
+    } else {
+        valCurentValid = false;
+        scor_ref.resetCombo();
     }
 
     return TipCuvant::Niciunul;

@@ -50,4 +50,7 @@ private:
     void incarcaDictionare();
     void spawneazaGrup(float latimeEcran, DificultateJoc dificultate, int waveIndex);
     std::string extrageCuvantAleatoriu(DificultateJoc dificultate);
+    CuvantActiv* gasesteTinta(char caracterTastat);
+
+    TipCuvant proceseazaTinta(CuvantActiv* tinta, char caracterTastat,Scor& scor_ref, DificultateJoc dificultate, int& tasteCorecteRef, ManagerEfecte& efecteRef);
 };
