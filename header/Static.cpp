@@ -13,6 +13,7 @@ const std::string Config::CALE_MUZICA_ENDLESS = "Sunet/endless.mp3";
 const std::string Config::CALE_SUNET_TASTA =    "Sunet/tasta.wav";
 const std::string Config::CALE_SUNET_BOOM = "Sunet/boom.wav";
 const std::string Config::CALE_SUNET_ACHIEVEMENT = "Sunet/achievement.wav";
+const std::string Config::CALE_SUNET_WIN = "Sunet/Win.wav";
 
 std::mt19937 Random::generator(std::random_device{}());
 int Random::getInt(const int min, const int max) {

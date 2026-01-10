@@ -666,6 +666,7 @@ void Joc::gestioneazaEvenimenteAchievements(const sf::Event& event) {
 
 void Joc::actualizeaza()
 {
+    constexpr float dt = 1.0f / 60.0f;
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
     {
@@ -678,6 +679,10 @@ void Joc::actualizeaza()
         timpApasareEsc = 0.0f;
     if (stareCurenta == StareJoc::Jucand)
         actualizeazaJucand();
+    else if (stareCurenta == StareJoc::GameOver) {
+        efecte.actualizeaza(dt);
+        managerAchievements.actualizeaza(dt, {0,0});
+    }
 }
 
 void Joc::actualizeazaJucand()
@@ -731,15 +736,18 @@ void Joc::actualizeazaJucand()
         if (timpRamas <= 0) {
             timpRamas = 0;
             managerAchievements.verificaConditii(
-                scor.getValoare(),
-                scor.getCombo(),
-                waveCurent,
-                nrCuvintePrinse,
-                acuratete,
-                hpCurent,
-                true,
-                static_cast<int>(nivelDificultate)
+
+            scor.getValoare(),
+            scor.getCombo(),
+            waveCurent,
+            nrCuvintePrinse,
+            acuratete,
+            hpCurent,
+            true,
+            static_cast<int>(nivelDificultate)
             );
+            efecte.playWin();
+            efecte.spawnConfetti();
             tranzitieLaGameOver();
         }
         std::stringstream ss;
@@ -800,6 +808,8 @@ void Joc::afiseazaJucand()
 
 void Joc::afiseazaGameOver()
 {
+    efecte.deseneaza(window);
+
     window.draw(textGameOver);
     window.draw(textScorFinal);
 
@@ -812,6 +822,8 @@ void Joc::afiseazaGameOver()
     window.draw(textIntroduNume);
     window.draw(textNumeJucator);
     meniuGameOver.deseneaza(window);
+
+    managerAchievements.deseneazaNotificare(window);
 }
 
 void Joc::afiseazaPierdut()

@@ -44,6 +44,7 @@ struct Config {
     static const std::string CALE_SUNET_TASTA;
     static const std::string CALE_SUNET_BOOM;
     static const std::string CALE_SUNET_ACHIEVEMENT;
+    static const std::string CALE_SUNET_WIN;
 };
 
 

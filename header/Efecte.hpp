@@ -20,11 +20,13 @@ class ManagerEfecte {
 
     sf::SoundBuffer bufferTasta;
     sf::SoundBuffer bufferBoom;
+    sf::SoundBuffer bufferWin;
 
     std::vector<sf::Sound> poolSuneteTasta;
     int indexSunetCurent = 0;
 
     sf::Sound sunetBoom;
+    sf::Sound sunetWin;
 public:
     ManagerEfecte();
 
@@ -37,4 +39,7 @@ public:
 
     void playTasta();
     void playBoom();
+
+    void spawnConfetti();
+    void playWin();
 };
