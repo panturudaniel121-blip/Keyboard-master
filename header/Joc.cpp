@@ -693,7 +693,9 @@ void Joc::actualizeazaJucand()
         waveCurent,
         nrCuvintePrinse,
         acuratete,
-        hpCurent
+        hpCurent,
+        false,
+        static_cast<int>(nivelDificultate)
     );
     int cuvintePierdute = cuvant.actualizeaza(dt, nivelDificultate, scor, waveCurent);
 
@@ -728,6 +730,16 @@ void Joc::actualizeazaJucand()
         float timpRamas = timpLimita.asSeconds() - ceasJoc.getElapsedTime().asSeconds();
         if (timpRamas <= 0) {
             timpRamas = 0;
+            managerAchievements.verificaConditii(
+                scor.getValoare(),
+                scor.getCombo(),
+                waveCurent,
+                nrCuvintePrinse,
+                acuratete,
+                hpCurent,
+                true,
+                static_cast<int>(nivelDificultate)
+            );
             tranzitieLaGameOver();
         }
         std::stringstream ss;

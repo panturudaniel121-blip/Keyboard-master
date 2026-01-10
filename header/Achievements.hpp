@@ -8,9 +8,19 @@
 struct Achievement {
     std::string id;
     std::string nume;
-    std::string descriere;
-    bool deblocat;
-    sf::Color culoare;
+    std::string descriereBase;
+
+    int nivelCurent;
+    std::vector<int> praguri;
+
+    bool esteMaxat() const {
+        return nivelCurent >= static_cast<int>(praguri.size());
+    }
+
+    int getUrmatorulPrag() const {
+        if (esteMaxat()) return 0;
+        return praguri[nivelCurent];
+    }
 };
 
 class ManagerAchievements {
@@ -34,6 +44,8 @@ class ManagerAchievements {
     void incarcaProgres();
     void salveazaProgres() const;
 
+    static sf::Color getCuloareNivel(int nivel) ;
+
 public:
     ManagerAchievements();
     ~ManagerAchievements();
@@ -41,6 +53,7 @@ public:
     void initializeaza(const sf::Font& font);
 
     void verificaConditii(int scor, int combo, int wave, int cuvinteTotale, float acuratete, int hp);
+
     void deblocheaza(int index);
 
     void actualizeaza(float dt, sf::Vector2f mousePos);
@@ -50,4 +63,6 @@ public:
     bool aDatClickMeniu(sf::Vector2f mousePos) const;
     void reseteazaProgres();
     bool aDatClickReset(sf::Vector2f mousePos) const;
+
+    void verificaConditii(int scor, int combo, int wave, int cuvinteTotale, float acuratete, int hp, bool victorie, int dificultateEnum);
 };

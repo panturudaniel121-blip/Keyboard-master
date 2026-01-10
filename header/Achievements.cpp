@@ -2,6 +2,20 @@
 #include "Static.hpp"
 #include "Buton.hpp"
 #include <fstream>
+#include <iostream>
+
+sf::Color ManagerAchievements::getCuloareNivel(int nivel) {
+    switch (nivel) {
+        case 0: return sf::Color({100, 100, 100});
+        case 1: return sf::Color({205, 127, 50});
+        case 2: return sf::Color({192, 192, 192});
+        case 3: return sf::Color({255, 215, 0});
+        case 4: return sf::Color({0, 255, 255});
+        case 5: return sf::Color({255, 0, 0});
+        case 6: return sf::Color({148, 0, 211});
+        default: return sf::Color({255, 255, 255});
+    }
+}
 
 ManagerAchievements::ManagerAchievements()
     : fontRef(nullptr),
@@ -14,18 +28,18 @@ ManagerAchievements::ManagerAchievements()
       butonMeniu(nullptr),
       butonReset(nullptr)
 {
-    notificareBg.setSize({300.f, 80.f});
+    notificareBg.setSize({400.f, 90.f});
     notificareBg.setFillColor(sf::Color(30, 30, 30, 230));
     notificareBg.setOutlineThickness(2.f);
     notificareBg.setOutlineColor(sf::Color::White);
-    notificareBg.setPosition({(Config::LATIME_FEREASTRA - 300.f) / 2.f, -100.f});
+    notificareBg.setPosition({(Config::LATIME_FEREASTRA - 400.f) / 2.f, -120.f});
 
     listaAchievements = {
-        {"first_blood", "Incepator", "Distruge primul tau cuvant.", false, sf::Color(205, 127, 50)},
-        {"combo_master", "Combo Master", "Atinge combo maxim (4x).", false, sf::Color(192, 192, 192)},
-        {"sniper", "Sniper", "Ai 100% acuratete (min. 20 taste).", false, sf::Color(255, 215, 0)},
-        {"survivor", "Supravietuitor", "Ajungi la Wave 5 in Endless.", false, sf::Color(255, 69, 0)},
-        {"invincibil", "Invincibil", "Fa 500 scor fara sa pierzi HP.", false, sf::Color(0, 255, 255)}
+        {"campion", "Campion", "Castiga jocul pe dificultatea:", 0, {0, 1, 2}},
+        {"combo_master", "Combo Master", "Atinge Combo x", 0, {2, 3, 4}},
+        {"sniper", "Sniper", "100% Acuratete la cuvinte:", 0, {5, 10, 15, 20}},
+        {"survivor", "Supravietuitor", "Ajungi la Wave:", 0, {5, 10, 15, 20, 25}},
+        {"invincibil", "Invincibil", "Atinge Scorul (cu HP Max):", 0, {250, 500, 750, 1000, 1250, 1500}}
     };
 
     incarcaProgres();
@@ -43,14 +57,14 @@ ManagerAchievements::~ManagerAchievements() {
 void ManagerAchievements::initializeaza(const sf::Font& font) {
     fontRef = &font;
 
-    notificareTitlu = new sf::Text(font, "ACHIEVEMENT UNLOCKED!", 14);
+    notificareTitlu = new sf::Text(font, "ACHIEVEMENT LEVEL UP!", 16);
     notificareTitlu->setFillColor(sf::Color::Yellow);
+    notificareTitlu->setStyle(sf::Text::Bold);
 
-    notificareNume = new sf::Text(font, "", 20);
+    notificareNume = new sf::Text(font, "", 22);
     notificareNume->setFillColor(sf::Color::White);
-    notificareNume->setStyle(sf::Text::Bold);
 
-    titluMeniu = new sf::Text(font, "REALIZARI", 40);
+    titluMeniu = new sf::Text(font, "REALIZARI & PROGRES", 40);
     titluMeniu->setFillColor(sf::Color::Black);
 
     sf::FloatRect b = titluMeniu->getLocalBounds();
@@ -67,36 +81,64 @@ void ManagerAchievements::initializeaza(const sf::Font& font) {
     butonReset = new ButonResetAchievements({Config::LATIME_FEREASTRA - 160.f, 20.f}, font);
 }
 
-void ManagerAchievements::verificaConditii(int scor, int combo, int wave, int cuvinteTotale, float acuratete, int hp) {
-    if (cuvinteTotale >= 1 && !listaAchievements[0].deblocat) deblocheaza(0);
-    if (combo >= 4 && !listaAchievements[1].deblocat) deblocheaza(1);
-    if (cuvinteTotale >= 5 && acuratete >= 99.9f && !listaAchievements[2].deblocat) deblocheaza(2);
-    if (wave >= 5 && !listaAchievements[3].deblocat) deblocheaza(3);
-    if (scor >= 500 && hp == 100 && !listaAchievements[4].deblocat) deblocheaza(4);
+void ManagerAchievements::verificaConditii(int scor, int combo, int wave, int cuvinteTotale, float acuratete, int hp, bool victorie, int dificultateEnum) {
+    if (victorie && !listaAchievements[0].esteMaxat()) {
+        int dificultateCeruta = listaAchievements[0].getUrmatorulPrag();
+        if (dificultateEnum == dificultateCeruta) {
+            deblocheaza(0);
+        }
+    }
+
+    if (!listaAchievements[1].esteMaxat() && combo >= listaAchievements[1].getUrmatorulPrag()) {
+        deblocheaza(1);
+    }
+
+    if (!listaAchievements[2].esteMaxat()) {
+        int prag = listaAchievements[2].getUrmatorulPrag();
+        if (acuratete >= 99.9f && cuvinteTotale >= prag) {
+            deblocheaza(2);
+        }
+    }
+
+    if (!listaAchievements[3].esteMaxat() && wave >= listaAchievements[3].getUrmatorulPrag()) {
+        deblocheaza(3);
+    }
+
+    if (!listaAchievements[4].esteMaxat()) {
+        int prag = listaAchievements[4].getUrmatorulPrag();
+        if (scor >= prag && hp == 100) {
+            deblocheaza(4);
+        }
+    }
 }
 
 void ManagerAchievements::deblocheaza(int index) {
     if (index < 0 || static_cast<size_t>(index) >= listaAchievements.size()) return;
 
-    listaAchievements[index].deblocat = true;
+    Achievement& ach = listaAchievements[index];
+    ach.nivelCurent++;
     salveazaProgres();
 
     afiseazaNotificare = true;
-    timpAfisareNotificare = 3.0f;
+    timpAfisareNotificare = 3.5f;
 
     if (notificareNume && notificareTitlu) {
-        notificareNume->setString(listaAchievements[index].nume);
+        notificareNume->setString(ach.nume + " (Lvl " + std::to_string(ach.nivelCurent) + ")");
 
         sf::FloatRect bTitle = notificareTitlu->getLocalBounds();
         notificareTitlu->setPosition({(Config::LATIME_FEREASTRA - bTitle.size.x) / 2.f, 25.f});
 
         sf::FloatRect bName = notificareNume->getLocalBounds();
-        notificareNume->setPosition({(Config::LATIME_FEREASTRA - bName.size.x) / 2.f, 45.f});
+        notificareNume->setPosition({(Config::LATIME_FEREASTRA - bName.size.x) / 2.f, 50.f});
     }
 
-    notificareBg.setPosition({(Config::LATIME_FEREASTRA - 300.f) / 2.f, 10.f});
+    notificareBg.setPosition({(Config::LATIME_FEREASTRA - 400.f) / 2.f, 10.f});
+    notificareBg.setOutlineColor(getCuloareNivel(ach.nivelCurent));
 
-    if (sunetUnlock) sunetUnlock->play();
+    if (sunetUnlock) {
+        sunetUnlock->setPitch(1.0f + (0.1f * static_cast<float>(ach.nivelCurent)));
+        sunetUnlock->play();
+    }
 }
 
 void ManagerAchievements::actualizeaza(float dt, sf::Vector2f mousePos) {
@@ -124,40 +166,84 @@ void ManagerAchievements::deseneazaMeniu(sf::RenderWindow& window) const {
 
     float startY = 100.f;
     for (const auto& ach : listaAchievements) {
-        sf::RectangleShape cutie({500.f, 80.f});
-        cutie.setOrigin({250.f, 0.f});
+        sf::RectangleShape cutie({520.f, 85.f});
+        cutie.setOrigin({260.f, 0.f});
         cutie.setPosition({Config::LATIME_FEREASTRA / 2.f, startY});
 
-        if (ach.deblocat) {
-            cutie.setFillColor(sf::Color(240, 240, 240));
-            cutie.setOutlineColor(ach.culoare);
+        sf::Color culoareNivel = getCuloareNivel(ach.nivelCurent);
+        if (ach.nivelCurent == 0) culoareNivel = sf::Color(100, 100, 100);
+
+        if (ach.nivelCurent > 0) {
+            cutie.setFillColor(sf::Color(245, 245, 245));
+            cutie.setOutlineColor(culoareNivel);
             cutie.setOutlineThickness(3.f);
         } else {
             cutie.setFillColor(sf::Color(200, 200, 200));
-            cutie.setOutlineColor(sf::Color(100, 100, 100));
+            cutie.setOutlineColor(sf::Color(80, 80, 80));
             cutie.setOutlineThickness(1.f);
         }
 
         window.draw(cutie);
 
         if (fontRef) {
-            sf::Text txtNume(*fontRef, ach.nume + (ach.deblocat ? " [DEBLOCAT]" : " [LOCKED]"), 22);
-            txtNume.setFillColor(ach.deblocat ? ach.culoare : sf::Color(100, 100, 100));
-            txtNume.setPosition({cutie.getPosition().x - 230.f, startY + 10.f});
+            std::string statusText = ach.nume;
+            if (ach.nivelCurent > 0) {
+                statusText += " [Lv. " + std::to_string(ach.nivelCurent) + "/" + std::to_string(ach.praguri.size()) + "]";
+            } else {
+                statusText += " [LOCKED]";
+            }
+
+            sf::Text txtNume(*fontRef, statusText, 22);
+            txtNume.setFillColor(ach.nivelCurent > 0 ? sf::Color::Black : sf::Color(80, 80, 80));
+            txtNume.setStyle(sf::Text::Bold);
+            txtNume.setPosition({cutie.getPosition().x - 240.f, startY + 10.f});
             window.draw(txtNume);
 
-            sf::Text txtDesc(*fontRef, ach.descriere, 16);
-            txtDesc.setFillColor(sf::Color::Black);
-            txtDesc.setPosition({cutie.getPosition().x - 230.f, startY + 45.f});
+            std::string descText = ach.descriereBase;
+            if (ach.esteMaxat()) {
+                descText = "COMPLETAT!";
+                if (ach.id == "campion") {
+                    descText += " (GREU)";
+                } else {
+                    descText += " (" + ach.descriereBase + " " + std::to_string(ach.praguri.back()) + ")";
+                }
+            } else {
+                if (ach.id == "campion") {
+                    int dif = ach.getUrmatorulPrag();
+                    std::string numeDif = (dif == 0) ? "USOR" : ((dif == 1) ? "MEDIU" : "GREU");
+                    descText += " " + numeDif;
+                } else {
+                    descText += " " + std::to_string(ach.getUrmatorulPrag());
+                }
+
+                if (ach.nivelCurent > 0) descText += " (Urmatorul)";
+            }
+
+            sf::Text txtDesc(*fontRef, descText, 18);
+            txtDesc.setFillColor(sf::Color(60, 60, 60));
+            txtDesc.setPosition({cutie.getPosition().x - 240.f, startY + 45.f});
             window.draw(txtDesc);
         }
 
-        sf::CircleShape icon(20.f);
-        icon.setPosition({cutie.getPosition().x + 200.f, startY + 20.f});
-        icon.setFillColor(ach.deblocat ? ach.culoare : sf::Color(128, 128, 128));
+        sf::CircleShape icon(25.f);
+        icon.setPosition({cutie.getPosition().x + 200.f, startY + 18.f});
+        icon.setFillColor(culoareNivel);
+        icon.setOutlineThickness(2.f);
+        icon.setOutlineColor(sf::Color::Black);
         window.draw(icon);
 
-        startY += 95.f;
+        if (fontRef && ach.nivelCurent > 0) {
+            sf::Text txtLvl(*fontRef, std::to_string(ach.nivelCurent), 20);
+            txtLvl.setFillColor(sf::Color::White);
+            txtLvl.setOutlineColor(sf::Color::Black);
+            txtLvl.setOutlineThickness(1.f);
+            sf::FloatRect b = txtLvl.getLocalBounds();
+            txtLvl.setOrigin({b.size.x/2.f + b.position.x, b.size.y/2.f + b.position.y});
+            txtLvl.setPosition({icon.getPosition().x + 25.f, icon.getPosition().y + 25.f});
+            window.draw(txtLvl);
+        }
+
+        startY += 100.f;
     }
 
     if (butonMeniu) butonMeniu->afiseaza(window);
@@ -178,7 +264,7 @@ void ManagerAchievements::salveazaProgres() const {
     std::ofstream fout("achievements.data");
     if (fout.is_open()) {
         for (const auto& ach : listaAchievements) {
-            fout << (ach.deblocat ? 1 : 0) << "\n";
+            fout << ach.nivelCurent << "\n";
         }
     }
 }
@@ -187,18 +273,21 @@ void ManagerAchievements::incarcaProgres() {
     std::ifstream fin("achievements.data");
     if (!fin.is_open()) return;
 
-    int status;
+    int lvl;
     for (auto& ach : listaAchievements) {
-        if (fin >> status) {
-            ach.deblocat = (status == 1);
+        if (fin >> lvl) {
+            ach.nivelCurent = lvl;
+            if (ach.nivelCurent > static_cast<int>(ach.praguri.size())) {
+                ach.nivelCurent = static_cast<int>(ach.praguri.size());
+            }
         }
     }
 }
 
 void ManagerAchievements::reseteazaProgres() {
     for (auto& ach : listaAchievements) {
-        ach.deblocat = false;
+        ach.nivelCurent = 0;
     }
     salveazaProgres();
-    std::cout << "[Achievements] Progres resetat!" << std::endl;
+    std::cout << "[Achievements] Progres resetat la 0!" << std::endl;
 }
