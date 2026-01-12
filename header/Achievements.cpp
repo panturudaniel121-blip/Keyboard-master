@@ -39,7 +39,7 @@ ManagerAchievements::ManagerAchievements()
         {"combo_master", "Combo Master", "Atinge Combo x", 0, {2, 3, 4}},
         {"sniper", "Sniper", "100% Acuratete la cuvinte:", 0, {5, 10, 15, 20}},
         {"survivor", "Supravietuitor", "Ajungi la Wave:", 0, {5, 10, 15, 20, 25}},
-        {"invincibil", "Invincibil", "Atinge Scorul (cu HP Max):", 0, {250, 500, 750, 1000, 1250, 1500}}
+        {"invincibil", "Invincibil", "Atinge Scorul:", 0, {250, 500, 750, 1000, 1250, 1500}}
     };
 
     incarcaProgres();
@@ -77,11 +77,11 @@ void ManagerAchievements::initializeaza(const sf::Font& font) {
         sunetUnlock->setPitch(1.5f);
     }
 
-    butonMeniu = new ButonMeniu({Config::LATIME_FEREASTRA / 2.f - 100.f, 700.f}, font);
-    butonReset = new ButonResetAchievements({Config::LATIME_FEREASTRA - 160.f, 20.f}, font);
+    butonMeniu = new ButonMeniu({110.f, 700.f}, font);
+    butonReset = new ButonResetAchievements({Config::LATIME_FEREASTRA - 270.f, 700.f}, font);
 }
 
-void ManagerAchievements::verificaConditii(int scor, int combo, int wave, int cuvinteTotale, float acuratete, int hp, bool victorie, int dificultateEnum) {
+void ManagerAchievements::verificaConditii(int scor, int combo, int wave, int cuvinteTotale, float acuratete, bool victorie, int dificultateEnum) {
     if (victorie && !listaAchievements[0].esteMaxat()) {
         int dificultateCeruta = listaAchievements[0].getUrmatorulPrag();
         if (dificultateEnum == dificultateCeruta) {
@@ -106,7 +106,7 @@ void ManagerAchievements::verificaConditii(int scor, int combo, int wave, int cu
 
     if (!listaAchievements[4].esteMaxat()) {
         int prag = listaAchievements[4].getUrmatorulPrag();
-        if (scor >= prag && hp == 100) {
+        if (scor >= prag ) {
             deblocheaza(4);
         }
     }

@@ -6,6 +6,7 @@
 #include "Buton.hpp"
 #include "Efecte.hpp"
 #include "Achievements.hpp"
+#include "Shop.hpp"
 
 enum class StareJoc {
     SelectieDificultate,
@@ -14,7 +15,8 @@ enum class StareJoc {
     Pierdut,
     Statistici,
     Info,
-    Achievements
+    Achievements,
+    Magazin
 };
 
 class Joc
@@ -91,6 +93,14 @@ class Joc
     sf::Text textStat6;
     sf::Text textVersiune;
 
+    ManagerMagazin magazin;
+
+    sf::Texture texturaCoin;
+    sf::Sprite spriteCoin;
+    sf::Sprite spriteFundal;
+    sf::Text textMonedeMenu;
+    std::string bufferCheat;
+
 public:
     Joc();
     void ruleaza();
@@ -106,6 +116,7 @@ public:
     void tranzitieLaStatistici();
     void tranzitieLaInfo();
     void tranzitieLaAchievements();
+    void tranzitieLaMagazin();
 
     void ResetAchievements();
 
@@ -132,6 +143,7 @@ private:
     void gestioneazaEvenimentePierdut(const sf::Event& event);
     void gestioneazaEvenimenteInfo(const sf::Event& event);
     void gestioneazaEvenimenteAchievements(const sf::Event& event);
+    void gestioneazaEvenimenteMagazin(const sf::Event& event);
 
     void gestioneazaEvenimenteStatistici(const sf::Event& event);
     void afiseazaStatistici();
@@ -150,4 +162,5 @@ private:
     void afiseazaPierdut();
     void afiseazaInfo();
     void afiseazaAchievements();
+    void afiseazaMagazin();
 };

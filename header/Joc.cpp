@@ -10,6 +10,7 @@
 #include <iostream>
 #include <ctime>
 #include <SFML/Window/Clipboard.hpp>
+#include "Shop.hpp"
 
 std::string formateazaSecunde(float secundeTotal) {
     const int minute = static_cast<int>(secundeTotal) / 60;
@@ -83,7 +84,13 @@ Joc::Joc()
       textStat4(fontPrincipal, ""),
       textStat5(fontPrincipal, ""),
       textStat6(fontPrincipal, ""),
-      textVersiune(fontPrincipal, "")
+      textVersiune(fontPrincipal, ""),
+      magazin(),
+      texturaCoin(),
+      spriteCoin(texturaCoin),
+      spriteFundal(texturaCoin),
+      textMonedeMenu(fontPrincipal, "")
+
 {
     window.setFramerateLimit(60);
 
@@ -94,6 +101,31 @@ Joc::Joc()
 
     scor.initializareFont(fontPrincipal);
     cuvant.initializeaza(fontPrincipal);
+    magazin.initializeaza(fontPrincipal);
+
+    if (texturaCoin.loadFromFile(Config::CALE_ICON_COIN)) {
+        spriteCoin.setTexture(texturaCoin, true);
+        spriteCoin.setScale({0.3f, 0.3f});
+
+        spriteCoin.setPosition({20.f, 10.f});
+    } else {
+        sf::Image img;
+        img.resize({32, 32}, sf::Color::Yellow);
+
+        if (!texturaCoin.loadFromImage(img)) {
+            std::cerr << "Err fallback coin\n";
+        }
+
+        spriteCoin.setTexture(texturaCoin, true);
+        spriteCoin.setScale({0.3f, 0.3f});
+        spriteCoin.setPosition({20.f, 10.f});
+    }
+
+    textMonedeMenu.setFont(fontPrincipal);
+    textMonedeMenu.setCharacterSize(24);
+    textMonedeMenu.setStyle(sf::Text::Bold);
+    textMonedeMenu.setFillColor(sf::Color::Black);
+    textMonedeMenu.setPosition({85.f, 25.f});
 
     textTimer.setFont(fontPrincipal);
     textTimer.setCharacterSize(30);
@@ -165,6 +197,7 @@ void Joc::initializeazaUIStart()
     meniuStart.adaugaButon(new ButonDificultate({250.f, 600.f}, fontPrincipal, DificultateJoc::Endless, "Endless"));
     meniuStart.adaugaButon(new ButonMute({590.f, 10.f}, fontPrincipal, &sunetOprit));
     meniuStart.adaugaButon(new ButonInfo({20.f, 740.f}, fontPrincipal));
+    meniuStart.adaugaButon(new ButonMagazin({530.f, 680.f}, fontPrincipal));
     meniuStart.adaugaButon(new ButonAchievements({530.f, 740.f}, fontPrincipal));
 }
 
@@ -476,6 +509,10 @@ void Joc::tranzitieLaAchievements() {
     stareCurenta = StareJoc::Achievements;
 }
 
+void Joc::tranzitieLaMagazin() {
+    stareCurenta = StareJoc::Magazin;
+}
+
 void Joc::ruleaza()
 {
     while (window.isOpen())
@@ -500,6 +537,7 @@ void Joc::gestioneazaEvenimente()
         else if (stareCurenta == StareJoc::Statistici)          gestioneazaEvenimenteStatistici(*event);
         else if (stareCurenta == StareJoc::Info)                gestioneazaEvenimenteInfo(* event);
         else if (stareCurenta == StareJoc::Achievements)        gestioneazaEvenimenteAchievements(*event);
+        else if (stareCurenta == StareJoc::Magazin)             gestioneazaEvenimenteMagazin(*event);
         }
     }
 
@@ -514,8 +552,27 @@ void Joc::gestioneazaEvenimenteStart(const sf::Event& event)
             meniuStart.gestioneazaClick(worldPos, *this);
         }
     }
-}
 
+    if (const auto textEv = event.getIf<sf::Event::TextEntered>()) {
+        if (textEv->unicode < 128) {
+
+            bufferCheat += static_cast<char>(textEv->unicode);
+
+            if (bufferCheat.size() > 20) {
+                bufferCheat.erase(0, 1);
+            }
+            if (bufferCheat.find("300bani") != std::string::npos) {
+
+                magazin.adaugaMonede(300);
+
+                efecte.playWin();
+                scrieInLog("CHEAT CODE ACTIVAT: +300 Bani!");
+
+                bufferCheat.clear();
+            }
+        }
+    }
+}
 
 void Joc::gestioneazaEvenimenteJucand(const sf::Event& event) {
     if (event.getIf<sf::Event::TextEntered>()) {
@@ -531,7 +588,7 @@ void Joc::gestioneazaEvenimenteJucand(const sf::Event& event) {
             hpCurent -= 30;
             if (hpCurent < 0) hpCurent = 0;
             textHP.setString("HP: " + std::to_string(hpCurent));
-            scrieInLog("Ai lovit o capcana! -20 HP");
+            scrieInLog("Ai lovit o capcana! -30 HP");
             return;
         }
         if (bonus != TipCuvant::Normal) {
@@ -664,6 +721,25 @@ void Joc::gestioneazaEvenimenteAchievements(const sf::Event& event) {
     }
 }
 
+void Joc::gestioneazaEvenimenteMagazin(const sf::Event& event) {
+    sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+    sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos);
+    magazin.actualizeaza(worldPos);
+
+    if (const auto mouseEv = event.getIf<sf::Event::MouseButtonPressed>()) {
+        if (mouseEv->button == sf::Mouse::Button::Left) {
+            if (magazin.aDatClickIesire(worldPos)) {
+                mergiLaMeniu();
+            } else {
+                magazin.gestioneazaClick(worldPos);
+            }
+        }
+    }
+    if (const auto keyEv = event.getIf<sf::Event::KeyPressed>()) {
+        if (keyEv->code == sf::Keyboard::Key::Escape) mergiLaMeniu();
+    }
+}
+
 void Joc::actualizeaza()
 {
     constexpr float dt = 1.0f / 60.0f;
@@ -683,6 +759,11 @@ void Joc::actualizeaza()
         efecte.actualizeaza(dt);
         managerAchievements.actualizeaza(dt, {0,0});
     }
+    else if (stareCurenta == StareJoc::Magazin) {
+        sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+        sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos);
+        magazin.actualizeaza(worldPos);
+    }
 }
 
 void Joc::actualizeazaJucand()
@@ -698,7 +779,6 @@ void Joc::actualizeazaJucand()
         waveCurent,
         nrCuvintePrinse,
         acuratete,
-        hpCurent,
         false,
         static_cast<int>(nivelDificultate)
     );
@@ -718,6 +798,12 @@ void Joc::actualizeazaJucand()
 
     if (hpCurent <= 0) {
         if (nivelDificultate == DificultateJoc::Endless) {
+            int baniCastigati = scor.getValoare() / 10;
+
+            if (baniCastigati > 0) {
+                magazin.adaugaMonede(baniCastigati);
+                scrieInLog("Nivel complet! Ai castigat " + std::to_string(baniCastigati) + " monede!");
+            }
             tranzitieLaGameOver();
         } else {
             tranzitieLaPierdut();
@@ -736,29 +822,53 @@ void Joc::actualizeazaJucand()
         if (timpRamas <= 0) {
             timpRamas = 0;
             managerAchievements.verificaConditii(
-
             scor.getValoare(),
             scor.getCombo(),
             waveCurent,
             nrCuvintePrinse,
             acuratete,
-            hpCurent,
             true,
             static_cast<int>(nivelDificultate)
             );
+
             efecte.playWin();
             efecte.spawnConfetti();
+
+            int baniCastigati = scor.getValoare() / 10;
+            if (baniCastigati > 0) {
+                magazin.adaugaMonede(baniCastigati);
+                scrieInLog("Nivel complet! Ai castigat " + std::to_string(baniCastigati) + " monede!");
+            }
             tranzitieLaGameOver();
         }
+
         std::stringstream ss;
         ss << std::fixed << std::setprecision(1) << timpRamas;
         textTimer.setString("Timp: " + ss.str());
     }
+
 }
 
 void Joc::afiseaza()
 {
-    window.clear(fundal);
+    sf::Color culoareCurenta = magazin.getCuloareFundal();
+
+    window.clear(culoareCurenta);
+
+    const sf::Texture* tex = magazin.getTexturaFundal();
+
+    if (tex != nullptr) {
+        spriteFundal.setTexture(*tex, true);
+
+        sf::Vector2u marimeTex = tex->getSize();
+        float scaleX = static_cast<float>(Config::LATIME_FEREASTRA) / static_cast<float>(marimeTex.x);
+        float scaleY = static_cast<float>(Config::INALTIME_FEREASTRA) / static_cast<float>(marimeTex.y);
+
+        spriteFundal.setScale({scaleX, scaleY});
+        spriteFundal.setPosition({0.f, 0.f});
+
+        window.draw(spriteFundal);
+    }
 
     if (stareCurenta == StareJoc::SelectieDificultate)      afiseazaStart();
     else if (stareCurenta == StareJoc::Jucand)              afiseazaJucand();
@@ -767,6 +877,7 @@ void Joc::afiseaza()
     else if (stareCurenta == StareJoc::Statistici)          afiseazaStatistici();
     else if (stareCurenta == StareJoc::Info)                afiseazaInfo();
     else if (stareCurenta == StareJoc::Achievements)        afiseazaAchievements();
+    else if (stareCurenta == StareJoc::Magazin)             afiseazaMagazin();
 
     if (timpApasareEsc > 0.0f)
     {
@@ -788,6 +899,9 @@ void Joc::afiseaza()
 void Joc::afiseazaStart()
 {
     window.draw(textTitluStart);
+    window.draw(spriteCoin);
+    window.draw(textMonedeMenu);
+    textMonedeMenu.setString(std::to_string(magazin.getMonede()));
     meniuStart.deseneaza(window);
 }
 
@@ -859,6 +973,10 @@ void Joc::afiseazaInfo()
 
 void Joc::afiseazaAchievements() {
     managerAchievements.deseneazaMeniu(window);
+}
+
+void Joc::afiseazaMagazin() {
+    magazin.deseneaza(window);
 }
 
 void Joc::incarcaMuzica() {

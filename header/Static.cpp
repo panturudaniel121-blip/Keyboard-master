@@ -14,6 +14,11 @@ const std::string Config::CALE_SUNET_TASTA =    "Sunet/tasta.wav";
 const std::string Config::CALE_SUNET_BOOM = "Sunet/boom.wav";
 const std::string Config::CALE_SUNET_ACHIEVEMENT = "Sunet/achievement.wav";
 const std::string Config::CALE_SUNET_WIN = "Sunet/Win.wav";
+const std::string Config::CALE_ICON_COIN = "Imagini/coin.png";
+const std::string Config::CALE_SHOP_DATA = "Imagini/shop_save.dat";
+const std::string Config::CALE_TEXTURA_BG_1 = "Imagini/hartie.jpg";
+const std::string Config::CALE_TEXTURA_BG_2 = "Imagini/galben.jpg";
+const std::string Config::CALE_TEXTURA_BG_3 = "Imagini/Vant.jpg";
 
 std::mt19937 Random::generator(std::random_device{}());
 int Random::getInt(const int min, const int max) {

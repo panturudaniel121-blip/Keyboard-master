@@ -45,6 +45,11 @@ struct Config {
     static const std::string CALE_SUNET_BOOM;
     static const std::string CALE_SUNET_ACHIEVEMENT;
     static const std::string CALE_SUNET_WIN;
+    static const std::string CALE_ICON_COIN;
+    static const std::string CALE_SHOP_DATA;
+    static const std::string CALE_TEXTURA_BG_1;
+    static const std::string CALE_TEXTURA_BG_2;
+    static const std::string CALE_TEXTURA_BG_3;
 };
 
 

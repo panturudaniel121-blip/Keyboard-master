@@ -52,7 +52,7 @@ public:
 
     void initializeaza(const sf::Font& font);
 
-    void verificaConditii(int scor, int combo, int wave, int cuvinteTotale, float acuratete, int hp);
+    void verificaConditii(int scor, int combo, int wave, int cuvinteTotale, float acuratete, bool victorie, int dificultateEnum);
 
     void deblocheaza(int index);
 

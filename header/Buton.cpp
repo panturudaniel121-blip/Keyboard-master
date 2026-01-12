@@ -238,7 +238,7 @@ void ButonAchievements::doPrint(std::ostream& out) const {
 
 
 ButonResetAchievements::ButonResetAchievements(const sf::Vector2f& pos, const sf::Font& font)
-    : Buton(pos, {140.f, 40.f}, "Reset", font, sf::Color(200, 50, 50))
+    : Buton(pos, {140.f, 50.f}, "Reset", font, sf::Color(200, 50, 50))
 {}
 Buton* ButonResetAchievements::clone() const {
         return new ButonResetAchievements(*this);}
@@ -246,6 +246,15 @@ void ButonResetAchievements::executaActiune(Joc& joc) {
         joc.ResetAchievements();}
 void ButonResetAchievements::doPrint(std::ostream& out) const {
         out << "[Buton Reset Achievements]";}
+
+ButonMagazin::ButonMagazin(const sf::Vector2f& pos, const sf::Font& font)
+    : Buton(pos, {150.f, 50.f}, "Shop", font, sf::Color(255, 140, 0))
+{}
+Buton* ButonMagazin::clone() const { return new ButonMagazin(*this); }
+void ButonMagazin::executaActiune(Joc& joc) {
+        joc.tranzitieLaMagazin();
+    }
+void ButonMagazin::doPrint(std::ostream& out) const { out << "[Buton Shop]"; }
 
     //*************************************************** Meniu
     Meniu::~Meniu() {
