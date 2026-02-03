@@ -3,6 +3,30 @@
 #include <string>
 #include <random>
 #include <utility>
+#include <type_traits>
+
+template <typename T>
+class Singleton {
+protected:
+    Singleton() = default;
+    virtual ~Singleton() = default;
+public:
+    Singleton(const Singleton&) = delete;
+    Singleton& operator=(const Singleton&) = delete;
+
+    static T& getInstance() {
+        static T instance;
+        return instance;
+    }
+};
+
+class ButonFactory {
+public:
+    template <typename TipButon, typename... Args>
+    static TipButon* creaza(Args&&... args) {
+        return new TipButon(std::forward<Args>(args)...);
+    }
+};
 
 template <typename T>
 T clamp(T valoare, T minim, T maxim) {
@@ -62,18 +86,21 @@ public:
     static float getFloat(float min, float max);
 };
 
-class ManagerSesiune {
+class ManagerSesiune : public Singleton<ManagerSesiune> {
+    friend class Singleton<ManagerSesiune>;
 private:
     ManagerSesiune() : jocInceput(false) {}
     bool jocInceput;
 public:
-    static ManagerSesiune& getInstance() {
-        static ManagerSesiune instance;
-        return instance;
-    }
-
     void marcheazaInceput() { jocInceput = true; }
+};
 
-    ManagerSesiune(const ManagerSesiune&) = delete;
-    void operator=(const ManagerSesiune&) = delete;
+class LogManager : public Singleton<LogManager> {
+    friend class Singleton<LogManager>;
+private:
+    LogManager() = default;
+public:
+    static void log(const std::string& mesaj) {
+        std::cout << "[LOG SYSTEM] " << mesaj << std::endl;
+    }
 };

@@ -11,6 +11,10 @@ class Scor
     int multiplicator;
     sf::Text textCombo;
 
+    int multiplicatorDificultate;
+
+    friend class ScorBuilder;
+
 public:
     Scor();
     void initializareFont(const sf::Font& fontIncarcat);
@@ -46,4 +50,14 @@ public:
     void afiseaza(sf::RenderWindow& window, const sf::Font& font,bool arataTimp) const;
     friend std::istream& operator>>(std::istream& in, IntrareScor& intrare);
     friend std::ostream& operator<<(std::ostream& out, const IntrareScor& intrare);
+};
+
+class ScorBuilder {
+    Scor scorTemporar;
+public:
+    ScorBuilder();
+    ScorBuilder& cuValoareStart(int val);
+    ScorBuilder& cuComboStart(int combo);
+    ScorBuilder& cuDificultate(int dif);
+    Scor build();
 };

@@ -7,7 +7,7 @@
 #include "Static.hpp"
 
 Scor::Scor()
-    : valoare(0), font(), text(font, "", 30), multiplicator(1), textCombo(font, "", 24)
+    : valoare(0), font(), text(font, "", 30), multiplicator(1), textCombo(font, "", 24),multiplicatorDificultate(1)
 {
     text.setCharacterSize(36);
     text.setFillColor(sf::Color::Black);
@@ -32,7 +32,7 @@ void Scor::initializareFont(const sf::Font& fontIncarcat) {
 
 void Scor::adauga(int puncte)
 {
-    valoare += puncte * multiplicator;
+    valoare += puncte * multiplicator * multiplicatorDificultate;
     text.setString("Scor: " + std::to_string(valoare));
 }
 
@@ -53,6 +53,7 @@ void Scor::resetCombo() {
 void Scor::reset() {
     valoare = 0;
     resetCombo();
+    multiplicatorDificultate = 1;
     text.setString("Scor: 0");
 }
 
@@ -160,4 +161,31 @@ void Scor::setMultiplicator(const int m) {
         multiplicator = m;
         textCombo.setString("COMBO x" + std::to_string(multiplicator));
     }
+}
+
+ScorBuilder::ScorBuilder() {
+    scorTemporar.valoare = 0;
+    scorTemporar.multiplicator = 1;
+    scorTemporar.multiplicatorDificultate = 1;
+}
+
+ScorBuilder& ScorBuilder::cuValoareStart(int val) {
+    scorTemporar.valoare = val;
+    scorTemporar.text.setString("Scor: " + std::to_string(val));
+    return *this;
+}
+
+ScorBuilder& ScorBuilder::cuComboStart(int combo) {
+    scorTemporar.multiplicator = combo;
+    if (combo > 1) scorTemporar.textCombo.setString("COMBO x" + std::to_string(combo));
+    return *this;
+}
+
+ScorBuilder& ScorBuilder::cuDificultate(int dif) {
+    scorTemporar.multiplicatorDificultate = dif;
+    return *this;
+}
+
+Scor ScorBuilder::build() {
+    return scorTemporar;
 }

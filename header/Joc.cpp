@@ -172,7 +172,7 @@ std::string Joc::obtineTimestamp()
 
 void Joc::scrieInLog(const std::string& mesaj)
 {
-    std::cout << "[LOG] " << mesaj << std::endl;
+    LogManager::log(mesaj);
 }
 
 
@@ -191,14 +191,14 @@ void Joc::initializeazaUIStart()
     });
     textTitluStart.setPosition({350.f, 200.f});
 
-    meniuStart.adaugaButon(new ButonDificultate({250.f, 300.f}, fontPrincipal, DificultateJoc::Usor, "Usor"));
-    meniuStart.adaugaButon(new ButonDificultate({250.f, 400.f}, fontPrincipal, DificultateJoc::Mediu, "Mediu"));
-    meniuStart.adaugaButon(new ButonDificultate({250.f, 500.f}, fontPrincipal, DificultateJoc::Greu, "Greu"));
-    meniuStart.adaugaButon(new ButonDificultate({250.f, 600.f}, fontPrincipal, DificultateJoc::Endless, "Endless"));
-    meniuStart.adaugaButon(new ButonMute({590.f, 10.f}, fontPrincipal, &sunetOprit));
-    meniuStart.adaugaButon(new ButonInfo({20.f, 740.f}, fontPrincipal));
-    meniuStart.adaugaButon(new ButonMagazin({530.f, 680.f}, fontPrincipal));
-    meniuStart.adaugaButon(new ButonAchievements({530.f, 740.f}, fontPrincipal));
+    meniuStart.adaugaButon(ButonFactory::creaza<ButonDificultate>(sf::Vector2f{250.f, 300.f}, fontPrincipal, DificultateJoc::Usor, "Usor"));
+    meniuStart.adaugaButon(ButonFactory::creaza<ButonDificultate>(sf::Vector2f{250.f, 400.f}, fontPrincipal, DificultateJoc::Mediu, "Mediu"));
+    meniuStart.adaugaButon(ButonFactory::creaza<ButonDificultate>(sf::Vector2f{250.f, 500.f}, fontPrincipal, DificultateJoc::Greu, "Greu"));
+    meniuStart.adaugaButon(ButonFactory::creaza<ButonDificultate>(sf::Vector2f{250.f, 600.f}, fontPrincipal, DificultateJoc::Endless, "Endless"));
+    meniuStart.adaugaButon(ButonFactory::creaza<ButonMute>(sf::Vector2f{590.f, 10.f}, fontPrincipal, &sunetOprit));
+    meniuStart.adaugaButon(ButonFactory::creaza<ButonInfo>(sf::Vector2f{20.f, 740.f}, fontPrincipal));
+    meniuStart.adaugaButon(ButonFactory::creaza<ButonMagazin>(sf::Vector2f{530.f, 680.f}, fontPrincipal));
+    meniuStart.adaugaButon(ButonFactory::creaza<ButonAchievements>(sf::Vector2f{530.f, 740.f}, fontPrincipal));
 }
 
 void Joc::initializeazaUIGameOver()
@@ -220,11 +220,11 @@ void Joc::initializeazaUIGameOver()
     textNumeJucator.setFillColor(sf::Color(50, 50, 50));
     textNumeJucator.setPosition({150.f, 740.f});
 
-    meniuGameOver.adaugaButon(new ButonIesire({570.f, 5.f}, fontPrincipal));
-    meniuGameOver.adaugaButon(new ButonReset({20.f, 5.f}, fontPrincipal));
-    meniuGameOver.adaugaButon(new ButonRestart({75.f, 600.f}, fontPrincipal));
-    meniuGameOver.adaugaButon(new ButonStatistici({255.f, 600.f}, fontPrincipal));
-    meniuGameOver.adaugaButon(new ButonMeniu({475.f, 600.f}, fontPrincipal));
+    meniuGameOver.adaugaButon(ButonFactory::creaza<ButonIesire>(sf::Vector2f{570.f, 5.f}, fontPrincipal));
+    meniuGameOver.adaugaButon(ButonFactory::creaza<ButonReset>(sf::Vector2f{20.f, 5.f}, fontPrincipal));
+    meniuGameOver.adaugaButon(ButonFactory::creaza<ButonRestart>(sf::Vector2f{75.f, 600.f}, fontPrincipal));
+    meniuGameOver.adaugaButon(ButonFactory::creaza<ButonStatistici>(sf::Vector2f{255.f, 600.f}, fontPrincipal));
+    meniuGameOver.adaugaButon(ButonFactory::creaza<ButonMeniu>(sf::Vector2f{475.f, 600.f}, fontPrincipal));
 }
 
 void Joc::initializeazaUIPierdut()
@@ -246,9 +246,9 @@ void Joc::initializeazaUIPierdut()
     });
 
 
-    meniuPierdut.adaugaButon(new ButonRestart({100.f, 450.f}, fontPrincipal));
-    meniuPierdut.adaugaButon(new ButonMeniu({290.f, 450.f}, fontPrincipal));
-    meniuPierdut.adaugaButon(new ButonIesire({500.f, 450.f}, fontPrincipal));
+    meniuPierdut.adaugaButon(ButonFactory::creaza<ButonRestart>(sf::Vector2f{100.f, 450.f}, fontPrincipal));
+    meniuPierdut.adaugaButon(ButonFactory::creaza<ButonMeniu>(sf::Vector2f{290.f, 450.f}, fontPrincipal));
+    meniuPierdut.adaugaButon(ButonFactory::creaza<ButonIesire>(sf::Vector2f{500.f, 450.f}, fontPrincipal));
 }
 
 void Joc::initializeazaUIStatistici()
@@ -283,9 +283,9 @@ void Joc::initializeazaUIStatistici()
     textVersiune.setPosition({500.f, 760.f});
 
 
-    meniuStatistici.adaugaButon(new ButonMeniu({80.f, 600.f}, fontPrincipal));
-    meniuStatistici.adaugaButon(new ButonInapoi({270.f, 600.f}, fontPrincipal));
-    meniuStatistici.adaugaButon(new ButonClipboard({460.f, 600.f}, fontPrincipal));
+    meniuStatistici.adaugaButon(ButonFactory::creaza<ButonMeniu>(sf::Vector2f{80.f, 600.f}, fontPrincipal));
+    meniuStatistici.adaugaButon(ButonFactory::creaza<ButonInapoi>(sf::Vector2f{270.f, 600.f}, fontPrincipal));
+    meniuStatistici.adaugaButon(ButonFactory::creaza<ButonClipboard>(sf::Vector2f{460.f, 600.f}, fontPrincipal));
 }
 
 void Joc::initializeazaUIInfo() {
@@ -329,7 +329,7 @@ void Joc::initializeazaUIInfo() {
         textInfoDescs[i].setPosition({280.f, 130.f + (static_cast<float>(i) * 60.f)});
     }
 
-    meniuInfo.adaugaButon(new ButonMeniu({270.f, 700.f}, fontPrincipal));
+    meniuInfo.adaugaButon(ButonFactory::creaza<ButonMeniu>(sf::Vector2f{270.f, 700.f}, fontPrincipal));
 }
 
 void Joc::setDificultate(const DificultateJoc dif) {
@@ -338,7 +338,20 @@ void Joc::setDificultate(const DificultateJoc dif) {
 
 void Joc::incepeJoc() {
     stareCurenta = StareJoc::Jucand;
-    scor.reset();
+
+    int mDif = 1;
+    if (nivelDificultate == DificultateJoc::Mediu) mDif = 2;
+    else if (nivelDificultate == DificultateJoc::Greu) mDif = 3;
+    else if (nivelDificultate == DificultateJoc::Endless) mDif = 5;
+
+    scor = ScorBuilder()
+            .cuValoareStart(0)
+            .cuComboStart(1)
+            .cuDificultate(mDif)
+            .build();
+
+    scor.initializareFont(fontPrincipal);
+
     ceasJoc.restart();
     scorSalvat = false;
     numeJucator = "";
@@ -347,19 +360,22 @@ void Joc::incepeJoc() {
     textNumeJucator.setString("");
     textIntroduNume.setString("Introdu numele: (apasa Enter pt. a salva)");
     ManagerSesiune::getInstance().marcheazaInceput();
-    timpLimita = sf::seconds(45.f);
+
     if (nivelDificultate == DificultateJoc::Endless) {
         hpMaxim = 100;
         timpLimita = sf::seconds(0.f);
     }
     else if (nivelDificultate == DificultateJoc::Usor) {
         hpMaxim = 100;
+        timpLimita = sf::seconds(45.f);
     }
     else if (nivelDificultate == DificultateJoc::Mediu) {
         hpMaxim = 50;
+        timpLimita = sf::seconds(45.f);
     }
     else {
         hpMaxim = 1;
+        timpLimita = sf::seconds(45.f);
     }
 
     hpCurent = hpMaxim;
