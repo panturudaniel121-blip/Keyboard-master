@@ -50,13 +50,6 @@ void Scor::resetCombo() {
     }
 }
 
-void Scor::reset() {
-    valoare = 0;
-    resetCombo();
-    multiplicatorDificultate = 1;
-    text.setString("Scor: 0");
-}
-
 void Scor::afiseaza(sf::RenderWindow& window) const {
     window.draw(text);
     if (multiplicator > 1) {

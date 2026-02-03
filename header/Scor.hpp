@@ -23,7 +23,6 @@ public:
 
     void cresteCombo();
     void resetCombo();
-    void reset();
     void setMultiplicator(int m);
     void afiseaza(sf::RenderWindow& window) const;
     int getValoare() const { return valoare; }
